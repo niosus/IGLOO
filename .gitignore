@@ -1,1 +1,3 @@
 build/
+bazel-*
+/compile_commands.json
