@@ -6,8 +6,16 @@
 #include <iostream>
 #include <vector>
 
-const float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                          0.0f,  0.0f,  0.5f, 0.0f};
+const float vertices[] = {
+    0.5f,  0.5f,  0.0f, // top right
+    0.5f,  -0.5f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, // bottom left
+    -0.5f, 0.5f,  0.0f  // top left
+};
+const unsigned int indices[] = {
+    0, 1, 3, // first triangle
+    1, 2, 3  // second triangle
+};
 
 void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
@@ -100,20 +108,30 @@ int main(int argc, char const *argv[]) {
   glViewport(0, 0, 800, 600);
   glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
-  auto shader_ids = CreateShaders();
-  auto shader_program_id = CreateProgram(shader_ids);
+  auto shader_program_id = CreateProgram(CreateShaders());
 
   std::uint32_t VBO;
   glGenBuffers(1, &VBO);
 
+  std::uint32_t EBO;
+  glGenBuffers(1, &EBO);
+
   std::uint32_t VAO;
   glGenVertexArrays(1, &VAO);
 
+  // 1. bind Vertex Array Object
   glBindVertexArray(VAO);
+  // 2. copy our vertices array in a vertex buffer for OpenGL to use
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  // 3. copy our index array in a element buffer for OpenGL to use
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
+  // 4. then set the vertex attributes pointers
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
+  glBindVertexArray(0);
 
   while (!glfwWindowShouldClose(window)) {
     ProcessInput(window);
@@ -123,7 +141,8 @@ int main(int argc, char const *argv[]) {
 
     glUseProgram(shader_program_id);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
     glfwPollEvents();
     glfwSwapBuffers(window);
