@@ -1,22 +1,10 @@
+#include "opengl_tutorials/utils/shader_loader.h"
 #include "third_party/glad/glad.h"
 
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <vector>
-
-const char *kVertexShaderSource =
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-
-const char *kFragmentShaderSource =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main() { FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f); }\n";
 
 const float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                           0.0f,  0.0f,  0.5f, 0.0f};
@@ -33,7 +21,14 @@ void ProcessInput(GLFWwindow *window) {
 std::vector<std::uint32_t> CreateShaders() {
   std::uint32_t vertex_shader_id;
   vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertex_shader_id, 1, &kVertexShaderSource, nullptr);
+  const auto vertex_shader_source = ShaderLoader::ReadShader(
+      "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert");
+  if (!vertex_shader_source) {
+    std::cerr << "Cannot load vertex shader!" << std::endl;
+    exit(1);
+  }
+  const char *vert_shader_data = vertex_shader_source->data();
+  glShaderSource(vertex_shader_id, 1, &vert_shader_data, nullptr);
   glCompileShader(vertex_shader_id);
   int success;
   char info_log[512];
@@ -46,7 +41,14 @@ std::vector<std::uint32_t> CreateShaders() {
 
   std::uint32_t fragment_shader_id;
   fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragment_shader_id, 1, &kFragmentShaderSource, nullptr);
+  const auto fragment_shader_source = ShaderLoader::ReadShader(
+      "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag");
+  if (!fragment_shader_source) {
+    std::cerr << "Cannot load fragment shader!" << std::endl;
+    exit(1);
+  }
+  const char *frag_shader_data = fragment_shader_source->c_str();
+  glShaderSource(fragment_shader_id, 1, &frag_shader_data, nullptr);
   glCompileShader(fragment_shader_id);
   glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &success);
   if (!success) {
@@ -57,7 +59,7 @@ std::vector<std::uint32_t> CreateShaders() {
   return {vertex_shader_id, fragment_shader_id};
 }
 
-std::uint32_t CreateProgram(const std::vector<std::uint32_t>& shader_ids) {
+std::uint32_t CreateProgram(const std::vector<std::uint32_t> &shader_ids) {
   char info_log[512];
   int success = 0;
   std::uint32_t shader_program_id;
