@@ -1,5 +1,7 @@
+#include "opengl_tutorials/core/buffer.h"
 #include "opengl_tutorials/core/program.h"
 #include "opengl_tutorials/core/shader.h"
+#include "opengl_tutorials/utils/eigen_utils.h"
 
 #include <GLFW/glfw3.h>
 
@@ -7,15 +9,15 @@
 #include <ostream>
 #include <vector>
 
-const float vertices[] = {
-    0.5f,  0.5f,  0.0f, // top right
-    0.5f,  -0.5f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, // bottom left
-    -0.5f, 0.5f,  0.0f  // top left
+const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
+    {0.5f, 0.5f, 0.0f},   // top right
+    {0.5f, -0.5f, 0.0f},  // bottom right
+    {-0.5f, -0.5f, 0.0f}, // bottom left
+    {-0.5f, 0.5f, 0.0f}   // top left
 };
-const unsigned int indices[] = {
-    0, 1, 3, // first triangle
-    1, 2, 3  // second triangle
+const gl_tutorials::eigen::vector<Eigen::Vector3i> indices = {
+    {0, 1, 3}, // first triangle
+    {1, 2, 3}  // second triangle
 };
 
 void error_callback(int error, const char *description) {
@@ -77,24 +79,22 @@ int main(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  std::uint32_t VBO;
-  glGenBuffers(1, &VBO);
-
-  std::uint32_t EBO;
-  glGenBuffers(1, &EBO);
-
   std::uint32_t VAO;
   glGenVertexArrays(1, &VAO);
 
   // 1. bind Vertex Array Object
   glBindVertexArray(VAO);
   // 2. copy our vertices array in a vertex buffer for OpenGL to use
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  gl_tutorials::Buffer vertex_buffer{gl_tutorials::Buffer::Type::kArrayBuffer,
+                                     gl_tutorials::Buffer::Usage::kStaticDraw};
+  vertex_buffer.AssignData(vertices);
+  vertex_buffer.Bind();
   // 3. copy our index array in a element buffer for OpenGL to use
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
+  gl_tutorials::Buffer index_buffer{
+      gl_tutorials::Buffer::Type::kElementArrayBuffer,
+      gl_tutorials::Buffer::Usage::kStaticDraw};
+  index_buffer.AssignData(indices);
+  index_buffer.Bind();
   // 4. then set the vertex attributes pointers
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);

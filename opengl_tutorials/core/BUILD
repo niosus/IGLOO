@@ -4,9 +4,11 @@ cc_library(
     hdrs = [
       "gl_base.h",
       "shader.h",
-      "program.h"
+      "program.h",
+      "buffer.h"
     ],
     deps = [
+        "//opengl_tutorials/utils:eigen_utils",
         "//opengl_tutorials/utils:file_utils",
         "//third_party/glad:glad",
         "@com_google_absl//absl/strings:strings",
