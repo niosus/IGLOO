@@ -3,7 +3,8 @@ cc_library(
     srcs = ["shader.cpp"],
     hdrs = [
       "gl_base.h",
-      "shader.h"
+      "shader.h",
+      "program.h"
     ],
     deps = [
         "//opengl_tutorials/utils:file_utils",

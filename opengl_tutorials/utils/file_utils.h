@@ -20,4 +20,5 @@ inline absl::optional<std::string> ReadFileContents(const std::string &path) {
 
 } // namespace utils
 } // namespace gl_tutorials
+
 #endif // OPENGL_TUTORIALS_UTILS_FILE_UTILS_H_

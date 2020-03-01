@@ -13,21 +13,30 @@
 
 namespace gl_tutorials {
 
-class Shader {
+class Shader : public OpenGlObject {
 public:
+  enum class Type : GLint {
+    kUndefined = -1,
+    kVertexShader = GL_VERTEX_SHADER,
+    kFragmentShader = GL_FRAGMENT_SHADER
+  };
+
   static std::unique_ptr<Shader> CreateFromFile(const std::string &file_name);
-  inline std::uint32_t id() const { return id_; }
+  inline Shader::Type type() const { return type_; }
 
 private:
-  Shader(std::string shader_source)
-      : shader_source_{std::move(shader_source)} {}
+  Shader(Shader::Type gl_shader_type, std::string shader_source)
+      : OpenGlObject{glCreateShader(
+            static_cast<std::underlying_type<Shader::Type>::type>(
+                gl_shader_type))},
+        shader_source_{std::move(shader_source)} {}
 
-  static absl::optional<int> DetectShaderType(const std::string &file_name);
+  static Shader::Type DetectShaderType(const std::string &file_name);
 
-  bool CompileShader(int gl_shader_type);
+  bool CompileShader();
 
   std::string shader_source_{};
-  std::uint32_t id_{};
+  Shader::Type type_{Shader::Type::kUndefined};
 };
 
 } // namespace gl_tutorials
