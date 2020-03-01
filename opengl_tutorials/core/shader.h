@@ -24,6 +24,8 @@ public:
   static std::unique_ptr<Shader> CreateFromFile(const std::string &file_name);
   inline Shader::Type type() const { return type_; }
 
+  ~Shader() { glDeleteShader(id_); }
+
 private:
   Shader(Shader::Type gl_shader_type, std::string shader_source)
       : OpenGlObject{glCreateShader(

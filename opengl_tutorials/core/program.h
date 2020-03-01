@@ -20,7 +20,6 @@ public:
   AttachShaders(const std::vector<std::shared_ptr<Shader>> &shaders) {
     attached_shaders_.reserve(attached_shaders_.size() + shaders.size());
     for (const auto &shader : shaders) {
-      absl::PrintF("Attaching shader: %d\n", shader->id());
       AttachShader(shader);
     }
   }
@@ -48,8 +47,9 @@ public:
     return program;
   }
 
+  ~Program() { glDeleteProgram(id_); }
+
 private:
-  std::uint32_t id_{};
   std::vector<std::shared_ptr<Shader>> attached_shaders_;
 };
 
