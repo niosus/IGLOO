@@ -2,10 +2,9 @@ cc_binary(
     name = "hello_triangle",
     srcs = ["main.cpp"],
     deps = [
-        "//third_party/glad:glad",
         "//opengl_tutorials/core:shader",
         "//opengl_tutorials/utils:file_utils",
-        "@glew//:glew",
+        "//third_party/glad:glad",
         "@glfw//:glfw",
     ],
     data = [":shaders"],

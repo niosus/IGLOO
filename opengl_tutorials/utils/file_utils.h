@@ -9,7 +9,7 @@
 namespace gl_tutorials {
 namespace utils {
 
-absl::optional<std::string> ReadFileContents(const std::string &path) {
+inline absl::optional<std::string> ReadFileContents(const std::string &path) {
   std::ifstream ifs{path};
   if (!ifs) {
     return {};

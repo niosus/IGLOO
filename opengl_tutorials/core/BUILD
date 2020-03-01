@@ -1,9 +1,13 @@
 cc_library(
     name = "shader",
-    hdrs = ["shader.h"],
+    srcs = ["shader.cpp"],
+    hdrs = [
+      "gl_base.h",
+      "shader.h"
+    ],
     deps = [
-        "//third_party/glad:glad",
         "//opengl_tutorials/utils:file_utils",
+        "//third_party/glad:glad",
         "@com_google_absl//absl/strings:strings",
         "@com_google_absl//absl/strings:str_format",
     ],

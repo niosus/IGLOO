@@ -1,13 +1,11 @@
-
 #include "opengl_tutorials/core/shader.h"
-#include "opengl_tutorials/utils/file_utils.h"
 
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <ostream>
 #include <vector>
 
-namespace gl_tutorials {
 const float vertices[] = {
     0.5f,  0.5f,  0.0f, // top right
     0.5f,  -0.5f, 0.0f, // bottom right
@@ -19,6 +17,10 @@ const unsigned int indices[] = {
     1, 2, 3  // second triangle
 };
 
+void error_callback(int error, const char *description) {
+  std::cerr << "error[" << error << "]:" << description << std::endl;
+}
+
 void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
@@ -29,10 +31,9 @@ void ProcessInput(GLFWwindow *window) {
 }
 
 std::vector<std::uint32_t> CreateShaders() {
-  std::cerr << "here????" << std::endl;
-  const auto vertex_shader{Shader::CreateFromFile(
+  const auto vertex_shader{gl_tutorials::Shader::CreateFromFile(
       "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert")};
-  const auto fragment_shader{Shader::CreateFromFile(
+  const auto fragment_shader{gl_tutorials::Shader::CreateFromFile(
       "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) {
     exit(1);
@@ -58,21 +59,24 @@ std::uint32_t CreateProgram(const std::vector<std::uint32_t> &shader_ids) {
 }
 
 int main(int argc, char const *argv[]) {
-  glfwInit();
+  glfwSetErrorCallback(error_callback);
+  if (!glfwInit()) {
+    exit(EXIT_FAILURE);
+  }
+
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   GLFWwindow *window =
       glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
-  if (window == nullptr) {
-    std::cerr << "Failed to create GLFW window" << std::endl;
-    glfwTerminate();
-    return -1;
-  }
-  glfwMakeContextCurrent(window);
 
+  if (!window) {
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+  }
+
+  glfwMakeContextCurrent(window);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD" << std::endl;
     return -1;
@@ -120,9 +124,7 @@ int main(int argc, char const *argv[]) {
     glfwPollEvents();
     glfwSwapBuffers(window);
   }
-
+  glfwDestroyWindow(window);
   glfwTerminate();
-  return 0;
+  exit(EXIT_SUCCESS);
 }
-
-} // namespace gl_tutorials
