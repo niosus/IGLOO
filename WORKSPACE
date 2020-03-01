@@ -27,13 +27,6 @@ http_archive(
     build_file = "@//:third_party/glfw/glfw.BUILD",
 )
 
-http_archive(
-    name = "glew",
-    urls = ["https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.zip"],
-    strip_prefix = "glew-2.1.0",
-    build_file = "@//:third_party/glew/glew.BUILD",
-)
-
 # abseil-cpp
 http_archive(
   name = "com_google_absl",

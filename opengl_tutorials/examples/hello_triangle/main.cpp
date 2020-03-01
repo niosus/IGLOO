@@ -1,9 +1,9 @@
-#include "opengl_tutorials/utils/shader_loader.h"
-#include "third_party/glad/glad.h"
+#include "opengl_tutorials/core/shader.h"
 
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 const float vertices[] = {
@@ -17,6 +17,10 @@ const unsigned int indices[] = {
     1, 2, 3  // second triangle
 };
 
+void error_callback(int error, const char *description) {
+  std::cerr << "error[" << error << "]:" << description << std::endl;
+}
+
 void FramebufferSizeCallback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
@@ -27,44 +31,14 @@ void ProcessInput(GLFWwindow *window) {
 }
 
 std::vector<std::uint32_t> CreateShaders() {
-  std::uint32_t vertex_shader_id;
-  vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
-  const auto vertex_shader_source = ShaderLoader::ReadShader(
-      "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert");
-  if (!vertex_shader_source) {
-    std::cerr << "Cannot load vertex shader!" << std::endl;
+  const auto vertex_shader{gl_tutorials::Shader::CreateFromFile(
+      "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert")};
+  const auto fragment_shader{gl_tutorials::Shader::CreateFromFile(
+      "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag")};
+  if (!vertex_shader || !fragment_shader) {
     exit(1);
   }
-  const char *vert_shader_data = vertex_shader_source->data();
-  glShaderSource(vertex_shader_id, 1, &vert_shader_data, nullptr);
-  glCompileShader(vertex_shader_id);
-  int success;
-  char info_log[512];
-  glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(vertex_shader_id, 512, nullptr, info_log);
-    std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << info_log << std::endl;
-  }
-
-  std::uint32_t fragment_shader_id;
-  fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
-  const auto fragment_shader_source = ShaderLoader::ReadShader(
-      "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag");
-  if (!fragment_shader_source) {
-    std::cerr << "Cannot load fragment shader!" << std::endl;
-    exit(1);
-  }
-  const char *frag_shader_data = fragment_shader_source->c_str();
-  glShaderSource(fragment_shader_id, 1, &frag_shader_data, nullptr);
-  glCompileShader(fragment_shader_id);
-  glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(fragment_shader_id, 512, nullptr, info_log);
-    std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-              << info_log << std::endl;
-  }
-  return {vertex_shader_id, fragment_shader_id};
+  return {vertex_shader->id(), fragment_shader->id()};
 }
 
 std::uint32_t CreateProgram(const std::vector<std::uint32_t> &shader_ids) {
@@ -85,21 +59,24 @@ std::uint32_t CreateProgram(const std::vector<std::uint32_t> &shader_ids) {
 }
 
 int main(int argc, char const *argv[]) {
-  glfwInit();
+  glfwSetErrorCallback(error_callback);
+  if (!glfwInit()) {
+    exit(EXIT_FAILURE);
+  }
+
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
   GLFWwindow *window =
       glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
-  if (window == nullptr) {
-    std::cerr << "Failed to create GLFW window" << std::endl;
-    glfwTerminate();
-    return -1;
-  }
-  glfwMakeContextCurrent(window);
 
+  if (!window) {
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+  }
+
+  glfwMakeContextCurrent(window);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD" << std::endl;
     return -1;
@@ -147,7 +124,7 @@ int main(int argc, char const *argv[]) {
     glfwPollEvents();
     glfwSwapBuffers(window);
   }
-
+  glfwDestroyWindow(window);
   glfwTerminate();
-  return 0;
+  exit(EXIT_SUCCESS);
 }
