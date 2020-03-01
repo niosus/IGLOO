@@ -1,3 +1,4 @@
+#include "opengl_tutorials/core/program.h"
 #include "opengl_tutorials/core/shader.h"
 
 #include <GLFW/glfw3.h>
@@ -30,34 +31,6 @@ void ProcessInput(GLFWwindow *window) {
     glfwSetWindowShouldClose(window, true);
 }
 
-std::vector<std::uint32_t> CreateShaders() {
-  const auto vertex_shader{gl_tutorials::Shader::CreateFromFile(
-      "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert")};
-  const auto fragment_shader{gl_tutorials::Shader::CreateFromFile(
-      "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag")};
-  if (!vertex_shader || !fragment_shader) {
-    exit(1);
-  }
-  return {vertex_shader->id(), fragment_shader->id()};
-}
-
-std::uint32_t CreateProgram(const std::vector<std::uint32_t> &shader_ids) {
-  char info_log[512];
-  int success = 0;
-  std::uint32_t shader_program_id;
-  shader_program_id = glCreateProgram();
-  for (auto shader_id : shader_ids) {
-    glAttachShader(shader_program_id, shader_id);
-  }
-  glLinkProgram(shader_program_id);
-  glGetProgramiv(shader_program_id, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shader_program_id, 512, nullptr, info_log);
-    std::cerr << "ERROR::PROGRAM::LINKING_FAILED\n" << info_log << std::endl;
-  }
-  return shader_program_id;
-}
-
 int main(int argc, char const *argv[]) {
   glfwSetErrorCallback(error_callback);
   if (!glfwInit()) {
@@ -79,13 +52,30 @@ int main(int argc, char const *argv[]) {
   glfwMakeContextCurrent(window);
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
     std::cerr << "Failed to initialize GLAD" << std::endl;
-    return -1;
+    glfwTerminate();
+    exit(EXIT_FAILURE);
   }
 
   glViewport(0, 0, 800, 600);
   glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 
-  auto shader_program_id = CreateProgram(CreateShaders());
+  const std::shared_ptr<gl_tutorials::Shader> vertex_shader{
+      gl_tutorials::Shader::CreateFromFile(
+          "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert")};
+  const std::shared_ptr<gl_tutorials::Shader> fragment_shader{
+      gl_tutorials::Shader::CreateFromFile(
+          "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag")};
+  if (!vertex_shader || !fragment_shader) {
+    exit(EXIT_FAILURE);
+  }
+
+  const auto program = gl_tutorials::Program::CreateFromShaders(
+      {vertex_shader, fragment_shader});
+  if (!program) {
+    std::cerr << "Failed to link program" << std::endl;
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+  }
 
   std::uint32_t VBO;
   glGenBuffers(1, &VBO);
@@ -116,7 +106,8 @@ int main(int argc, char const *argv[]) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shader_program_id);
+    program->Use();
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
