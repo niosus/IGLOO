@@ -9,6 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Install glfw3
+      run: sudo apt install -y libglfw3-dev
       
     - name: Install bazelisk
       run: |
