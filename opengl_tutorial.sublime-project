@@ -6,11 +6,6 @@
 		}
 	],
   "settings": {
-    "ecc_target_compilers": {
-      "C":              "clang",
-      "CPP":            "clang++",
-      "OBJECTIVE_C":    null,
-      "OBJECTIVE_CPP":  null
-    },
+    "ecc_ignore_flags": ["*gcc*"],
   }
 }
