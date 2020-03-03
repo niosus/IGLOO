@@ -10,26 +10,24 @@ namespace eigen {
 template <typename EigenVectorT>
 using vector =
     std::vector<EigenVectorT, Eigen::aligned_allocator<EigenVectorT>>;
+
+template <typename ScalarT, int N>
+using Vector = Eigen::Matrix<ScalarT, N, 1>;
+
 }  // namespace eigen
 
 namespace traits {
-template <>
-struct gl_underlying_type<Eigen::Vector3f> {
-  static const int value{GL_FLOAT};
-};
-template <>
-struct components_per_vertex_count<Eigen::Vector3f> {
-  static const int value{3};
+
+template <typename T, int N>
+struct components_per_vertex_count<eigen::Vector<T, N>> {
+  static const int value{N};
 };
 
-template <>
-struct gl_underlying_type<Eigen::Vector3i> {
-  static const int value{GL_INT};
+template <typename T, int N>
+struct gl_underlying_type<eigen::Vector<T, N>> {
+  static const int value{gl_underlying_type<T>::value};
 };
-template <>
-struct components_per_vertex_count<Eigen::Vector3i> {
-  static const int value{3};
-};
+
 }  // namespace traits
 
 }  // namespace gl_tutorials

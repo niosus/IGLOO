@@ -10,13 +10,15 @@
 #include <ostream>
 #include <vector>
 
+using EigenVector3ui = gl_tutorials::eigen::Vector<std::uint32_t, 3>;
+
 const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
     {0.5f, 0.5f, 0.0f},    // top right
     {0.5f, -0.5f, 0.0f},   // bottom right
     {-0.5f, -0.5f, 0.0f},  // bottom left
     {-0.5f, 0.5f, 0.0f}    // top left
 };
-const gl_tutorials::eigen::vector<Eigen::Vector3i> indices = {
+const gl_tutorials::eigen::vector<EigenVector3ui> indices = {
     {0, 1, 3},  // first triangle
     {1, 2, 3}   // second triangle
 };
