@@ -76,19 +76,16 @@ int main(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  auto vertex_buffer{std::make_shared<gl_tutorials::Buffer>(
-      gl_tutorials::Buffer::Type::kArrayBuffer,
-      gl_tutorials::Buffer::Usage::kStaticDraw)};
-  vertex_buffer->AssignData(vertices);
-  auto index_buffer{std::make_shared<gl_tutorials::Buffer>(
-      gl_tutorials::Buffer::Type::kElementArrayBuffer,
-      gl_tutorials::Buffer::Usage::kStaticDraw)};
-  index_buffer->AssignData(indices);
-
   gl_tutorials::VertexArrayBuffer vertex_array_buffer{};
-  vertex_array_buffer.BindBuffer(vertex_buffer);
-  vertex_array_buffer.BindBuffer(index_buffer);
-  vertex_array_buffer.EnableAttributePointer(0);
+  vertex_array_buffer.AssignBuffer(std::make_shared<gl_tutorials::Buffer>(
+      gl_tutorials::Buffer::Type::kArrayBuffer,
+      gl_tutorials::Buffer::Usage::kStaticDraw,
+      vertices));
+  vertex_array_buffer.AssignBuffer(std::make_shared<gl_tutorials::Buffer>(
+      gl_tutorials::Buffer::Type::kElementArrayBuffer,
+      gl_tutorials::Buffer::Usage::kStaticDraw,
+      indices));
+  vertex_array_buffer.EnableVertexAttributePointer(0);
 
   while (!glfwWindowShouldClose(window)) {
     ProcessInput(window);

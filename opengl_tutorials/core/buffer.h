@@ -29,6 +29,26 @@ class Buffer : public OpenGlObject {
     glGenBuffers(1, &id_);
   }
 
+  template <typename T>
+  Buffer(Buffer::Type type,
+         Buffer::Usage usage,
+         const T *const data,
+         std::size_t number_of_elements)
+      : Buffer{type, usage} {
+    AssignData(data, number_of_elements);
+  }
+
+  template <typename T, typename A>
+  Buffer(Buffer::Type type,
+         Buffer::Usage usage,
+         const std::vector<T, A> &vertices)
+      : Buffer{type, usage, vertices.data(), vertices.size()} {}
+
+  ~Buffer() {
+    UnBind();
+    glDeleteBuffers(1, &id_);
+  }
+
   template <typename T, typename A>
   void AssignData(const std::vector<T, A> &vertices) {
     AssignData(vertices.data(), vertices.size());
