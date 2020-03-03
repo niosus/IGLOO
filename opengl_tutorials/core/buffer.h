@@ -10,6 +10,12 @@
 
 namespace gl_tutorials {
 
+namespace detail {
+template <typename T> GLint DetectNumberOfComponentsPerVertex() { return 1; }
+
+template <typename T> GLenum DetectUnderlyingDataType() { return GL_FLOAT; }
+} // namespace detail
+
 class Buffer : public OpenGlObject {
 public:
   enum class Type : GLenum {
@@ -29,16 +35,20 @@ public:
   }
 
   template <typename T, typename A>
-  void AssignData(const std::vector<T, A> &vertices) const {
+  void AssignData(const std::vector<T, A> &vertices) {
     AssignData(vertices.data(), vertices.size());
   }
 
   template <typename T>
-  void AssignData(const T *const data, std::size_t number_of_elements) const {
+  void AssignData(const T *const data, std::size_t number_of_elements) {
+    components_per_vertex_ = detail::DetectNumberOfComponentsPerVertex<T>();
+    gl_underlying_data_type_ = detail::DetectUnderlyingDataType<T>();
+    data_sizeof_ = sizeof(T);
+
     GLint bound_buffer;
     glGetIntegerv(MapTypeToBindingType(type_), &bound_buffer);
     glBindBuffer(type_, id_);
-    glBufferData(type_, sizeof(T) * number_of_elements, data, usage_);
+    glBufferData(type_, data_sizeof_ * number_of_elements, data, usage_);
     glBindBuffer(type_, bound_buffer);
   }
 
@@ -47,6 +57,12 @@ public:
   void UnBind(OpenGlObject::IdType id_to_bind = 0u) const {
     glBindBuffer(type_, id_to_bind);
   }
+
+  Buffer::Type type() const { return static_cast<Buffer::Type>(type_); }
+  GLint gl_type() const { return type_; }
+  GLint gl_underlying_data_type() const { return gl_underlying_data_type_; }
+  GLint components_per_vertex() const { return components_per_vertex_; }
+  std::size_t  data_sizeof() const { return data_sizeof_; }
 
 private:
   static inline GLenum MapTypeToBindingType(GLenum type) {
@@ -59,8 +75,12 @@ private:
     return 0;
   }
 
-  GLenum type_;
-  GLenum usage_;
+  GLenum type_{};
+  GLenum usage_{};
+
+  GLint gl_underlying_data_type_{};
+  GLint components_per_vertex_{};
+  std::size_t data_sizeof_{};
 };
 
 } // namespace gl_tutorials
