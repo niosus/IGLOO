@@ -9,19 +9,17 @@
 namespace gl_tutorials {
 
 class Program : public OpenGlObject {
-public:
+ public:
   Program() : OpenGlObject{glCreateProgram()} {}
 
   inline void AttachShader(const std::shared_ptr<Shader> &shader) {
     glAttachShader(id_, shader->id());
     attached_shaders_.push_back(shader);
   }
-  inline void
-  AttachShaders(const std::vector<std::shared_ptr<Shader>> &shaders) {
+  inline void AttachShaders(
+      const std::vector<std::shared_ptr<Shader>> &shaders) {
     attached_shaders_.reserve(attached_shaders_.size() + shaders.size());
-    for (const auto &shader : shaders) {
-      AttachShader(shader);
-    }
+    for (const auto &shader : shaders) { AttachShader(shader); }
   }
   bool Link() const {
     glLinkProgram(id_);
@@ -37,22 +35,20 @@ public:
   }
   inline void Use() const { glUseProgram(id_); }
 
-  static std::unique_ptr<Program>
-  CreateFromShaders(const std::vector<std::shared_ptr<Shader>> &shaders) {
+  static std::unique_ptr<Program> CreateFromShaders(
+      const std::vector<std::shared_ptr<Shader>> &shaders) {
     std::unique_ptr<Program> program{new Program};
     program->AttachShaders(shaders);
-    if (!program->Link()) {
-      return nullptr;
-    }
+    if (!program->Link()) { return nullptr; }
     return program;
   }
 
   ~Program() { glDeleteProgram(id_); }
 
-private:
+ private:
   std::vector<std::shared_ptr<Shader>> attached_shaders_;
 };
 
-} // namespace gl_tutorials
+}  // namespace gl_tutorials
 
-#endif // OPENGL_TUTORIALS_CORE_PROGRAM_H_
+#endif  // OPENGL_TUTORIALS_CORE_PROGRAM_H_

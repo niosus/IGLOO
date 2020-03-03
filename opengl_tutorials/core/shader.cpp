@@ -23,9 +23,7 @@ std::unique_ptr<Shader> Shader::CreateFromFile(const std::string &file_name) {
   }
   std::unique_ptr<Shader> shader{
       new Shader{gl_shader_type, shader_source.value()}};
-  if (shader->CompileShader()) {
-    return shader;
-  }
+  if (shader->CompileShader()) { return shader; }
   return nullptr;
 }
 
@@ -36,14 +34,12 @@ Shader::Type Shader::DetectShaderType(const std::string &file_name) {
     return Shader::Type::kUndefined;
   }
   const std::string &extention = split.back();
-  if (extention == "vert") {
-    return Shader::Type::kVertexShader;
-  }
-  if (extention == "frag") {
-    return Shader::Type::kFragmentShader;
-  }
-  absl::FPrintF(stderr, "Unknown shader file extention: '%s' for file '%s'\n",
-                extention, file_name);
+  if (extention == "vert") { return Shader::Type::kVertexShader; }
+  if (extention == "frag") { return Shader::Type::kFragmentShader; }
+  absl::FPrintF(stderr,
+                "Unknown shader file extention: '%s' for file '%s'\n",
+                extention,
+                file_name);
   return Shader::Type::kUndefined;
 }
 
@@ -62,4 +58,4 @@ bool Shader::CompileShader() {
   return true;
 }
 
-} // namespace gl_tutorials
+}  // namespace gl_tutorials
