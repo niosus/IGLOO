@@ -10,8 +10,8 @@ cc_library(
       "vertex_array_buffer.h",
     ],
     deps = [
-        "//opengl_tutorials/utils:eigen_utils",
         "//opengl_tutorials/utils:file_utils",
+        "//opengl_tutorials/utils:type_utils",
         "//third_party/glad:glad",
         "@com_google_absl//absl/strings:strings",
         "@com_google_absl//absl/strings:str_format",

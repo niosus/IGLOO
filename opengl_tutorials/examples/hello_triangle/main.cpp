@@ -21,28 +21,6 @@ const gl_tutorials::eigen::vector<Eigen::Vector3i> indices = {
     {1, 2, 3}   // second triangle
 };
 
-namespace gl_tutorials {
-namespace traits {
-template <>
-struct gl_underlying_type<Eigen::Vector3f> {
-  static const int value{GL_FLOAT};
-};
-template <>
-struct components_per_vertex_count<Eigen::Vector3f> {
-  static const int value{3};
-};
-
-template <>
-struct gl_underlying_type<Eigen::Vector3i> {
-  static const int value{GL_INT};
-};
-template <>
-struct components_per_vertex_count<Eigen::Vector3i> {
-  static const int value{3};
-};
-}  // namespace traits
-}  // namespace gl_tutorials
-
 void error_callback(int error, const char *description) {
   std::cerr << "error[" << error << "]:" << description << std::endl;
 }

@@ -9,20 +9,10 @@ namespace gl_tutorials {
 namespace traits {
 
 template <typename T, typename Enable = void>
-struct underlying_type {};
-
-template <typename T, typename Enable = void>
 struct gl_underlying_type {};
 
 template <typename T, typename Enable = void>
 struct components_per_vertex_count {};
-
-template <typename T>
-struct underlying_type<T,
-                       std::enable_if<std::is_floating_point<T>::value ||
-                                      std::is_integral<T>::value>> {
-  using type = T;
-};
 
 template <typename T>
 struct components_per_vertex_count<
