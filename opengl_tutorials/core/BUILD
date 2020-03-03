@@ -5,7 +5,9 @@ cc_library(
       "gl_base.h",
       "shader.h",
       "program.h",
-      "buffer.h"
+      "buffer.h",
+      "buffer_traits.h",
+      "vertex_array_buffer.h",
     ],
     deps = [
         "//opengl_tutorials/utils:eigen_utils",

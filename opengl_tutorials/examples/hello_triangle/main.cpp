@@ -1,6 +1,7 @@
 #include "opengl_tutorials/core/buffer.h"
 #include "opengl_tutorials/core/program.h"
 #include "opengl_tutorials/core/shader.h"
+#include "opengl_tutorials/core/vertex_array_buffer.h"
 #include "opengl_tutorials/utils/eigen_utils.h"
 
 #include <GLFW/glfw3.h>
@@ -10,15 +11,37 @@
 #include <vector>
 
 const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
-    {0.5f, 0.5f, 0.0f},   // top right
-    {0.5f, -0.5f, 0.0f},  // bottom right
-    {-0.5f, -0.5f, 0.0f}, // bottom left
-    {-0.5f, 0.5f, 0.0f}   // top left
+    {0.5f, 0.5f, 0.0f},    // top right
+    {0.5f, -0.5f, 0.0f},   // bottom right
+    {-0.5f, -0.5f, 0.0f},  // bottom left
+    {-0.5f, 0.5f, 0.0f}    // top left
 };
 const gl_tutorials::eigen::vector<Eigen::Vector3i> indices = {
-    {0, 1, 3}, // first triangle
-    {1, 2, 3}  // second triangle
+    {0, 1, 3},  // first triangle
+    {1, 2, 3}   // second triangle
 };
+
+namespace gl_tutorials {
+namespace traits {
+template <>
+struct gl_underlying_type<Eigen::Vector3f> {
+  static const int value{GL_FLOAT};
+};
+template <>
+struct components_per_vertex_count<Eigen::Vector3f> {
+  static const int value{3};
+};
+
+template <>
+struct gl_underlying_type<Eigen::Vector3i> {
+  static const int value{GL_INT};
+};
+template <>
+struct components_per_vertex_count<Eigen::Vector3i> {
+  static const int value{3};
+};
+}  // namespace traits
+}  // namespace gl_tutorials
 
 void error_callback(int error, const char *description) {
   std::cerr << "error[" << error << "]:" << description << std::endl;
@@ -35,9 +58,7 @@ void ProcessInput(GLFWwindow *window) {
 
 int main(int argc, char const *argv[]) {
   glfwSetErrorCallback(error_callback);
-  if (!glfwInit()) {
-    exit(EXIT_FAILURE);
-  }
+  if (!glfwInit()) { exit(EXIT_FAILURE); }
 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -67,9 +88,7 @@ int main(int argc, char const *argv[]) {
   const std::shared_ptr<gl_tutorials::Shader> fragment_shader{
       gl_tutorials::Shader::CreateFromFile(
           "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag")};
-  if (!vertex_shader || !fragment_shader) {
-    exit(EXIT_FAILURE);
-  }
+  if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
   const auto program = gl_tutorials::Program::CreateFromShaders(
       {vertex_shader, fragment_shader});
@@ -79,26 +98,19 @@ int main(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  std::uint32_t VAO;
-  glGenVertexArrays(1, &VAO);
-
-  // 1. bind Vertex Array Object
-  glBindVertexArray(VAO);
-  // 2. copy our vertices array in a vertex buffer for OpenGL to use
-  gl_tutorials::Buffer vertex_buffer{gl_tutorials::Buffer::Type::kArrayBuffer,
-                                     gl_tutorials::Buffer::Usage::kStaticDraw};
-  vertex_buffer.AssignData(vertices);
-  vertex_buffer.Bind();
-  // 3. copy our index array in a element buffer for OpenGL to use
-  gl_tutorials::Buffer index_buffer{
+  auto vertex_buffer{std::make_shared<gl_tutorials::Buffer>(
+      gl_tutorials::Buffer::Type::kArrayBuffer,
+      gl_tutorials::Buffer::Usage::kStaticDraw)};
+  vertex_buffer->AssignData(vertices);
+  auto index_buffer{std::make_shared<gl_tutorials::Buffer>(
       gl_tutorials::Buffer::Type::kElementArrayBuffer,
-      gl_tutorials::Buffer::Usage::kStaticDraw};
-  index_buffer.AssignData(indices);
-  index_buffer.Bind();
-  // 4. then set the vertex attributes pointers
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-  glBindVertexArray(0);
+      gl_tutorials::Buffer::Usage::kStaticDraw)};
+  index_buffer->AssignData(indices);
+
+  gl_tutorials::VertexArrayBuffer vertex_array_buffer{};
+  vertex_array_buffer.BindBuffer(vertex_buffer);
+  vertex_array_buffer.BindBuffer(index_buffer);
+  vertex_array_buffer.EnableAttributePointer(0);
 
   while (!glfwWindowShouldClose(window)) {
     ProcessInput(window);
@@ -108,9 +120,9 @@ int main(int argc, char const *argv[]) {
 
     program->Use();
 
-    glBindVertexArray(VAO);
+    vertex_array_buffer.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    vertex_array_buffer.UnBind();
 
     glfwPollEvents();
     glfwSwapBuffers(window);

@@ -2,19 +2,12 @@
 #define OPENGL_TUTORIALS_CORE_VERTEX_BUFFER_H_
 
 #include "opengl_tutorials/core/gl_base.h"
-
-#include "Eigen/Core"
+#include "opengl_tutorials/core/buffer_traits.h"
 
 #include <map>
 #include <vector>
 
 namespace gl_tutorials {
-
-namespace detail {
-template <typename T> GLint DetectNumberOfComponentsPerVertex() { return 1; }
-
-template <typename T> GLenum DetectUnderlyingDataType() { return GL_FLOAT; }
-} // namespace detail
 
 class Buffer : public OpenGlObject {
 public:
@@ -41,8 +34,8 @@ public:
 
   template <typename T>
   void AssignData(const T *const data, std::size_t number_of_elements) {
-    components_per_vertex_ = detail::DetectNumberOfComponentsPerVertex<T>();
-    gl_underlying_data_type_ = detail::DetectUnderlyingDataType<T>();
+    components_per_vertex_ = traits::components_per_vertex_count<T>::value;
+    gl_underlying_data_type_ = traits::gl_underlying_type<T>::value;
     data_sizeof_ = sizeof(T);
 
     GLint bound_buffer;
