@@ -14,7 +14,7 @@
 namespace gl_tutorials {
 
 class Shader : public OpenGlObject {
-public:
+ public:
   enum class Type : GLint {
     kUndefined = -1,
     kVertexShader = GL_VERTEX_SHADER,
@@ -26,7 +26,7 @@ public:
 
   ~Shader() { glDeleteShader(id_); }
 
-private:
+ private:
   Shader(Shader::Type gl_shader_type, std::string shader_source)
       : OpenGlObject{glCreateShader(
             static_cast<std::underlying_type<Shader::Type>::type>(
@@ -41,6 +41,6 @@ private:
   Shader::Type type_{Shader::Type::kUndefined};
 };
 
-} // namespace gl_tutorials
+}  // namespace gl_tutorials
 
-#endif // OPENGL_TUTORIALS_CORE_SHADER_H_
+#endif  // OPENGL_TUTORIALS_CORE_SHADER_H_
