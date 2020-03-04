@@ -10,17 +10,19 @@
 #include <ostream>
 #include <vector>
 
-using EigenVector3ui = gl_tutorials::eigen::Vector<std::uint32_t, 3>;
-
 const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
     {0.5f, 0.5f, 0.0f},    // top right
     {0.5f, -0.5f, 0.0f},   // bottom right
     {-0.5f, -0.5f, 0.0f},  // bottom left
     {-0.5f, 0.5f, 0.0f}    // top left
 };
-const gl_tutorials::eigen::vector<EigenVector3ui> indices = {
-    {0, 1, 3},  // first triangle
-    {1, 2, 3}   // second triangle
+const std::vector<uint32_t> indices = {
+    0,
+    1,
+    3,  // first triangle
+    1,
+    2,
+    3  // second triangle
 };
 
 void error_callback(int error, const char *description) {
@@ -97,9 +99,7 @@ int main(int argc, char const *argv[]) {
 
     program->Use();
 
-    vertex_array_buffer.Bind();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    vertex_array_buffer.UnBind();
+    vertex_array_buffer.Draw(GL_TRIANGLES);
 
     glfwPollEvents();
     glfwSwapBuffers(window);

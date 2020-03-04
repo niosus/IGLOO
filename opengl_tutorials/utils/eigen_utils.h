@@ -20,7 +20,7 @@ namespace traits {
 
 template <typename T, int N>
 struct components_per_vertex_count<eigen::Vector<T, N>> {
-  static const int value{N};
+  static const int value{N * components_per_vertex_count<T>::value};
 };
 
 template <typename T, int N>

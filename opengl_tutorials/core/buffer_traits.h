@@ -9,23 +9,18 @@ namespace gl_tutorials {
 namespace traits {
 
 template <typename T, typename Enable = void>
-struct gl_underlying_type {};
-
-template <typename T, typename Enable = void>
 struct components_per_vertex_count {};
 
 template <typename T>
 struct components_per_vertex_count<
     T,
-    std::enable_if<std::is_floating_point<T>::value>> {
+    typename std::enable_if<std::is_floating_point<T>::value ||
+                            std::is_integral<T>::value>::type> {
   static const int value{1};
 };
 
 template <typename T>
-struct components_per_vertex_count<T,
-                                   std::enable_if<std::is_integral<T>::value>> {
-  static const int value{1};
-};
+struct gl_underlying_type {};
 
 template <>
 struct gl_underlying_type<std::int8_t> {
