@@ -3,6 +3,7 @@ cc_binary(
     srcs = ["main.cpp"],
     deps = [
         "//opengl_tutorials/core:shader",
+        "//opengl_tutorials/ui/glfw:viewer",
         "//opengl_tutorials/utils:eigen_utils",
         "//third_party/glad:glad",
         "@glfw//:glfw",
