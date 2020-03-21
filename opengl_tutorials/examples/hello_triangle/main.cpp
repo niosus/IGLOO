@@ -16,14 +16,7 @@ const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
     {-0.5f, -0.5f, 0.0f},  // bottom left
     {-0.5f, 0.5f, 0.0f}    // top left
 };
-const std::vector<uint32_t> indices = {
-    0,
-    1,
-    3,  // first triangle
-    1,
-    2,
-    3  // second triangle
-};
+const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
 void error_callback(int error, const char *description) {
   std::cerr << "error[" << error << "]:" << description << std::endl;
