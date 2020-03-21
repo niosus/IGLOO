@@ -5,6 +5,7 @@
 #include "opengl_tutorials/core/gl_base.h"
 
 #include <array>
+#include <iostream>
 #include <memory>
 
 namespace gl_tutorials {
@@ -22,8 +23,33 @@ class VertexArrayBuffer : public OpenGlObject {
     UnBind();
   }
 
-  void Bind() { glBindVertexArray(id_); }
+  void Bind() {
+    // TODO(igor): check if something was bound before. We don't want to change
+    // the state.
+    glBindVertexArray(id_);
+  }
   void UnBind() { glBindVertexArray(0u); }
+
+  bool Draw(int gl_primitive_mode) {
+    int number_of_elements{};
+    int gl_type{};
+    const auto &indices_buffer =
+        bound_buffers_[GetBoundBufferIndex(Buffer::Type::kElementArrayBuffer)];
+    if (indices_buffer) {
+      number_of_elements = indices_buffer->number_of_elements();
+      gl_type = indices_buffer->gl_underlying_data_type();
+    } else {
+      const auto &vertex_buffer =
+          bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
+      if (!vertex_buffer) { return false; }
+      number_of_elements = vertex_buffer->number_of_elements();
+      gl_type = vertex_buffer->gl_underlying_data_type();
+    }
+    Bind();
+    glDrawElements(gl_primitive_mode, number_of_elements, gl_type, 0);
+    UnBind();
+    return true;
+  }
 
   bool EnableVertexAttributePointer(int layout_index,
                                     bool normalized = false,

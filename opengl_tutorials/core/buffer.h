@@ -66,15 +66,19 @@ class Buffer : public OpenGlObject {
     components_per_vertex_ = traits::components_per_vertex_count<T>::value;
     gl_underlying_data_type_ = traits::gl_underlying_type<T>::value;
     data_sizeof_ = sizeof(T);
+    number_of_elements_ = number_of_elements;
 
+    const auto prev_bound_buffer = Bind();
+    glBufferData(type_, data_sizeof_ * number_of_elements, data, usage_);
+    UnBind(prev_bound_buffer);
+  }
+
+  GLint Bind() const {
     GLint bound_buffer;
     glGetIntegerv(MapTypeToBindingType(type_), &bound_buffer);
     glBindBuffer(type_, id_);
-    glBufferData(type_, data_sizeof_ * number_of_elements, data, usage_);
-    glBindBuffer(type_, bound_buffer);
+    return bound_buffer;
   }
-
-  void Bind() const { glBindBuffer(type_, id_); }
 
   void UnBind(OpenGlObject::IdType id_to_bind = 0u) const {
     glBindBuffer(type_, id_to_bind);
@@ -85,6 +89,7 @@ class Buffer : public OpenGlObject {
   GLint gl_underlying_data_type() const { return gl_underlying_data_type_; }
   GLint components_per_vertex() const { return components_per_vertex_; }
   std::size_t data_sizeof() const { return data_sizeof_; }
+  std::size_t number_of_elements() const { return number_of_elements_; }
 
  private:
   static inline GLenum MapTypeToBindingType(GLenum type) {
@@ -101,6 +106,7 @@ class Buffer : public OpenGlObject {
   GLint gl_underlying_data_type_{};
   GLint components_per_vertex_{};
   std::size_t data_sizeof_{};
+  std::size_t number_of_elements_{};
 };
 
 }  // namespace gl_tutorials
