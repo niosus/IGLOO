@@ -1,3 +1,6 @@
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
+#include "absl/strings/str_format.h"
 #include "opengl_tutorials/core/buffer.h"
 #include "opengl_tutorials/core/program.h"
 #include "opengl_tutorials/core/shader.h"
@@ -19,17 +22,29 @@ const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
 };
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
-int main(int argc, char const *argv[]) {
+ABSL_FLAG(bool, use_uniforms, true, "Use uniforms for color specification.");
+
+int main(int argc, char *argv[]) {
+  absl::ParseCommandLine(argc, argv);
   gl_tutorials::glfw::Viewer viewer{"OpenGlViewer"};
   bool success = viewer.Initialize();
   if (!success) { return EXIT_FAILURE; }
+
+  std::string fragment_shader_source{};
+  if (FLAGS_use_uniforms.Get()) {
+    fragment_shader_source =
+        "opengl_tutorials/examples/hello_triangle/shaders/"
+        "triangle_uniform.frag";
+  } else {
+    fragment_shader_source =
+        "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag";
+  }
 
   const std::shared_ptr<gl_tutorials::Shader> vertex_shader{
       gl_tutorials::Shader::CreateFromFile(
           "opengl_tutorials/examples/hello_triangle/shaders/triangle.vert")};
   const std::shared_ptr<gl_tutorials::Shader> fragment_shader{
-      gl_tutorials::Shader::CreateFromFile(
-          "opengl_tutorials/examples/hello_triangle/shaders/triangle.frag")};
+      gl_tutorials::Shader::CreateFromFile(fragment_shader_source)};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
   const auto program = gl_tutorials::Program::CreateFromShaders(
@@ -57,6 +72,7 @@ int main(int argc, char const *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     program->Use();
+    program->SetUniform("ourColor");
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
 

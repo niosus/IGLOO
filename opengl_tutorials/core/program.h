@@ -16,11 +16,13 @@ class Program : public OpenGlObject {
     glAttachShader(id_, shader->id());
     attached_shaders_.push_back(shader);
   }
+
   inline void AttachShaders(
       const std::vector<std::shared_ptr<Shader>> &shaders) {
     attached_shaders_.reserve(attached_shaders_.size() + shaders.size());
     for (const auto &shader : shaders) { AttachShader(shader); }
   }
+
   bool Link() const {
     glLinkProgram(id_);
     char info_log[512];
@@ -34,6 +36,14 @@ class Program : public OpenGlObject {
     return true;
   }
   inline void Use() const { glUseProgram(id_); }
+
+  void SetUniform(const std::string& name) const {
+    this->Use();  // Should we explicitly use "Use" here?
+    int uniform_location = glGetUniformLocation(id_, name.c_str());
+    // TODO(igor): how to pick appropriate variant of glUniform?
+    // TODO(igor): how to pass the parameters into this function?
+    glUniform4f(uniform_location, 0.0f, 1.0f, 0.0f, 0.0f);
+  }
 
   static std::unique_ptr<Program> CreateFromShaders(
       const std::vector<std::shared_ptr<Shader>> &shaders) {
