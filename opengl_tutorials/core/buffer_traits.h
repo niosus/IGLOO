@@ -4,6 +4,7 @@
 #include "opengl_tutorials/core/gl_base.h"
 
 #include <type_traits>
+#include <vector>
 
 namespace gl_tutorials {
 namespace traits {

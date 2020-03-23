@@ -7,6 +7,7 @@ cc_library(
       "program.h",
       "buffer.h",
       "buffer_traits.h",
+      "uniform.h",
       "vertex_array_buffer.h",
     ],
     deps = [

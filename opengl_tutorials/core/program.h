@@ -3,6 +3,7 @@
 
 #include "opengl_tutorials/core/gl_base.h"
 #include "opengl_tutorials/core/shader.h"
+#include "opengl_tutorials/core/uniform.h"
 
 #include <cstdint>
 
@@ -36,14 +37,6 @@ class Program : public OpenGlObject {
     return true;
   }
   inline void Use() const { glUseProgram(id_); }
-
-  void SetUniform(const std::string& name) const {
-    this->Use();  // Should we explicitly use "Use" here?
-    int uniform_location = glGetUniformLocation(id_, name.c_str());
-    // TODO(igor): how to pick appropriate variant of glUniform?
-    // TODO(igor): how to pass the parameters into this function?
-    glUniform4f(uniform_location, 0.0f, 1.0f, 0.0f, 0.0f);
-  }
 
   static std::unique_ptr<Program> CreateFromShaders(
       const std::vector<std::shared_ptr<Shader>> &shaders) {

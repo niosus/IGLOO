@@ -4,6 +4,7 @@
 #include "opengl_tutorials/core/buffer.h"
 #include "opengl_tutorials/core/program.h"
 #include "opengl_tutorials/core/shader.h"
+#include "opengl_tutorials/core/uniform.h"
 #include "opengl_tutorials/core/vertex_array_buffer.h"
 #include "opengl_tutorials/ui/glfw/viewer.h"
 #include "opengl_tutorials/utils/eigen_utils.h"
@@ -54,6 +55,8 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  gl_tutorials::Uniform uniform{"ourColor", program->id()};
+
   gl_tutorials::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(std::make_shared<gl_tutorials::Buffer>(
       gl_tutorials::Buffer::Type::kArrayBuffer,
@@ -72,7 +75,7 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     program->Use();
-    program->SetUniform("ourColor");
+    uniform.UpdateValue(0.0f, 1.0f, 0.0f, 0.0f);
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
 
