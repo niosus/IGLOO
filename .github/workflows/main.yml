@@ -28,4 +28,5 @@ jobs:
 
     - name: Test
       run: |
+        xvfb-run -a glxinfo | grep OpenGL
         xvfb-run -a -e /dev/stderr bazel test --test_output=errors //...
