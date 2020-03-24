@@ -52,18 +52,20 @@ class VertexArrayBuffer : public OpenGlObject {
   }
 
   bool EnableVertexAttributePointer(int layout_index,
-                                    bool normalized = false,
-                                    void *offset = nullptr) {
+                                    int stride = 1,
+                                    int offset = 0,
+                                    bool normalized = false) {
     auto &bound_vertex_buffer =
         bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
     if (!bound_vertex_buffer) { return false; }
     Bind();
-    glVertexAttribPointer(layout_index,
-                          bound_vertex_buffer->components_per_vertex(),
-                          bound_vertex_buffer->gl_underlying_data_type(),
-                          normalized ? GL_TRUE : GL_FALSE,
-                          bound_vertex_buffer->data_sizeof(),
-                          offset);
+    glVertexAttribPointer(
+        layout_index,
+        bound_vertex_buffer->components_per_vertex(),
+        bound_vertex_buffer->gl_underlying_data_type(),
+        normalized ? GL_TRUE : GL_FALSE,
+        stride * bound_vertex_buffer->data_sizeof(),
+        reinterpret_cast<void *>(offset * bound_vertex_buffer->data_sizeof()));
     glEnableVertexAttribArray(layout_index);
     UnBind();
     return true;
