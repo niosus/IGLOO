@@ -15,8 +15,9 @@ jobs:
         libx11-dev libxinerama-dev libxi-dev libxcursor-dev libxrandr-dev xvfb
         mesa-common-dev libpthread-stubs0-dev
     - name: Initialize display
-      env: DISPLAY=:0
       run: sh -e /etc/init.d/xvfb start
+      env:
+        DISPLAY: ":0"
       
     - name: Install bazelisk
       run: |
