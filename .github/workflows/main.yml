@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
+    - run: sh -e /etc/init.d/xvfb start
     - name: Install prerequisites
       run: >
         sudo apt install -y 
