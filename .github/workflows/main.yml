@@ -27,5 +27,6 @@ jobs:
         "${GITHUB_WORKSPACE}/bin/bazel" build //...
 
     - name: Test
+      uses: GabrielBB/xvfb-action@v1.0
       run: |
-        xvfb-run -a  bazel test --test_output=errors //... --action_env=DISPLAY=$DISPLAY
+        bazel test --test_output=errors //...
