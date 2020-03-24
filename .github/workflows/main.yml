@@ -9,10 +9,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
     - name: Install prerequisites
-      run: sudo apt install -y libx11-dev libxinerama-dev libxi-dev libxcursor-dev libxrandr-dev mesa-common-dev libpthread-stubs0-dev
-      
+      run: >
+        sudo apt install -y 
+        libx11-dev libxinerama-dev libxi-dev libxcursor-dev libxrandr-dev xvfb
+        mesa-common-dev libpthread-stubs0-dev
+
     - name: Install bazelisk
       run: |
         curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64"
@@ -22,4 +24,9 @@ jobs:
 
     - name: Build
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" build //...
+        bazel build //...
+
+    - name: Test
+      run: |
+        Xvfb :99 -screen 0 1024x768x16 &
+        bazel test --test_output=errors --test_env=DISPLAY=:99 //...

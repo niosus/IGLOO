@@ -57,11 +57,11 @@ class Buffer : public OpenGlObject {
   template <typename T>
   void AssignData(const T *const data, std::size_t number_of_elements) {
     static_assert(
-        type_utils::has_value<
+        type_utils::has_value_member<
             typename traits::components_per_vertex_count<T>>::value,
         "Missing specialization for trait 'components_per_vertex_count'");
     static_assert(
-        type_utils::has_value<typename traits::gl_underlying_type<T>>::value,
+        type_utils::has_value_member<typename traits::gl_underlying_type<T>>::value,
         "Missing specialization for trait 'gl_underlying_type'");
     components_per_vertex_ = traits::components_per_vertex_count<T>::value;
     gl_underlying_data_type_ = traits::gl_underlying_type<T>::value;

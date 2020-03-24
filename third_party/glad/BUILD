@@ -41,5 +41,6 @@ cc_library(
     name = "glad",
     srcs = [":gen_glad_srcs"],
     hdrs = [":gen_glad_hdrs"],
+    linkopts = ["-ldl"],
     visibility = ["//visibility:public"],
 )

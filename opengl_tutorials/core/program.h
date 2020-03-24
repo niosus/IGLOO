@@ -3,6 +3,7 @@
 
 #include "opengl_tutorials/core/gl_base.h"
 #include "opengl_tutorials/core/shader.h"
+#include "opengl_tutorials/core/uniform.h"
 
 #include <cstdint>
 
@@ -16,11 +17,13 @@ class Program : public OpenGlObject {
     glAttachShader(id_, shader->id());
     attached_shaders_.push_back(shader);
   }
+
   inline void AttachShaders(
       const std::vector<std::shared_ptr<Shader>> &shaders) {
     attached_shaders_.reserve(attached_shaders_.size() + shaders.size());
     for (const auto &shader : shaders) { AttachShader(shader); }
   }
+
   bool Link() const {
     glLinkProgram(id_);
     char info_log[512];

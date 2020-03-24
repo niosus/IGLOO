@@ -3,7 +3,7 @@ cc_library(
     srcs = ["viewer.cpp"],
     hdrs = ["viewer.h"],
     deps = [
-        "//opengl_tutorials/core:shader",
+        "//opengl_tutorials/core:core",
         "@glfw//:glfw",
     ],
     visibility = ["//opengl_tutorials:__subpackages__"],

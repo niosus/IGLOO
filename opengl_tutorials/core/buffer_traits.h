@@ -4,6 +4,7 @@
 #include "opengl_tutorials/core/gl_base.h"
 
 #include <type_traits>
+#include <vector>
 
 namespace gl_tutorials {
 namespace traits {
@@ -17,6 +18,17 @@ struct components_per_vertex_count<
     typename std::enable_if<std::is_floating_point<T>::value ||
                             std::is_integral<T>::value>::type> {
   static const int value{1};
+};
+
+template <typename T, typename Enable = void>
+struct underlying_type {};
+
+template <typename T>
+struct underlying_type<
+    T,
+    typename std::enable_if<std::is_floating_point<T>::value ||
+                            std::is_integral<T>::value>::type> {
+  using type = T;
 };
 
 template <typename T>

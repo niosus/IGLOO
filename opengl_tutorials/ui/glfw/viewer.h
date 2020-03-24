@@ -25,8 +25,14 @@ class Viewer {
  public:
   Viewer(const std::string& window_name) : window_name_{window_name} {}
 
+  bool InitializeHidden(const WindowSize& window_size = {800, 600},
+                        const GlVersion& gl_verions = {3, 3}) {
+    return Initialize(window_size, gl_verions, true);
+  }
+
   bool Initialize(const WindowSize& window_size = {800, 600},
-                  const GlVersion& gl_verions = {3, 3});
+                  const GlVersion& gl_verions = {3, 3},
+                  bool hidden = false);
 
   Viewer(const Viewer&) = delete;
   Viewer(Viewer&&) = delete;
@@ -55,6 +61,8 @@ class Viewer {
   }
 
   inline bool ShouldClose() const { return glfwWindowShouldClose(window_); }
+
+  inline float GetTime() const { return glfwGetTime(); }
 
  private:
   static inline void OnResize(GLFWwindow* window, int width, int height) {
