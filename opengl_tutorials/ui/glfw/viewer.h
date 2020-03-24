@@ -56,6 +56,8 @@ class Viewer {
 
   inline bool ShouldClose() const { return glfwWindowShouldClose(window_); }
 
+  inline float GetTime() const { return glfwGetTime(); }
+
  private:
   static inline void OnResize(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);

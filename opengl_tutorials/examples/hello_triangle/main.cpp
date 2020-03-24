@@ -76,9 +76,8 @@ int main(int argc, char *argv[]) {
 
     program->Use();
     if (FLAGS_use_uniforms.Get()) {
-      uniform.UpdateValue(0.0f, 1.0f, 0.0f, 0.0f);
-      uniform.UpdateValue(gl_tutorials::eigen::vector<Eigen::Vector4f>{
-          {1.0f, 1.0f, 0.0f, 0.0f}});
+      float green_value = (sin(viewer.GetTime()) / 2.0f) + 0.5f;
+      uniform.UpdateValue(0.0f, green_value, 0.0f, 0.0f);
     }
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
