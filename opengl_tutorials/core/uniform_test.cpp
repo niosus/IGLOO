@@ -34,8 +34,4 @@ TEST(UniformTest, UpdateValueFromArray) {
   uniform.UpdateValue(eigen::vector<Eigen::Vector4f>{{1.0f, 2.0f, 3.0f, 4.0f}});
   uniform.UpdateValue(
       eigen::vector<Eigen::Vector4f>(10, {1.0f, 2.0f, 3.0f, 4.0f}));
-
-  eigen::Vector<float, 5> eigen_vec5f;
-  auto wrong_vector = std::vector<eigen::Vector<float, 5>>{eigen_vec5f};
-  uniform.UpdateValue(wrong_vector);
 }
