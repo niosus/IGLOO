@@ -28,5 +28,5 @@ jobs:
 
     - name: Test
       uses: GabrielBB/xvfb-action@v1.0
-      run: |
-        bazel test --test_output=errors //...
+      with:
+        run: bazel test --test_output=errors //...
