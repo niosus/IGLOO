@@ -28,6 +28,11 @@ struct gl_underlying_type<eigen::Vector<T, N>> {
   static const int value{gl_underlying_type<T>::value};
 };
 
+template <typename T, int N>
+struct underlying_type<eigen::Vector<T, N>> {
+  using type = T;
+};
+
 }  // namespace traits
 
 }  // namespace gl_tutorials

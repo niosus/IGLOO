@@ -20,6 +20,17 @@ struct components_per_vertex_count<
   static const int value{1};
 };
 
+template <typename T, typename Enable = void>
+struct underlying_type {};
+
+template <typename T>
+struct underlying_type<
+    T,
+    typename std::enable_if<std::is_floating_point<T>::value ||
+                            std::is_integral<T>::value>::type> {
+  using type = T;
+};
+
 template <typename T>
 struct gl_underlying_type {};
 
