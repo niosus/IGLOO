@@ -28,5 +28,4 @@ jobs:
 
     - name: Test
       run: |
-        xvfb-run -a glxinfo | grep OpenGL
-        xvfb-run -a -e /dev/stderr bazel test --test_output=errors //...
+        xvfb-run -a -s "-screen 0 1024x768x24" -e /dev/stderr bazel test --test_output=errors //...
