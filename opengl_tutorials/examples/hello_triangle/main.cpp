@@ -17,9 +17,13 @@
 
 const gl_tutorials::eigen::vector<Eigen::Vector3f> vertices{
     {0.5f, 0.5f, 0.0f},    // top right
+    {1.0f, 0.0f, 0.0f},    // top right color
     {0.5f, -0.5f, 0.0f},   // bottom right
+    {0.0f, 1.0f, 0.0f},    // bottom right color
     {-0.5f, -0.5f, 0.0f},  // bottom left
-    {-0.5f, 0.5f, 0.0f}    // top left
+    {0.0f, 0.0f, 1.0f},    // bottom left color
+    {-0.5f, 0.5f, 0.0f},   // top left
+    {1.0f, 1.0f, 1.0f}     // top left color
 };
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
@@ -29,7 +33,7 @@ int main(int argc, char *argv[]) {
   absl::ParseCommandLine(argc, argv);
 
   gl_tutorials::glfw::Viewer viewer{"OpenGlViewer"};
-  bool success = viewer.Initialize();
+  const bool success = viewer.Initialize();
   if (!success) { return EXIT_FAILURE; }
 
   std::string fragment_shader_source{};
@@ -67,7 +71,11 @@ int main(int argc, char *argv[]) {
       gl_tutorials::Buffer::Type::kElementArrayBuffer,
       gl_tutorials::Buffer::Usage::kStaticDraw,
       indices));
-  vertex_array_buffer.EnableVertexAttributePointer(0);
+  const int stride = 2;
+  const int pos_offset = 0;
+  vertex_array_buffer.EnableVertexAttributePointer(0, stride, pos_offset);
+  const int color_offset = 1;
+  vertex_array_buffer.EnableVertexAttributePointer(1, stride, color_offset);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
@@ -82,7 +90,6 @@ int main(int argc, char *argv[]) {
     }
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
-
     viewer.Spin();
   }
   return EXIT_SUCCESS;
