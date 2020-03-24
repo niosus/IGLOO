@@ -28,5 +28,4 @@ jobs:
 
     - name: Test
       run: |
-        xhost local:root
-        xvfb-run -a bazel test --test_output=errors --test_env=DISPLAY //...
+        bazel test --test_output=errors --test_env=DISPLAY //...
