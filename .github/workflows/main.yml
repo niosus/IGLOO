@@ -28,4 +28,5 @@ jobs:
 
     - name: Test
       run: |
-        bazel test --test_output=errors --test_env=DISPLAY=:0 //...
+        Xvfb :99 -screen 0 1024x768x16 &
+        bazel test --test_output=errors --test_env=DISPLAY=:99 //...
