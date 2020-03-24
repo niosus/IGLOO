@@ -7,7 +7,7 @@
 using gl_tutorials::glfw::Viewer;
 
 int main(int argc, char** argv) {
-  setenv("DISPLAY", ":0", true);
+  setenv("DISPLAY", ":0", false);
   Viewer viewer{"TestViewer"};
   bool initialized = viewer.InitializeHidden();
   if (!initialized) { return 1; }

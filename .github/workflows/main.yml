@@ -28,4 +28,4 @@ jobs:
 
     - name: Test
       run: |
-        xvfb-run -s "-screen 0 640x480x24" "${GITHUB_WORKSPACE}/bin/bazel" test --test_output=errors //...
+        xvfb-run -a  bazel test --test_output=errors //... --action_env=DISPLAY=$DISPLAY
