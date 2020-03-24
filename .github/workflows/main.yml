@@ -21,5 +21,7 @@ jobs:
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
 
     - name: Build
-      run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" build //...
+      run: "${GITHUB_WORKSPACE}/bin/bazel" build //...
+
+    - name: Test
+      run: "${GITHUB_WORKSPACE}/bin/bazel" test //...

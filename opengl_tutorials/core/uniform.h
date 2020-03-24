@@ -5,6 +5,7 @@
 #include "opengl_tutorials/core/gl_base.h"
 #include "opengl_tutorials/utils/type_utils.h"
 
+#include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -43,16 +44,19 @@ class Uniform : public OpenGlObject {
     UpdateValueFromPack<sizeof...(Ts), Ts...>(numbers...);
   }
 
+  inline const std::string& name() const { return name_; }
+
  private:
   template <size_t kNumberOfElementsInPack, typename... Ts>
   void UpdateValueFromPack(Ts... numbers) {
-    std::cerr << "Base UpdateValueFromPack should not be called." << std::endl;
+    static_assert(kNumberOfElementsInPack < 5, "Too many pack arguments.");
   }
 
   template <size_t kComponentCount, typename T>
   void UpdateValueFromArray(const void* const data,
                             std::size_t number_of_vectors) {
-    std::cerr << "Base UpdateValueFromArray should not be called." << std::endl;
+    static_assert(kComponentCount == 0,
+                  "No specialization provided. Please provide one.");
   }
 
   std::string name_;

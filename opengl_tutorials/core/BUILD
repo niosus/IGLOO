@@ -1,5 +1,5 @@
 cc_library(
-    name = "shader",
+    name = "core",
     srcs = ["shader.cpp"],
     hdrs = [
       "gl_base.h",
@@ -19,3 +19,19 @@ cc_library(
     ],
     visibility = ["//opengl_tutorials:__subpackages__"],
 )
+
+cc_test(
+    name = "core_test",
+    srcs = [
+        "uniform_test.cpp",
+        "main_test.cpp"
+    ],
+    deps = [
+        "//opengl_tutorials/ui/glfw:viewer",
+        "//opengl_tutorials/utils:eigen_utils",
+        ":core",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+

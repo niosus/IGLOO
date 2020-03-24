@@ -12,7 +12,7 @@ cc_library(
     hdrs = ["eigen_utils.h"],
     visibility = ["//opengl_tutorials:__subpackages__"],
     deps = [
-        "//opengl_tutorials/core:shader",
+        "//opengl_tutorials/core:core",
         "@org_tuxfamily_eigen//:eigen",
     ]
 )

@@ -27,6 +27,7 @@ ABSL_FLAG(bool, use_uniforms, true, "Use uniforms for color specification.");
 
 int main(int argc, char *argv[]) {
   absl::ParseCommandLine(argc, argv);
+
   gl_tutorials::glfw::Viewer viewer{"OpenGlViewer"};
   bool success = viewer.Initialize();
   if (!success) { return EXIT_FAILURE; }
