@@ -14,11 +14,7 @@ jobs:
         sudo apt install -y 
         libx11-dev libxinerama-dev libxi-dev libxcursor-dev libxrandr-dev xvfb
         mesa-common-dev libpthread-stubs0-dev
-    - name: Initialize display
-      run: sh -e /etc/init.d/xvfb start
-      env:
-        DISPLAY: ":0"
-      
+        
     - name: Install bazelisk
       run: |
         curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-linux-amd64"
@@ -33,3 +29,5 @@ jobs:
     - name: Test
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test --test_output=errors //...
+      env:
+        DISPLAY: ":0"
