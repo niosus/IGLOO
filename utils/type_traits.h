@@ -3,8 +3,7 @@
 
 #include <type_traits>
 
-namespace gl_tutorials {
-namespace type_utils {
+namespace traits {
 
 template <typename T, typename = void>
 struct has_value_member : std::false_type {};
@@ -22,7 +21,6 @@ struct has_type_member : public std::false_type {};
 template <class T>
 struct has_type_member<T, void_t<typename T::type>> : public std::true_type {};
 
-}  // namespace type_utils
-}  // namespace gl_tutorials
+}  // namespace traits
 
 #endif  // OPENGL_TUTORIALS_UTILS_TYPE_UTILS_H_

@@ -1,14 +1,14 @@
 #ifndef OPENGL_TUTORIALS_CORE_VERTEX_ARRAY_BUFFER_H_
 #define OPENGL_TUTORIALS_CORE_VERTEX_ARRAY_BUFFER_H_
 
-#include "opengl_tutorials/core/buffer.h"
-#include "opengl_tutorials/core/gl_base.h"
+#include "gl/core/buffer.h"
+#include "gl/core/gl_base.h"
 
 #include <array>
 #include <iostream>
 #include <memory>
 
-namespace gl_tutorials {
+namespace gl {
 
 class VertexArrayBuffer : public OpenGlObject {
  public:
@@ -71,9 +71,7 @@ class VertexArrayBuffer : public OpenGlObject {
     return true;
   }
 
-  ~VertexArrayBuffer() {
-    glDeleteVertexArrays(1, &id_);
-  }
+  ~VertexArrayBuffer() { glDeleteVertexArrays(1, &id_); }
 
  private:
   static inline std::size_t GetBoundBufferIndex(Buffer::Type type) {
@@ -88,6 +86,6 @@ class VertexArrayBuffer : public OpenGlObject {
   std::array<std::shared_ptr<Buffer>, 2ul> bound_buffers_{};
 };
 
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_CORE_VERTEX_ARRAY_BUFFER_H_

@@ -1,8 +1,8 @@
-#include "opengl_tutorials/ui/glfw/viewer.h"
+#include "gl/ui/glfw/viewer.h"
 
 #include <iostream>
 
-namespace gl_tutorials {
+namespace gl {
 namespace glfw {
 
 namespace {
@@ -44,4 +44,4 @@ bool Viewer::Initialize(const WindowSize& window_size,
 }
 
 }  // namespace glfw
-}  // namespace gl_tutorials
+}  // namespace gl
