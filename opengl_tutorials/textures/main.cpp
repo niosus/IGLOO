@@ -19,15 +19,12 @@
 
 using utils::Image;
 
-const eigen::vector<Eigen::Vector3f> vertices{
-    {0.5f, 0.5f, 0.0f},    // top right
-    {1.0f, 0.0f, 0.0f},    // top right color
-    {0.5f, -0.5f, 0.0f},   // bottom right
-    {0.0f, 0.0f, 0.0f},    // bottom right color
-    {-0.5f, -0.5f, 0.0f},  // bottom left
-    {0.0f, 0.0f, 1.0f},    // bottom left color
-    {-0.5f, 0.5f, 0.0f},   // top left
-    {0.0f, 0.0f, 0.0f}     // top left color
+const eigen::vector<float> vertices{
+    // positions        // colors         // texture coords
+    0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top right
+    0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left
+    -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
 };
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
@@ -48,6 +45,24 @@ int main(int argc, char *argv[]) {
                image->width(),
                image->height(),
                image->number_of_channels());
+
+  unsigned int texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               GL_RGB,
+               image->width(),
+               image->height(),
+               0,
+               GL_RGB,
+               GL_UNSIGNED_BYTE,
+               image->data());
+  glGenerateMipmap(GL_TEXTURE_2D);
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
       "opengl_tutorials/textures/shaders/triangle.vert")};
@@ -73,11 +88,14 @@ int main(int argc, char *argv[]) {
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kElementArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    indices));
-  const int stride = 2;
+  const int stride = 8;
   const int pos_offset = 0;
-  vertex_array_buffer.EnableVertexAttributePointer(0, stride, pos_offset);
-  const int color_offset = 1;
-  vertex_array_buffer.EnableVertexAttributePointer(1, stride, color_offset);
+  vertex_array_buffer.EnableVertexAttributePointer(0, stride, pos_offset, 3);
+  const int color_offset = 3;
+  vertex_array_buffer.EnableVertexAttributePointer(1, stride, color_offset, 3);
+  const int texture_coords_offset = 6;
+  vertex_array_buffer.EnableVertexAttributePointer(
+      2, stride, texture_coords_offset, 2);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
@@ -86,8 +104,8 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     program->Use();
-    float green_value = (sin(viewer.GetTime() * 3.0f) / 2.0f) + 0.5f;
-    uniform.UpdateValue(0.0f, green_value, 0.0f);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();
