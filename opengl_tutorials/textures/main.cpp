@@ -10,6 +10,8 @@
 #include "gl/utils/eigen_traits.h"
 #include "utils/eigen_utils.h"
 
+#include "stb/stb_image.h"
+
 #include <GLFW/glfw3.h>
 
 #include <iostream>

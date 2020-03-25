@@ -55,35 +55,10 @@ http_archive(
   ],
 )
 
-http_archive(
-  name = "libpng",
-  build_file = "@//:third_party/libpng/libpng.BUILD",
-  sha256 = "7f415186d38ca71c23058386d7cf5135c8beda821ee1beecdc2a7a26c0356615",
-  strip_prefix = "libpng-1.2.57",
-  urls = [
-      "https://mirror.bazel.build/github.com/glennrp/libpng/archive/v1.2.57.tar.gz",
-      "https://github.com/glennrp/libpng/archive/v1.2.57.tar.gz",
-  ],
-)
-
-http_archive (
-  name = "zlib",
-  sha256 = "6d4d6640ca3121620995ee255945161821218752b551a1a180f4215f7d124d45",
-  build_file = "@//:third_party/zlib/zlib.BUILD",
-  strip_prefix = "zlib-cacf7f1d4e3d44d871b605da3b647f07d718623f",
-  urls = [
-      "https://mirror.bazel.build/github.com/madler/zlib/archive/cacf7f1d4e3d44d871b605da3b647f07d718623f.tar.gz",
-      "https://github.com/madler/zlib/archive/cacf7f1d4e3d44d871b605da3b647f07d718623f.tar.gz",
-  ],
-)
-
-http_archive(
-  name = "libjpeg",
-  build_file = "@//:third_party/libjpeg/libjpeg.BUILD",
-  sha256 = "240fd398da741669bf3c90366f58452ea59041cacc741a489b99f2f6a0bad052",
-  strip_prefix = "jpeg-9b",
-  urls = [
-      "https://mirror.bazel.build/www.ijg.org/files/jpegsrc.v9b.tar.gz",
-      "http://www.ijg.org/files/jpegsrc.v9b.tar.gz",
-  ],
+git_repository(
+    name = "stb",
+    init_submodules = True,
+    commit = "f33d98e3a41a41eccd83d17fa88c4a6fedf552f9",
+    shallow_since = "1572259405 +0000",
+    remote = "https://github.com/nitronoid/rules_stb"
 )

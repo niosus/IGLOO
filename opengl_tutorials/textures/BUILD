@@ -15,8 +15,7 @@ cc_binary(
         "@abseil//absl/strings",
         "@glfw",
         "@eigen//:eigen",
-        "@libpng//:libpng",
-        "@libjpeg//:libjpeg",
+        "@stb//:image",
     ],
 )
 
