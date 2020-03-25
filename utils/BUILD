@@ -24,3 +24,32 @@ cc_library(
     name = "type_traits",
     hdrs = ["type_traits.h"],
 )
+
+cc_library(
+    name = "image",
+    hdrs = ["image.h"],
+    deps = [
+        ":file_utils",
+        "@abseil//absl/types:optional",
+        "@stb//:image"
+    ],
+)
+
+
+cc_test(
+    name = "image_test",
+    srcs = [
+        "image_test.cpp",
+    ],
+    deps = [
+        ":image",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+    data = [":test_images"]
+)
+
+filegroup(
+    name = "test_images",
+    srcs = glob(["test_images/*"]),
+)

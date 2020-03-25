@@ -5,10 +5,16 @@
 
 #include <fstream>
 #include <string>
+#include <sys/stat.h>
 
 namespace utils {
 
-inline absl::optional<std::string> ReadFileContents(const std::string &path) {
+inline bool FileExists(const std::string& name) {
+  struct stat buffer;
+  return (stat(name.c_str(), &buffer) == 0);
+}
+
+inline absl::optional<std::string> ReadFileContents(const std::string& path) {
   std::ifstream ifs{path};
   if (!ifs) { return {}; }
   return absl::optional<std::string>{

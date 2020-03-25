@@ -9,14 +9,15 @@
 #include "gl/ui/glfw/viewer.h"
 #include "gl/utils/eigen_traits.h"
 #include "utils/eigen_utils.h"
-
-#include "stb/stb_image.h"
+#include "utils/image.h"
 
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <ostream>
 #include <vector>
+
+using utils::Image;
 
 const eigen::vector<Eigen::Vector3f> vertices{
     {0.5f, 0.5f, 0.0f},    // top right
@@ -37,10 +38,21 @@ int main(int argc, char *argv[]) {
   const bool success = viewer.Initialize();
   if (!success) { return EXIT_FAILURE; }
 
+  const auto image =
+      Image::CreateFrom("opengl_tutorials/textures/textures/container.jpg");
+  if (!image) {
+    absl::FPrintF(stderr, "Error: Image not found.\n");
+    return EXIT_FAILURE;
+  }
+  absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
+               image->width(),
+               image->height(),
+               image->number_of_channels());
+
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/hello_triangle/shaders/triangle.vert")};
+      "opengl_tutorials/textures/shaders/triangle.vert")};
   const std::shared_ptr<gl::Shader> fragment_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/hello_triangle/shaders/triangle.frag")};
+      "opengl_tutorials/textures/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
   const auto program =
