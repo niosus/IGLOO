@@ -20,8 +20,8 @@ cc_library(
         "//third_party/glad",
         "//utils:file_utils",
         "//utils:type_traits",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/strings:str_format",
+        "@abseil//absl/strings",
+        "@abseil//absl/strings:str_format",
     ],
 )
 
@@ -37,6 +37,6 @@ cc_test(
         "//gl/ui/glfw:viewer",
         "//gl/utils:eigen_traits",
         "//utils:eigen_utils",
-        "@com_google_googletest//:gtest",
+        "@gtest//:gtest",
     ],
 )

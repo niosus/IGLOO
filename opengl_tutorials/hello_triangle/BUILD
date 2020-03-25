@@ -10,11 +10,11 @@ cc_binary(
         "//gl/utils:eigen_traits",
         "//third_party/glad",
         "//utils:eigen_utils",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/strings",
+        "@abseil//absl/flags:flag",
+        "@abseil//absl/flags:parse",
+        "@abseil//absl/strings",
         "@glfw",
-        "@org_tuxfamily_eigen//:eigen",
+        "@eigen//:eigen",
     ],
 )
 

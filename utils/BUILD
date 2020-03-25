@@ -8,7 +8,7 @@ cc_library(
     name = "eigen_utils",
     hdrs = ["eigen_utils.h"],
     deps = [
-        "@org_tuxfamily_eigen//:eigen",
+        "@eigen//:eigen",
     ],
 )
 
@@ -16,7 +16,7 @@ cc_library(
     name = "file_utils",
     hdrs = ["file_utils.h"],
     deps = [
-        "@com_google_absl//absl/types:optional",
+        "@abseil//absl/types:optional",
     ],
 )
 
