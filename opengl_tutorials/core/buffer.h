@@ -60,38 +60,52 @@ class Buffer : public OpenGlObject {
         type_utils::has_value_member<
             typename traits::components_per_vertex_count<T>>::value,
         "Missing specialization for trait 'components_per_vertex_count'");
-    static_assert(
-        type_utils::has_value_member<typename traits::gl_underlying_type<T>>::value,
-        "Missing specialization for trait 'gl_underlying_type'");
+    static_assert(type_utils::has_value_member<
+                      typename traits::gl_underlying_type<T>>::value,
+                  "Missing specialization for trait 'gl_underlying_type'");
     components_per_vertex_ = traits::components_per_vertex_count<T>::value;
     gl_underlying_data_type_ = traits::gl_underlying_type<T>::value;
     data_sizeof_ = sizeof(T);
     number_of_elements_ = number_of_elements;
 
-    const auto prev_bound_buffer = Bind();
+    const auto previously_bound_buffer{Bind()};
     glBufferData(type_, data_sizeof_ * number_of_elements, data, usage_);
-    UnBind(prev_bound_buffer);
+    if (previously_bound_buffer != id_) {
+      UnBindAndRebind(previously_bound_buffer);
+    }
   }
 
-  GLint Bind() const {
-    GLint bound_buffer;
-    glGetIntegerv(MapTypeToBindingType(type_), &bound_buffer);
-    glBindBuffer(type_, id_);
+  inline GLuint Bind() const {
+    GLuint bound_buffer{GetCurrentlyBoundBuffer(type_)};
+    if (bound_buffer != id_) { glBindBuffer(type_, id_); }
     return bound_buffer;
   }
 
-  void UnBind(OpenGlObject::IdType id_to_bind = 0u) const {
+  inline void UnBind() const { UnBindAndRebind(0u); }
+
+  inline void UnBindAndRebind(OpenGlObject::IdType id_to_bind = 0u) const {
     glBindBuffer(type_, id_to_bind);
   }
 
-  Buffer::Type type() const { return static_cast<Buffer::Type>(type_); }
-  GLint gl_type() const { return type_; }
-  GLint gl_underlying_data_type() const { return gl_underlying_data_type_; }
-  GLint components_per_vertex() const { return components_per_vertex_; }
-  std::size_t data_sizeof() const { return data_sizeof_; }
-  std::size_t number_of_elements() const { return number_of_elements_; }
+  inline Buffer::Type type() const { return static_cast<Buffer::Type>(type_); }
+  inline Buffer::Usage usage() const {
+    return static_cast<Buffer::Usage>(usage_);
+  }
+  inline GLint gl_type() const { return type_; }
+  inline GLint gl_underlying_data_type() const {
+    return gl_underlying_data_type_;
+  }
+  inline GLint components_per_vertex() const { return components_per_vertex_; }
+  inline std::size_t data_sizeof() const { return data_sizeof_; }
+  inline std::size_t number_of_elements() const { return number_of_elements_; }
 
  private:
+  static inline GLuint GetCurrentlyBoundBuffer(GLenum type) {
+    GLint bound_buffer;
+    glGetIntegerv(MapTypeToBindingType(type), &bound_buffer);
+    return static_cast<GLuint>(bound_buffer);
+  }
+
   static inline GLenum MapTypeToBindingType(GLenum type) {
     switch (type) {
       case GL_ARRAY_BUFFER: return GL_ARRAY_BUFFER_BINDING;

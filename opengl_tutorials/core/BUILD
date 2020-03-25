@@ -24,6 +24,7 @@ cc_test(
     name = "core_test",
     srcs = [
         "uniform_test.cpp",
+        "buffer_test.cpp",
         "main_test.cpp"
     ],
     deps = [
