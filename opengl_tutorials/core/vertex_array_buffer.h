@@ -72,9 +72,6 @@ class VertexArrayBuffer : public OpenGlObject {
   }
 
   ~VertexArrayBuffer() {
-    for (const auto &bound_buffer : bound_buffers_) {
-      if (bound_buffer) { bound_buffer->UnBind(); }
-    }
     glDeleteVertexArrays(1, &id_);
   }
 

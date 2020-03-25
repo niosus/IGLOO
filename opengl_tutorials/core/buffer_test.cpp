@@ -9,8 +9,8 @@ GLuint GetCurrentlyBoundBuffer(GLenum binding_type) {
   GLint bound_buffer;
   glGetIntegerv(binding_type, &bound_buffer);
   return static_cast<GLuint>(bound_buffer);
-  }
 }
+}  // namespace
 
 TEST(BufferTest, Init) {
   Buffer buffer{Buffer::Type::kArrayBuffer, Buffer::Usage::kStaticDraw};
@@ -81,5 +81,11 @@ TEST(BufferTest, BindUnbind) {
   ASSERT_EQ(buffer_1.id(), GetCurrentlyBoundBuffer(GL_ARRAY_BUFFER_BINDING));
   buffer_2.UnBind();
   ASSERT_EQ(0, GetCurrentlyBoundBuffer(GL_ARRAY_BUFFER_BINDING));
+  {
+    Buffer temp_buffer{Buffer::Type::kArrayBuffer, Buffer::Usage::kStaticDraw};
+    temp_buffer.Bind();
+    ASSERT_EQ(temp_buffer.id(),
+              GetCurrentlyBoundBuffer(GL_ARRAY_BUFFER_BINDING));
+  }
+  ASSERT_EQ(0, GetCurrentlyBoundBuffer(GL_ARRAY_BUFFER_BINDING));
 }
-
