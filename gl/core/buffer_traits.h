@@ -1,12 +1,12 @@
 #ifndef OPENGL_TUTORIALS_CORE_BUFFER_TRAITS_H_
 #define OPENGL_TUTORIALS_CORE_BUFFER_TRAITS_H_
 
-#include "opengl_tutorials/core/gl_base.h"
+#include "gl/core/gl_base.h"
 
 #include <type_traits>
 #include <vector>
 
-namespace gl_tutorials {
+namespace gl {
 namespace traits {
 
 template <typename T, typename Enable = void>
@@ -75,6 +75,6 @@ struct gl_underlying_type<double> {
 };
 
 }  // namespace traits
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_CORE_BUFFER_TRAITS_H_

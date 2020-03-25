@@ -1,10 +1,14 @@
+package(default_visibility = [
+    "//gl:__subpackages__",
+    "//opengl_tutorials:__subpackages__",
+])
+
 cc_library(
     name = "viewer",
     srcs = ["viewer.cpp"],
     hdrs = ["viewer.h"],
     deps = [
-        "//opengl_tutorials/core:core",
+        "//gl/core:core",
         "@glfw//:glfw",
     ],
-    visibility = ["//opengl_tutorials:__subpackages__"],
 )

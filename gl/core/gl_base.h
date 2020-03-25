@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-namespace gl_tutorials {
+namespace gl {
 
 class OpenGlObject {
  public:
@@ -19,6 +19,6 @@ class OpenGlObject {
   IdType id_{};
 };
 
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_CORE_GL_BASE_H_

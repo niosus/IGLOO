@@ -1,8 +1,8 @@
-#include "opengl_tutorials/ui/glfw/viewer.h"
+#include "gl/ui/glfw/viewer.h"
 
 #include "gtest/gtest.h"
 
-using gl_tutorials::glfw::Viewer;
+using gl::glfw::Viewer;
 
 int main(int argc, char** argv) {
   Viewer viewer{"TestViewer"};

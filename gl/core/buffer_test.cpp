@@ -1,8 +1,9 @@
-#include "opengl_tutorials/core/buffer.h"
-#include "opengl_tutorials/utils/eigen_utils.h"
+#include "gl/core/buffer.h"
+#include "gl/utils/eigen_traits.h"
+#include "utils/eigen_utils.h"
 #include "gtest/gtest.h"
 
-using namespace gl_tutorials;
+using namespace gl;
 
 namespace {
 GLuint GetCurrentlyBoundBuffer(GLenum binding_type) {

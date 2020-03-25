@@ -1,14 +1,14 @@
-#include "opengl_tutorials/core/shader.h"
+#include "gl/core/shader.h"
 
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
-#include "opengl_tutorials/utils/file_utils.h"
+#include "utils/file_utils.h"
 
 #include <iostream>
 #include <memory>
 #include <string>
 
-namespace gl_tutorials {
+namespace gl {
 
 std::unique_ptr<Shader> Shader::CreateFromFile(const std::string &file_name) {
   auto gl_shader_type = DetectShaderType(file_name);
@@ -58,4 +58,4 @@ bool Shader::CompileShader() {
   return true;
 }
 
-}  // namespace gl_tutorials
+}  // namespace gl

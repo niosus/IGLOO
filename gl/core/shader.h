@@ -1,17 +1,15 @@
 #ifndef OPENGL_TUTORIALS_CORE_SHADER_H_
 #define OPENGL_TUTORIALS_CORE_SHADER_H_
 
-#include "opengl_tutorials/core/gl_base.h"
-
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
-#include "opengl_tutorials/utils/file_utils.h"
+#include "gl/core/gl_base.h"
 
 #include <iostream>
 #include <memory>
 #include <string>
 
-namespace gl_tutorials {
+namespace gl {
 
 class Shader : public OpenGlObject {
  public:
@@ -41,6 +39,6 @@ class Shader : public OpenGlObject {
   Shader::Type type_{Shader::Type::kUndefined};
 };
 
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_CORE_SHADER_H_

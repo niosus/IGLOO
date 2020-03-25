@@ -1,9 +1,10 @@
-#include "opengl_tutorials/core/uniform.h"
-#include "opengl_tutorials/ui/glfw/viewer.h"
-#include "opengl_tutorials/utils/eigen_utils.h"
+#include "gl/core/uniform.h"
+#include "gl/ui/glfw/viewer.h"
+#include "gl/utils/eigen_traits.h"
+#include "utils/eigen_utils.h"
 #include "gtest/gtest.h"
 
-using namespace gl_tutorials;
+using namespace gl;
 
 TEST(UniformTest, Init) {
   Uniform uniform{"some_name", 0};

@@ -1,13 +1,13 @@
 #ifndef OPENGL_TUTORIALS_CORE_PROGRAM_H_
 #define OPENGL_TUTORIALS_CORE_PROGRAM_H_
 
-#include "opengl_tutorials/core/gl_base.h"
-#include "opengl_tutorials/core/shader.h"
-#include "opengl_tutorials/core/uniform.h"
+#include "gl/core/gl_base.h"
+#include "gl/core/shader.h"
+#include "gl/core/uniform.h"
 
 #include <cstdint>
 
-namespace gl_tutorials {
+namespace gl {
 
 class Program : public OpenGlObject {
  public:
@@ -52,6 +52,6 @@ class Program : public OpenGlObject {
   std::vector<std::shared_ptr<Shader>> attached_shaders_;
 };
 
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_CORE_PROGRAM_H_

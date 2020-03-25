@@ -1,14 +1,14 @@
 #ifndef OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 #define OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 
-#include "opengl_tutorials/core/gl_base.h"
+#include "gl/core/gl_base.h"
 
 #include <GLFW/glfw3.h>
 
 #include <memory>
 #include <string>
 
-namespace gl_tutorials {
+namespace gl {
 namespace glfw {
 
 struct WindowSize {
@@ -75,6 +75,6 @@ class Viewer {
 };
 
 }  // namespace glfw
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_

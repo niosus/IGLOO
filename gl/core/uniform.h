@@ -1,16 +1,16 @@
 #ifndef OPENGL_TUTORIALS_CORE_GL_UNIFORM_H_
 #define OPENGL_TUTORIALS_CORE_GL_UNIFORM_H_
 
-#include "opengl_tutorials/core/buffer_traits.h"
-#include "opengl_tutorials/core/gl_base.h"
-#include "opengl_tutorials/utils/type_utils.h"
+#include "gl/core/buffer_traits.h"
+#include "gl/core/gl_base.h"
+#include "utils/type_traits.h"
 
 #include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
 
-namespace gl_tutorials {
+namespace gl {
 
 class Uniform : public OpenGlObject {
  public:
@@ -27,11 +27,11 @@ class Uniform : public OpenGlObject {
   template <typename T>
   void UpdateValue(const T* const data, std::size_t number_of_elements) {
     static_assert(
-        type_utils::has_value_member<
+        ::traits::has_value_member<
             typename traits::components_per_vertex_count<T>>::value,
         "Missing specialization for trait 'components_per_vertex_count'");
     static_assert(
-        type_utils::has_type_member<typename traits::underlying_type<T>>::value,
+        ::traits::has_type_member<typename traits::underlying_type<T>>::value,
         "Missing specialization for trait 'underlying_type'");
     using UnderlyingType = typename traits::underlying_type<T>::type;
     UpdateValueFromArray<traits::components_per_vertex_count<T>::value,
@@ -109,6 +109,6 @@ void Uniform::UpdateValueFromArray<4, float>(const void* const data,
   glUniform4fv(id_, number_of_vectors, static_cast<const float*>(data));
 }
 
-}  // namespace gl_tutorials
+}  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_CORE_GL_UNIFORM_H_
