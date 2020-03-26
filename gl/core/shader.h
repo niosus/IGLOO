@@ -3,7 +3,7 @@
 
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
-#include "gl/core/gl_base.h"
+#include "gl/core/opengl_object.h"
 
 #include <iostream>
 #include <memory>

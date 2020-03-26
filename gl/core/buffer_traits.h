@@ -1,7 +1,7 @@
 #ifndef OPENGL_TUTORIALS_CORE_BUFFER_TRAITS_H_
 #define OPENGL_TUTORIALS_CORE_BUFFER_TRAITS_H_
 
-#include "gl/core/gl_base.h"
+#include "gl/core/opengl_object.h"
 
 #include <type_traits>
 #include <vector>

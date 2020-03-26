@@ -4,6 +4,7 @@
 #include "gl/core/buffer.h"
 #include "gl/core/program.h"
 #include "gl/core/shader.h"
+#include "gl/core/texture.h"
 #include "gl/core/uniform.h"
 #include "gl/core/vertex_array_buffer.h"
 #include "gl/ui/glfw/viewer.h"
@@ -53,43 +54,31 @@ int main(int argc, char *argv[]) {
                image_face->height(),
                image_face->number_of_channels());
 
-  unsigned int texture_1;
-  glGenTextures(1, &texture_1);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture_1);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D,
-               0,
-               GL_RGB,
-               image_container->width(),
-               image_container->height(),
-               0,
-               GL_RGB,
-               GL_UNSIGNED_BYTE,
-               image_container->data());
-  glGenerateMipmap(GL_TEXTURE_2D);
+  gl::Texture texture_1{gl::Texture::Type::kTexture2D,
+                        gl::Texture::Identifier::kTexture0};
+  texture_1.Bind();
+  texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
+                        gl::Texture::WrappingMode::kRepeat);
+  texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
+                        gl::Texture::WrappingMode::kRepeat);
+  texture_1.SetFiltering(gl::Texture::FilteringType::kMinifying,
+                         gl::Texture::FilteringMode::kLinear);
+  texture_1.SetFiltering(gl::Texture::FilteringType::kMagnifying,
+                         gl::Texture::FilteringMode::kLinear);
+  texture_1.SetImage(*image_container);
 
-  unsigned int texture_2;
-  glGenTextures(1, &texture_2);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, texture_2);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D,
-               0,
-               GL_RGB,
-               image_face->width(),
-               image_face->height(),
-               0,
-               GL_RGBA,
-               GL_UNSIGNED_BYTE,
-               image_face->data());
-  glGenerateMipmap(GL_TEXTURE_2D);
+  gl::Texture texture_2{gl::Texture::Type::kTexture2D,
+                        gl::Texture::Identifier::kTexture1};
+  texture_2.Bind();
+  texture_2.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
+                        gl::Texture::WrappingMode::kRepeat);
+  texture_2.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
+                        gl::Texture::WrappingMode::kRepeat);
+  texture_2.SetFiltering(gl::Texture::FilteringType::kMinifying,
+                         gl::Texture::FilteringMode::kLinear);
+  texture_2.SetFiltering(gl::Texture::FilteringType::kMagnifying,
+                         gl::Texture::FilteringMode::kLinear);
+  texture_2.SetImage(*image_face);
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
       "opengl_tutorials/textures/shaders/triangle.vert")};
@@ -108,6 +97,10 @@ int main(int argc, char *argv[]) {
   uniform_1.UpdateValue(0);
   gl::Uniform uniform_2{"texture2", program->id()};
   uniform_2.UpdateValue(1);
+
+  float mixture = 0.5f;
+  gl::Uniform uniform_3{"mix_ratio", program->id()};
+  uniform_3.UpdateValue(mixture);
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -128,6 +121,17 @@ int main(int argc, char *argv[]) {
   vertex_array_buffer.EnableVertexAttributePointer(
       2, stride, texture_coords_offset, components_per_entry);
 
+  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp,
+                                  [&mixture, &uniform_3](gl::glfw::KeyPress) {
+                                    mixture = std::min(1.0f, mixture + 0.02f);
+                                    uniform_3.UpdateValue(mixture);
+                                  });
+  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown,
+                                  [&mixture, &uniform_3](gl::glfw::KeyPress) {
+                                    mixture = std::max(0.0f, mixture - 0.02f);
+                                    uniform_3.UpdateValue(mixture);
+                                  });
+
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
 
@@ -135,11 +139,8 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     program->Use();
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture_1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture_2);
+    texture_1.Bind();
+    texture_2.Bind();
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();

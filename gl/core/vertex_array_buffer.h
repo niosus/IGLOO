@@ -2,7 +2,7 @@
 #define OPENGL_TUTORIALS_CORE_VERTEX_ARRAY_BUFFER_H_
 
 #include "gl/core/buffer.h"
-#include "gl/core/gl_base.h"
+#include "gl/core/opengl_object.h"
 
 #include <array>
 #include <iostream>

@@ -8,8 +8,9 @@ cc_library(
     ],
     hdrs = [
         "buffer.h",
+        "texture.h",
         "buffer_traits.h",
-        "gl_base.h",
+        "opengl_object.h",
         "program.h",
         "shader.h",
         "uniform.h",
@@ -24,6 +25,7 @@ cc_library(
         "//utils:file_utils",
         "//utils:type_traits",
         "//utils:macro_utils",
+        "//utils:image",
         "@abseil//absl/strings",
         "@abseil//absl/strings:str_format",
     ],

@@ -1,12 +1,15 @@
 #ifndef OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 #define OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 
-#include "gl/core/gl_base.h"
+#include "gl/core/opengl_object.h"
 
 #include <GLFW/glfw3.h>
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace gl {
 namespace glfw {
@@ -19,6 +22,15 @@ struct WindowSize {
 struct GlVersion {
   std::uint32_t major;
   std::uint32_t minor;
+};
+
+enum class KeyPress {
+  kUnknown,
+  kArrowUp,
+  kArrowDown,
+  kArrowLeft,
+  kArrowRight,
+  kEscape
 };
 
 class Viewer {
@@ -50,8 +62,13 @@ class Viewer {
 
   inline void ProcessInput() {
     if (!window_) { return; }
-    if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-      glfwSetWindowShouldClose(window_, true);
+    for (int key : keys_to_monitor_) {
+      if (glfwGetKey(window_, key) != GLFW_PRESS) { continue; }
+      auto key_from_enum = MapToKeyPress(key);
+      const auto& callback_iter = key_press_handlers.find(key_from_enum);
+      if (callback_iter == key_press_handlers.end()) { continue; }
+      callback_iter->second(key_from_enum);
+    }
   }
 
   inline void Spin() {
@@ -64,7 +81,23 @@ class Viewer {
 
   inline float GetTime() const { return glfwGetTime(); }
 
+  inline void RegisterKeyPressCallback(
+      KeyPress key_press, std::function<void(KeyPress)> key_press_handler) {
+    key_press_handlers[key_press] = key_press_handler;
+  }
+
  private:
+  static inline KeyPress MapToKeyPress(int glfw_keypress) {
+    switch (glfw_keypress) {
+      case GLFW_KEY_LEFT: return KeyPress::kArrowLeft;
+      case GLFW_KEY_RIGHT: return KeyPress::kArrowRight;
+      case GLFW_KEY_UP: return KeyPress::kArrowUp;
+      case GLFW_KEY_DOWN: return KeyPress::kArrowDown;
+      case GLFW_KEY_ESCAPE: return KeyPress::kEscape;
+    }
+    return KeyPress::kUnknown;
+  }
+
   static inline void OnResize(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
   }
@@ -72,6 +105,14 @@ class Viewer {
   bool initialized_{};
   std::string window_name_{};
   GLFWwindow* window_{};
+
+  std::vector<int> keys_to_monitor_{GLFW_KEY_ESCAPE,
+                                    GLFW_KEY_LEFT,
+                                    GLFW_KEY_RIGHT,
+                                    GLFW_KEY_UP,
+                                    GLFW_KEY_DOWN};
+
+  std::map<KeyPress, std::function<void(KeyPress)>> key_press_handlers;
 };
 
 }  // namespace glfw

@@ -2,7 +2,7 @@
 #define OPENGL_TUTORIALS_CORE_GL_UNIFORM_H_
 
 #include "gl/core/buffer_traits.h"
-#include "gl/core/gl_base.h"
+#include "gl/core/opengl_object.h"
 #include "utils/type_traits.h"
 
 #include <exception>
