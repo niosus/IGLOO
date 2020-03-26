@@ -46,6 +46,7 @@ cc_test(
         "@gtest//:gtest",
         "@gtest//:gtest_main",
     ],
+    size="small",
     data = [":test_images"]
 )
 

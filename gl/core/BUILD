@@ -2,7 +2,10 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "core",
-    srcs = ["shader.cpp"],
+    srcs = [
+        "shader.cpp",
+        "uniform.cpp",
+    ],
     hdrs = [
         "buffer.h",
         "buffer_traits.h",
@@ -39,4 +42,5 @@ cc_test(
         "//utils:eigen_utils",
         "@gtest//:gtest",
     ],
+    size="small",
 )

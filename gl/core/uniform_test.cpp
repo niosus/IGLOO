@@ -20,6 +20,14 @@ TEST(UniformTest, UpdateValueFromPack) {
   uniform.UpdateValue(1.0f, 2.0f, 3.0f, 4.0f);
 }
 
+// TEST(UniformTest, UpdateValueFromPackOfIntegers) {
+//   Uniform uniform{"some_name", 0};
+//   uniform.UpdateValue(1);
+//   uniform.UpdateValue(1, 2);
+//   uniform.UpdateValue(1, 2, 3);
+//   uniform.UpdateValue(1, 2, 3, 4);
+// }
+
 TEST(UniformTest, UpdateValueFromArray) {
   Uniform uniform{"some_name", 0};
   // 2 elements

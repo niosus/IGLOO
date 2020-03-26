@@ -70,6 +70,8 @@ int main(int argc, char *argv[]) {
       "opengl_tutorials/textures/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
+  // glUniform1i(glGetUniformLocation(fragment_shader->id(), "texture1"), 0);
+
   const auto program =
       gl::Program::CreateFromShaders({vertex_shader, fragment_shader});
   if (!program) {
@@ -105,6 +107,7 @@ int main(int argc, char *argv[]) {
 
     program->Use();
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
