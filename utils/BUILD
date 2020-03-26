@@ -35,7 +35,6 @@ cc_library(
     ],
 )
 
-
 cc_test(
     name = "image_test",
     srcs = [
@@ -48,6 +47,24 @@ cc_test(
     ],
     size="small",
     data = [":test_images"]
+)
+
+cc_library(
+    name = "macro_utils",
+    hdrs = ["macro_utils.h"],
+)
+
+cc_test(
+    name = "macro_utils_test",
+    srcs = [
+        "macro_utils_test.cpp",
+    ],
+    deps = [
+        ":macro_utils",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+    size="small",
 )
 
 filegroup(

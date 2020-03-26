@@ -23,6 +23,7 @@ cc_library(
         "//third_party/glad",
         "//utils:file_utils",
         "//utils:type_traits",
+        "//utils:macro_utils",
         "@abseil//absl/strings",
         "@abseil//absl/strings:str_format",
     ],
