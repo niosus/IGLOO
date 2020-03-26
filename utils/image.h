@@ -32,8 +32,7 @@ class Image {
   void LoadFromPath(const std::string& path, bool flip_vertically) {
     stbi_set_flip_vertically_on_load(flip_vertically);
     data_ = ImagePtr{
-        stbi_load(
-            path.c_str(), &width_, &height_, &number_of_channels_, STBI_rgb),
+        stbi_load(path.c_str(), &width_, &height_, &number_of_channels_, 0),
         stbi_image_free};
   }
 

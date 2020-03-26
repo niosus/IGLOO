@@ -35,20 +35,28 @@ int main(int argc, char *argv[]) {
   const bool success = viewer.Initialize();
   if (!success) { return EXIT_FAILURE; }
 
-  const auto image =
+  const auto image_container =
       Image::CreateFrom("opengl_tutorials/textures/textures/container.jpg");
-  if (!image) {
-    absl::FPrintF(stderr, "Error: Image not found.\n");
+  const auto image_face = Image::CreateFrom(
+      "opengl_tutorials/textures/textures/awesomeface.png", true);
+  if (!image_container || !image_face) {
+    absl::FPrintF(stderr, "Error: images not found.\n");
     return EXIT_FAILURE;
   }
   absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
-               image->width(),
-               image->height(),
-               image->number_of_channels());
+               image_container->width(),
+               image_container->height(),
+               image_container->number_of_channels());
 
-  unsigned int texture;
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
+               image_face->width(),
+               image_face->height(),
+               image_face->number_of_channels());
+
+  unsigned int texture_1;
+  glGenTextures(1, &texture_1);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture_1);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -56,12 +64,31 @@ int main(int argc, char *argv[]) {
   glTexImage2D(GL_TEXTURE_2D,
                0,
                GL_RGB,
-               image->width(),
-               image->height(),
+               image_container->width(),
+               image_container->height(),
                0,
                GL_RGB,
                GL_UNSIGNED_BYTE,
-               image->data());
+               image_container->data());
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  unsigned int texture_2;
+  glGenTextures(1, &texture_2);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture_2);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               GL_RGB,
+               image_face->width(),
+               image_face->height(),
+               0,
+               GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               image_face->data());
   glGenerateMipmap(GL_TEXTURE_2D);
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
@@ -70,16 +97,17 @@ int main(int argc, char *argv[]) {
       "opengl_tutorials/textures/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
-  // glUniform1i(glGetUniformLocation(fragment_shader->id(), "texture1"), 0);
-
   const auto program =
       gl::Program::CreateFromShaders({vertex_shader, fragment_shader});
   if (!program) {
     std::cerr << "Failed to link program" << std::endl;
     return EXIT_FAILURE;
   }
-
-  gl::Uniform uniform{"ourColor", program->id()};
+  program->Use();
+  gl::Uniform uniform_1{"texture1", program->id()};
+  uniform_1.UpdateValue(0);
+  gl::Uniform uniform_2{"texture2", program->id()};
+  uniform_2.UpdateValue(1);
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -96,8 +124,9 @@ int main(int argc, char *argv[]) {
   const int color_offset = 3;
   vertex_array_buffer.EnableVertexAttributePointer(1, stride, color_offset, 3);
   const int texture_coords_offset = 6;
+  const int components_per_entry = 2;
   vertex_array_buffer.EnableVertexAttributePointer(
-      2, stride, texture_coords_offset, 2);
+      2, stride, texture_coords_offset, components_per_entry);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
@@ -108,7 +137,9 @@ int main(int argc, char *argv[]) {
     program->Use();
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, texture_1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture_2);
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();
