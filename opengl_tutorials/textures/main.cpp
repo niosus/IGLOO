@@ -22,10 +22,10 @@ using utils::Image;
 
 const eigen::vector<float> vertices{
     // positions        // colors         // texture coords
-    0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,  // top right
-    0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+    0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,  // top right
+    0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,  // bottom right
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left
-    -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+    -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 2.0f   // top left
 };
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
@@ -58,9 +58,9 @@ int main(int argc, char *argv[]) {
                         gl::Texture::Identifier::kTexture0};
   texture_1.Bind();
   texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
-                        gl::Texture::WrappingMode::kRepeat);
+                        gl::Texture::WrappingMode::kClampToEdge);
   texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
-                        gl::Texture::WrappingMode::kRepeat);
+                        gl::Texture::WrappingMode::kClampToEdge);
   texture_1.SetFiltering(gl::Texture::FilteringType::kMinifying,
                          gl::Texture::FilteringMode::kLinear);
   texture_1.SetFiltering(gl::Texture::FilteringType::kMagnifying,
