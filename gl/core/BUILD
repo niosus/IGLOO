@@ -2,11 +2,15 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "core",
-    srcs = ["shader.cpp"],
+    srcs = [
+        "shader.cpp",
+        "uniform.cpp",
+    ],
     hdrs = [
         "buffer.h",
+        "texture.h",
         "buffer_traits.h",
-        "gl_base.h",
+        "opengl_object.h",
         "program.h",
         "shader.h",
         "uniform.h",
@@ -20,8 +24,10 @@ cc_library(
         "//third_party/glad",
         "//utils:file_utils",
         "//utils:type_traits",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/strings:str_format",
+        "//utils:macro_utils",
+        "//utils:image",
+        "@abseil//absl/strings",
+        "@abseil//absl/strings:str_format",
     ],
 )
 
@@ -37,6 +43,7 @@ cc_test(
         "//gl/ui/glfw:viewer",
         "//gl/utils:eigen_traits",
         "//utils:eigen_utils",
-        "@com_google_googletest//:gtest",
+        "@gtest//:gtest",
     ],
+    size="small",
 )

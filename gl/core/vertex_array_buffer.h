@@ -2,7 +2,7 @@
 #define OPENGL_TUTORIALS_CORE_VERTEX_ARRAY_BUFFER_H_
 
 #include "gl/core/buffer.h"
-#include "gl/core/gl_base.h"
+#include "gl/core/opengl_object.h"
 
 #include <array>
 #include <iostream>
@@ -54,6 +54,7 @@ class VertexArrayBuffer : public OpenGlObject {
   bool EnableVertexAttributePointer(int layout_index,
                                     int stride = 1,
                                     int offset = 0,
+                                    int override_component_count = 1,
                                     bool normalized = false) {
     auto &bound_vertex_buffer =
         bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
@@ -61,7 +62,7 @@ class VertexArrayBuffer : public OpenGlObject {
     Bind();
     glVertexAttribPointer(
         layout_index,
-        bound_vertex_buffer->components_per_vertex(),
+        override_component_count * bound_vertex_buffer->components_per_vertex(),
         bound_vertex_buffer->gl_underlying_data_type(),
         normalized ? GL_TRUE : GL_FALSE,
         stride * bound_vertex_buffer->data_sizeof(),

@@ -1,5 +1,5 @@
-#ifndef OPENGL_TUTORIALS_CORE_GL_BASE_H_
-#define OPENGL_TUTORIALS_CORE_GL_BASE_H_
+#ifndef CODE_OPENGL_TUTORIALS_GL_CORE_OPENGL_OBJECT_H_
+#define CODE_OPENGL_TUTORIALS_GL_CORE_OPENGL_OBJECT_H_
 
 #include "third_party/glad/glad.h"
 
@@ -11,7 +11,7 @@ class OpenGlObject {
  public:
   using IdType = std::uint32_t;
 
-  OpenGlObject(IdType id) : id_{id} {}
+  OpenGlObject(IdType id = 0) : id_{id} {}
 
   IdType id() const { return id_; }
 
@@ -21,4 +21,4 @@ class OpenGlObject {
 
 }  // namespace gl
 
-#endif  // OPENGL_TUTORIALS_CORE_GL_BASE_H_
+#endif  // CODE_OPENGL_TUTORIALS_GL_CORE_OPENGL_OBJECT_H_

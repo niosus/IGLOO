@@ -39,6 +39,10 @@ bool Viewer::Initialize(const WindowSize& window_size,
   glfwSetFramebufferSizeCallback(window_, Viewer::OnResize);
   Resize(window_size);
 
+  key_press_handlers[KeyPress::kEscape] = [this](KeyPress) {
+    glfwSetWindowShouldClose(window_, true);
+  };
+
   initialized_ = true;
   return true;
 }
