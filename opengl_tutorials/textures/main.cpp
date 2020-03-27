@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
   vertex_array_buffer.EnableVertexAttributePointer(
       2, stride, texture_coords_offset, components_per_entry);
 
-  auto key_press_lambda = [&mixture, &uniform_3](gl::glfw::KeyPress key_press) {
+  auto on_key_press = [&mixture, &uniform_3](gl::glfw::KeyPress key_press) {
     if (key_press == gl::glfw::KeyPress::kArrowUp) {
       mixture = std::min(1.0f, mixture + 0.02f);
     } else if (key_press == gl::glfw::KeyPress::kArrowDown) {
@@ -130,10 +130,8 @@ int main(int argc, char *argv[]) {
     uniform_3.UpdateValue(mixture);
   };
 
-  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp,
-                                  key_press_lambda);
-  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown,
-                                  key_press_lambda);
+  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp, on_key_press);
+  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown, on_key_press);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
