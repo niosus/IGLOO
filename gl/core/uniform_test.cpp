@@ -20,6 +20,11 @@ TEST(UniformTest, UpdateValueFromPack) {
   uniform.UpdateValue(1.0f, 2.0f, 3.0f, 4.0f);
 }
 
+TEST(UniformTest, UpdateValueFromSingleEigenMat) {
+  Uniform uniform{"some_name", 0};
+  uniform.UpdateValue(Eigen::Vector3f{1.0f, 2.0f, 3.0f});
+}
+
 TEST(UniformTest, UpdateValueFromPackOfIntegers) {
   Uniform uniform{"some_name", 0};
   uniform.UpdateValue(1);

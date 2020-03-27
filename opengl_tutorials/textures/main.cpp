@@ -12,6 +12,7 @@
 #include "utils/eigen_utils.h"
 #include "utils/image.h"
 
+#include <Eigen/Geometry>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -98,9 +99,14 @@ int main(int argc, char *argv[]) {
   gl::Uniform uniform_2{"texture2", program->id()};
   uniform_2.UpdateValue(1);
 
-  float mixture = 0.5f;
-  gl::Uniform uniform_3{"mix_ratio", program->id()};
-  uniform_3.UpdateValue(mixture);
+  float mixture = 0.0f;
+  gl::Uniform mix_ratio_uniform{"mix_ratio", program->id()};
+  mix_ratio_uniform.UpdateValue(mixture);
+
+  Eigen::Affine3f transform{
+      Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
+  gl::Uniform transform_uniform{"transform", program->id()};
+  transform_uniform.UpdateValue(transform.matrix());
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -121,13 +127,17 @@ int main(int argc, char *argv[]) {
   vertex_array_buffer.EnableVertexAttributePointer(
       2, stride, texture_coords_offset, components_per_entry);
 
-  auto on_key_press = [&mixture, &uniform_3](gl::glfw::KeyPress key_press) {
+  auto on_key_press = [&mixture, &mix_ratio_uniform, &transform_uniform](
+                          gl::glfw::KeyPress key_press) {
     if (key_press == gl::glfw::KeyPress::kArrowUp) {
       mixture = std::min(1.0f, mixture + 0.02f);
     } else if (key_press == gl::glfw::KeyPress::kArrowDown) {
       mixture = std::max(0.0f, mixture - 0.02f);
     }
-    uniform_3.UpdateValue(mixture);
+    Eigen::Affine3f transform{
+        Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
+    transform_uniform.UpdateValue(transform.matrix());
+    mix_ratio_uniform.UpdateValue(mixture);
   };
 
   viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp, on_key_press);

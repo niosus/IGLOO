@@ -43,7 +43,13 @@ struct number_of_cols<
 };
 
 template <typename T, typename Enable = void>
-struct is_matrix : std::false_type {};
+inline constexpr bool is_matrix_v = std::min(number_of_rows<T>::value,
+                                             number_of_cols<T>::value) > 1;
+
+template <typename T, typename Enable = void>
+inline constexpr bool is_vector_v =
+    !is_matrix_v<T> &&
+    std::max(number_of_rows<T>::value, number_of_cols<T>::value) > 1;
 
 template <typename T, typename Enable = void>
 struct is_column_major : std::false_type {};
