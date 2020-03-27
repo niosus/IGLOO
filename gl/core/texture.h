@@ -15,71 +15,47 @@ class Texture : public OpenGlObject {
   enum class WrappingDirection : GLenum;
   enum class FilteringType : GLenum;
   enum class FilteringMode : GLint;
+  enum class WrappingMode : GLint;
 
-  enum class WrappingMode : GLint {
-    kClampToBorder = GL_CLAMP_TO_BORDER,
-    kClampToEdge = GL_CLAMP_TO_EDGE,
-    kMirroredRepeat = GL_MIRRORED_REPEAT,
-    kRepeat = GL_REPEAT,
+  class Builder {
+   public:
+    Builder(Type type, Identifier identifier);
+    Builder& WithSaneDefaults();
+    Builder& WithWrapping(WrappingDirection wrapping_direction,
+                          WrappingMode wrapping_mode,
+                          float* border_color = nullptr);
+    Builder& WithFiltering(FilteringType filtering_type,
+                           FilteringMode filtering_mode);
+    Builder& WithImage(const utils::Image& image,
+                       int level_of_detail = 0,
+                       int border = 0);
+    std::unique_ptr<Texture> Build();
+
+   private:
+    std::unique_ptr<Texture> texture_{};
   };
 
-  Texture(Type type, Identifier identifier, bool initialize_default = true)
+  Texture(Type type, Identifier identifier)
       : OpenGlObject{}, texture_type_{type}, texture_identifier_{identifier} {
     glGenTextures(1, &id_);
   }
 
-  void Bind() {
+  inline void Bind() {
     glActiveTexture(static_cast<GLenum>(texture_identifier_));
     glBindTexture(static_cast<GLenum>(texture_type_), id_);
   }
 
-  void UnBind() { glBindTexture(static_cast<GLenum>(texture_type_), 0); }
+  inline void UnBind() { glBindTexture(static_cast<GLenum>(texture_type_), 0); }
 
   void SetWrapping(WrappingDirection wrapping_direction,
                    WrappingMode wrapping_mode,
-                   float* border_color = nullptr) {
-    glTexParameteri(static_cast<GLenum>(texture_type_),
-                    static_cast<GLenum>(wrapping_direction),
-                    static_cast<GLint>(wrapping_mode));
-    if (wrapping_mode == WrappingMode::kClampToBorder &&
-        border_color != nullptr) {
-      glTexParameterfv(static_cast<GLenum>(texture_type_),
-                       GL_TEXTURE_BORDER_COLOR,
-                       border_color);
-    }
-  }
+                   float* border_color = nullptr);
 
-  void SetFiltering(FilteringType filtering_type,
-                    FilteringMode filtering_mode) {
-    glTexParameteri(static_cast<GLenum>(texture_type_),
-                    static_cast<GLenum>(filtering_type),
-                    static_cast<GLint>(filtering_mode));
-  }
+  void SetFiltering(FilteringType filtering_type, FilteringMode filtering_mode);
 
   void SetImage(const utils::Image& image,
                 int level_of_detail = 0,
-                int border = 0) {
-    if (image.data() == nullptr) {
-      std::cerr << "No data in the image." << std::endl;
-      return;
-    }
-    GLenum color_mode = 0;
-    switch (image.number_of_channels()) {
-      case 3: color_mode = GL_RGB; break;
-      case 4: color_mode = GL_RGBA; break;
-      default: return;
-    }
-    glTexImage2D(static_cast<GLenum>(texture_type_),
-                 level_of_detail,
-                 GL_RGB,
-                 image.width(),
-                 image.height(),
-                 border,
-                 color_mode,
-                 GL_UNSIGNED_BYTE,
-                 image.data());
-    glGenerateMipmap(static_cast<GLenum>(texture_type_));
-  }
+                int border = 0);
 
  private:
   Type texture_type_{};
@@ -106,6 +82,13 @@ enum class Texture::Type : GLenum {
   kTexture1D = GL_TEXTURE_1D,
   kTexture2D = GL_TEXTURE_2D,
   kTexture3D = GL_TEXTURE_3D
+};
+
+enum class Texture::WrappingMode : GLint {
+  kClampToBorder = GL_CLAMP_TO_BORDER,
+  kClampToEdge = GL_CLAMP_TO_EDGE,
+  kMirroredRepeat = GL_MIRRORED_REPEAT,
+  kRepeat = GL_REPEAT,
 };
 
 enum class Texture::Identifier : GLenum {

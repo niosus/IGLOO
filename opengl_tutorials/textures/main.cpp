@@ -55,31 +55,16 @@ int main(int argc, char *argv[]) {
                image_face->height(),
                image_face->number_of_channels());
 
-  gl::Texture texture_1{gl::Texture::Type::kTexture2D,
-                        gl::Texture::Identifier::kTexture0};
-  texture_1.Bind();
-  texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
-                        gl::Texture::WrappingMode::kClampToEdge);
-  texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
-                        gl::Texture::WrappingMode::kClampToEdge);
-  texture_1.SetFiltering(gl::Texture::FilteringType::kMinifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_1.SetFiltering(gl::Texture::FilteringType::kMagnifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_1.SetImage(*image_container);
-
-  gl::Texture texture_2{gl::Texture::Type::kTexture2D,
-                        gl::Texture::Identifier::kTexture1};
-  texture_2.Bind();
-  texture_2.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
-                        gl::Texture::WrappingMode::kRepeat);
-  texture_2.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
-                        gl::Texture::WrappingMode::kRepeat);
-  texture_2.SetFiltering(gl::Texture::FilteringType::kMinifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_2.SetFiltering(gl::Texture::FilteringType::kMagnifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_2.SetImage(*image_face);
+  auto texture_1{gl::Texture::Builder{gl::Texture::Type::kTexture2D,
+                                      gl::Texture::Identifier::kTexture0}
+                     .WithSaneDefaults()
+                     .WithImage(*image_container)
+                     .Build()};
+  auto texture_2{gl::Texture::Builder{gl::Texture::Type::kTexture2D,
+                                      gl::Texture::Identifier::kTexture1}
+                     .WithSaneDefaults()
+                     .WithImage(*image_face)
+                     .Build()};
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
       "opengl_tutorials/textures/shaders/triangle.vert")};
@@ -94,10 +79,10 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   program->Use();
-  gl::Uniform uniform_1{"texture1", program->id()};
-  uniform_1.UpdateValue(0);
-  gl::Uniform uniform_2{"texture2", program->id()};
-  uniform_2.UpdateValue(1);
+  gl::Uniform texture_1_uniform{"texture1", program->id()};
+  texture_1_uniform.UpdateValue(0);
+  gl::Uniform texture_2_uniform{"texture2", program->id()};
+  texture_2_uniform.UpdateValue(1);
 
   float mixture = 0.0f;
   gl::Uniform mix_ratio_uniform{"mix_ratio", program->id()};
@@ -150,8 +135,8 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     program->Use();
-    texture_1.Bind();
-    texture_2.Bind();
+    texture_1->Bind();
+    texture_2->Bind();
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();
