@@ -29,9 +29,6 @@ struct number_of_cols<Eigen::Matrix<ScalarT, ROWS, COLS>> {
 };
 
 template <typename ScalarT, int ROWS, int COLS>
-struct is_matrix<Eigen::Matrix<ScalarT, ROWS, COLS>> : std::true_type {};
-
-template <typename ScalarT, int ROWS, int COLS>
 struct is_column_major<Eigen::Matrix<ScalarT, ROWS, COLS>> : std::true_type {};
 
 template <typename ScalarT, int ROWS, int COLS>

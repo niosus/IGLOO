@@ -9,6 +9,17 @@
 
 namespace gl {
 
+// TODO(igor): As Uniforms are bound to a program it is probably a good idea to
+// attach them to a program class. However, as our Uniforms are nothing but a
+// thin layer that passes the data through, it seems the best way to store them
+// is in some vector. Whenever a user adds a uniform, they must transfer
+// ownership to the program. The function that adds a uniform would return the
+// index in the vector under which the uniform will be available (maybe just an
+// id?). This id can be stored externally and the program can be asked to
+// provide a reference to a uniform it is owning for value modification. This
+// will allow to avoid complex template magic in the program class as it won't
+// need to pass the data through to a uniform.
+
 class Program : public OpenGlObject {
  public:
   Program() : OpenGlObject{glCreateProgram()} {}

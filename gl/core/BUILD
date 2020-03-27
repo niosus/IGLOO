@@ -5,6 +5,7 @@ cc_library(
     srcs = [
         "shader.cpp",
         "uniform.cpp",
+        "texture.cpp",
     ],
     hdrs = [
         "buffer.h",

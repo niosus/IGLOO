@@ -12,6 +12,7 @@
 #include "utils/eigen_utils.h"
 #include "utils/image.h"
 
+#include <Eigen/Geometry>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -54,31 +55,16 @@ int main(int argc, char *argv[]) {
                image_face->height(),
                image_face->number_of_channels());
 
-  gl::Texture texture_1{gl::Texture::Type::kTexture2D,
-                        gl::Texture::Identifier::kTexture0};
-  texture_1.Bind();
-  texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
-                        gl::Texture::WrappingMode::kClampToEdge);
-  texture_1.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
-                        gl::Texture::WrappingMode::kClampToEdge);
-  texture_1.SetFiltering(gl::Texture::FilteringType::kMinifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_1.SetFiltering(gl::Texture::FilteringType::kMagnifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_1.SetImage(*image_container);
-
-  gl::Texture texture_2{gl::Texture::Type::kTexture2D,
-                        gl::Texture::Identifier::kTexture1};
-  texture_2.Bind();
-  texture_2.SetWrapping(gl::Texture::WrappingDirection::kWrapS,
-                        gl::Texture::WrappingMode::kRepeat);
-  texture_2.SetWrapping(gl::Texture::WrappingDirection::kWrapT,
-                        gl::Texture::WrappingMode::kRepeat);
-  texture_2.SetFiltering(gl::Texture::FilteringType::kMinifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_2.SetFiltering(gl::Texture::FilteringType::kMagnifying,
-                         gl::Texture::FilteringMode::kLinear);
-  texture_2.SetImage(*image_face);
+  auto texture_1{gl::Texture::Builder{gl::Texture::Type::kTexture2D,
+                                      gl::Texture::Identifier::kTexture0}
+                     .WithSaneDefaults()
+                     .WithImage(*image_container)
+                     .Build()};
+  auto texture_2{gl::Texture::Builder{gl::Texture::Type::kTexture2D,
+                                      gl::Texture::Identifier::kTexture1}
+                     .WithSaneDefaults()
+                     .WithImage(*image_face)
+                     .Build()};
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
       "opengl_tutorials/textures/shaders/triangle.vert")};
@@ -93,14 +79,19 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   program->Use();
-  gl::Uniform uniform_1{"texture1", program->id()};
-  uniform_1.UpdateValue(0);
-  gl::Uniform uniform_2{"texture2", program->id()};
-  uniform_2.UpdateValue(1);
+  gl::Uniform texture_1_uniform{"texture1", program->id()};
+  texture_1_uniform.UpdateValue(0);
+  gl::Uniform texture_2_uniform{"texture2", program->id()};
+  texture_2_uniform.UpdateValue(1);
 
-  float mixture = 0.5f;
-  gl::Uniform uniform_3{"mix_ratio", program->id()};
-  uniform_3.UpdateValue(mixture);
+  float mixture = 0.0f;
+  gl::Uniform mix_ratio_uniform{"mix_ratio", program->id()};
+  mix_ratio_uniform.UpdateValue(mixture);
+
+  Eigen::Affine3f transform{
+      Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
+  gl::Uniform transform_uniform{"transform", program->id()};
+  transform_uniform.UpdateValue(transform.matrix());
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -121,16 +112,21 @@ int main(int argc, char *argv[]) {
   vertex_array_buffer.EnableVertexAttributePointer(
       2, stride, texture_coords_offset, components_per_entry);
 
-  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp,
-                                  [&mixture, &uniform_3](gl::glfw::KeyPress) {
-                                    mixture = std::min(1.0f, mixture + 0.02f);
-                                    uniform_3.UpdateValue(mixture);
-                                  });
-  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown,
-                                  [&mixture, &uniform_3](gl::glfw::KeyPress) {
-                                    mixture = std::max(0.0f, mixture - 0.02f);
-                                    uniform_3.UpdateValue(mixture);
-                                  });
+  auto on_key_press = [&mixture, &mix_ratio_uniform, &transform_uniform](
+                          gl::glfw::KeyPress key_press) {
+    if (key_press == gl::glfw::KeyPress::kArrowUp) {
+      mixture = std::min(1.0f, mixture + 0.02f);
+    } else if (key_press == gl::glfw::KeyPress::kArrowDown) {
+      mixture = std::max(0.0f, mixture - 0.02f);
+    }
+    Eigen::Affine3f transform{
+        Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
+    transform_uniform.UpdateValue(transform.matrix());
+    mix_ratio_uniform.UpdateValue(mixture);
+  };
+
+  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp, on_key_press);
+  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown, on_key_press);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
@@ -139,8 +135,8 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     program->Use();
-    texture_1.Bind();
-    texture_2.Bind();
+    texture_1->Bind();
+    texture_2->Bind();
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();
