@@ -121,16 +121,19 @@ int main(int argc, char *argv[]) {
   vertex_array_buffer.EnableVertexAttributePointer(
       2, stride, texture_coords_offset, components_per_entry);
 
+  auto key_press_lambda = [&mixture, &uniform_3](gl::glfw::KeyPress key_press) {
+    if (key_press == gl::glfw::KeyPress::kArrowUp) {
+      mixture = std::min(1.0f, mixture + 0.02f);
+    } else if (key_press == gl::glfw::KeyPress::kArrowDown) {
+      mixture = std::max(0.0f, mixture - 0.02f);
+    }
+    uniform_3.UpdateValue(mixture);
+  };
+
   viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp,
-                                  [&mixture, &uniform_3](gl::glfw::KeyPress) {
-                                    mixture = std::min(1.0f, mixture + 0.02f);
-                                    uniform_3.UpdateValue(mixture);
-                                  });
+                                  key_press_lambda);
   viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown,
-                                  [&mixture, &uniform_3](gl::glfw::KeyPress) {
-                                    mixture = std::max(0.0f, mixture - 0.02f);
-                                    uniform_3.UpdateValue(mixture);
-                                  });
+                                  key_press_lambda);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
