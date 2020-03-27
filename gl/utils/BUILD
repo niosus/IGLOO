@@ -8,7 +8,20 @@ cc_library(
     hdrs = ["eigen_traits.h"],
     deps = [
         "//gl/core:core",
-        "//utils:eigen_utils",
+        "@eigen//:eigen",
     ]
 )
 
+cc_test(
+    name = "eigen_traits_test",
+    srcs = [
+        "eigen_traits_test.cpp",
+    ],
+    deps = [
+        ":eigen_traits",
+        "@eigen//:eigen",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+    size="small",
+)

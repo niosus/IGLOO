@@ -5,7 +5,9 @@ This is just a repo for learning OpenGL following the awesome course: https://le
 Be warned, while I am learning, there is a lot of code that will be changed and
 there is a lot of wrong decisions that are going to be made. This is a very
 Work In Progress 🚧 project, so expect things to change without notice.
-Obviously, don't depend on it!
+Obviously, don't depend on it! 
+
+It uses C++17 just for the fun of it.
 
 ## Approach ##
 I try to follow the tutorials as they go, at the same time trying to outsource

@@ -10,15 +10,43 @@ namespace gl {
 namespace traits {
 
 template <typename T, typename Enable = void>
-struct components_per_vertex_count {};
+struct number_of_entries {};
 
 template <typename T>
-struct components_per_vertex_count<
+struct number_of_entries<
     T,
     typename std::enable_if<std::is_floating_point<T>::value ||
                             std::is_integral<T>::value>::type> {
   static const int value{1};
 };
+
+template <typename T, typename Enable = void>
+struct number_of_rows {};
+
+template <typename T>
+struct number_of_rows<
+    T,
+    typename std::enable_if<std::is_floating_point<T>::value ||
+                            std::is_integral<T>::value>::type> {
+  static const int value{1};
+};
+
+template <typename T, typename Enable = void>
+struct number_of_cols {};
+
+template <typename T>
+struct number_of_cols<
+    T,
+    typename std::enable_if<std::is_floating_point<T>::value ||
+                            std::is_integral<T>::value>::type> {
+  static const int value{1};
+};
+
+template <typename T, typename Enable = void>
+struct is_matrix : std::false_type {};
+
+template <typename T, typename Enable = void>
+struct is_column_major : std::false_type {};
 
 template <typename T, typename Enable = void>
 struct underlying_type {};

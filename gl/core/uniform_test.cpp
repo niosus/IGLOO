@@ -44,3 +44,25 @@ TEST(UniformTest, UpdateValueFromArray) {
   uniform.UpdateValue(
       eigen::vector<Eigen::Vector4f>(10, {1.0f, 2.0f, 3.0f, 4.0f}));
 }
+
+TEST(UniformTest, UpdateValueFromMatrix) {
+  Uniform uniform{"some_name", 0};
+  // 2x2
+  Eigen::Matrix2f small_mat;
+  small_mat << 1.0f, 2.0f, 3.0f, 4.0f;
+  uniform.UpdateValue(eigen::vector<Eigen::Matrix2f>{small_mat});
+  uniform.UpdateValue(eigen::vector<Eigen::Matrix2f>{small_mat, small_mat});
+  // 3x3
+  Eigen::Matrix3f some_matrix;
+  some_matrix << 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f;
+  uniform.UpdateValue(eigen::vector<Eigen::Matrix3f>{some_matrix});
+  uniform.UpdateValue(eigen::vector<Eigen::Matrix3f>{some_matrix, some_matrix});
+  uniform.UpdateValue(eigen::vector<Eigen::Matrix3f>(10, some_matrix));
+  // 2x3
+  using Mat2x3T = Eigen::Matrix<float, 2, 3>;
+  Mat2x3T some_matrix_2_3;
+  some_matrix_2_3 << 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f;
+  uniform.UpdateValue(eigen::vector<Mat2x3T>{some_matrix_2_3});
+  uniform.UpdateValue(eigen::vector<Mat2x3T>{some_matrix_2_3, some_matrix_2_3});
+  uniform.UpdateValue(eigen::vector<Mat2x3T>(10, some_matrix_2_3));
+}
