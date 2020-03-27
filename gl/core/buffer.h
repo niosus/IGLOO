@@ -1,8 +1,8 @@
 #ifndef OPENGL_TUTORIALS_CORE_VERTEX_BUFFER_H_
 #define OPENGL_TUTORIALS_CORE_VERTEX_BUFFER_H_
 
-#include "gl/core/buffer_traits.h"
 #include "gl/core/opengl_object.h"
+#include "gl/core/traits.h"
 #include "utils/type_traits.h"
 
 #include <map>
@@ -56,14 +56,13 @@ class Buffer : public OpenGlObject {
 
   template <typename T>
   void AssignData(const T *const data, std::size_t number_of_elements) {
-    static_assert(
-        ::traits::has_value_member<
-            typename traits::components_per_vertex_count<T>>::value,
-        "Missing specialization for trait 'components_per_vertex_count'");
+    static_assert(::traits::has_value_member<
+                      typename traits::number_of_entries<T>>::value,
+                  "Missing specialization for trait 'number_of_entries'");
     static_assert(::traits::has_value_member<
                       typename traits::gl_underlying_type<T>>::value,
                   "Missing specialization for trait 'gl_underlying_type'");
-    components_per_vertex_ = traits::components_per_vertex_count<T>::value;
+    components_per_vertex_ = traits::number_of_entries<T>::value;
     gl_underlying_data_type_ = traits::gl_underlying_type<T>::value;
     data_sizeof_ = sizeof(T);
     number_of_elements_ = number_of_elements;

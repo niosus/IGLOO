@@ -9,7 +9,7 @@ cc_library(
     hdrs = [
         "buffer.h",
         "texture.h",
-        "buffer_traits.h",
+        "traits.h",
         "opengl_object.h",
         "program.h",
         "shader.h",

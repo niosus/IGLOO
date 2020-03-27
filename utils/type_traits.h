@@ -5,21 +5,31 @@
 
 namespace traits {
 
-template <typename T, typename = void>
+template <typename T, typename = std::void_t<>>
 struct has_value_member : std::false_type {};
 
 template <typename T>
 struct has_value_member<T, decltype((void)T::value, void())> : std::true_type {
 };
 
-template <class...>
-using void_t = void;
-
-template <class T, class U = void>
+template <class T, class U = std::void_t<>>
 struct has_type_member : public std::false_type {};
 
 template <class T>
-struct has_type_member<T, void_t<typename T::type>> : public std::true_type {};
+struct has_type_member<T, std::void_t<typename T::type>> : std::true_type {};
+
+template <class T, typename... Ts>
+inline constexpr bool all_types_are_same_v =
+    std::conjunction_v<std::is_same<T, Ts>...>;
+
+template <class T, typename... Ts>
+inline constexpr bool all_types_integral_v =
+    std::conjunction_v<std::is_integral<T>, std::is_integral<Ts>...>;
+
+template <class T, typename... Ts>
+inline constexpr bool all_types_floating_point_v =
+    std::conjunction_v<std::is_floating_point<T>,
+                       std::is_floating_point<Ts>...>;
 
 }  // namespace traits
 
