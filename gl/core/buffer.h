@@ -32,7 +32,7 @@ class Buffer : public OpenGlObject {
   template <typename T>
   Buffer(Buffer::Type type,
          Buffer::Usage usage,
-         const T *const data,
+         const T* const data,
          std::size_t number_of_elements)
       : Buffer{type, usage} {
     AssignData(data, number_of_elements);
@@ -41,7 +41,7 @@ class Buffer : public OpenGlObject {
   template <typename T, typename A>
   Buffer(Buffer::Type type,
          Buffer::Usage usage,
-         const std::vector<T, A> &vertices)
+         const std::vector<T, A>& vertices)
       : Buffer{type, usage, vertices.data(), vertices.size()} {}
 
   ~Buffer() {
@@ -50,12 +50,12 @@ class Buffer : public OpenGlObject {
   }
 
   template <typename T, typename A>
-  void AssignData(const std::vector<T, A> &vertices) {
+  void AssignData(const std::vector<T, A>& vertices) {
     AssignData(vertices.data(), vertices.size());
   }
 
   template <typename T>
-  void AssignData(const T *const data, std::size_t number_of_elements) {
+  void AssignData(const T* const data, std::size_t number_of_elements) {
     static_assert(::traits::has_value_member<
                       typename traits::number_of_entries<T>>::value,
                   "Missing specialization for trait 'number_of_entries'");

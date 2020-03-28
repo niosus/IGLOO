@@ -14,9 +14,9 @@ class VertexArrayBuffer : public OpenGlObject {
  public:
   VertexArrayBuffer() : OpenGlObject{0} { glGenVertexArrays(1, &id_); }
 
-  void AssignBuffer(const std::shared_ptr<Buffer> &buffer) {
+  void AssignBuffer(const std::shared_ptr<Buffer>& buffer) {
     Bind();
-    auto &bound_buffer = bound_buffers_[GetBoundBufferIndex(buffer->type())];
+    auto& bound_buffer = bound_buffers_[GetBoundBufferIndex(buffer->type())];
     if (bound_buffer) { bound_buffer->UnBind(); }
     bound_buffer = buffer;
     bound_buffer->Bind();
@@ -33,13 +33,13 @@ class VertexArrayBuffer : public OpenGlObject {
   bool Draw(int gl_primitive_mode) {
     int number_of_elements{};
     int gl_type{};
-    const auto &indices_buffer =
+    const auto& indices_buffer =
         bound_buffers_[GetBoundBufferIndex(Buffer::Type::kElementArrayBuffer)];
     if (indices_buffer) {
       number_of_elements = indices_buffer->number_of_elements();
       gl_type = indices_buffer->gl_underlying_data_type();
     } else {
-      const auto &vertex_buffer =
+      const auto& vertex_buffer =
           bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
       if (!vertex_buffer) { return false; }
       number_of_elements = vertex_buffer->number_of_elements();
@@ -56,7 +56,7 @@ class VertexArrayBuffer : public OpenGlObject {
                                     int offset = 0,
                                     int override_component_count = 1,
                                     bool normalized = false) {
-    auto &bound_vertex_buffer =
+    auto& bound_vertex_buffer =
         bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
     if (!bound_vertex_buffer) { return false; }
     Bind();
@@ -66,7 +66,7 @@ class VertexArrayBuffer : public OpenGlObject {
         bound_vertex_buffer->gl_underlying_data_type(),
         normalized ? GL_TRUE : GL_FALSE,
         stride * bound_vertex_buffer->data_sizeof(),
-        reinterpret_cast<void *>(offset * bound_vertex_buffer->data_sizeof()));
+        reinterpret_cast<void*>(offset * bound_vertex_buffer->data_sizeof()));
     glEnableVertexAttribArray(layout_index);
     UnBind();
     return true;

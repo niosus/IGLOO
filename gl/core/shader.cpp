@@ -10,7 +10,7 @@
 
 namespace gl {
 
-std::unique_ptr<Shader> Shader::CreateFromFile(const std::string &file_name) {
+std::unique_ptr<Shader> Shader::CreateFromFile(const std::string& file_name) {
   auto gl_shader_type = DetectShaderType(file_name);
   if (gl_shader_type == Shader::Type::kUndefined) {
     absl::FPrintF(stderr, "Could not detect shader type\n");
@@ -27,13 +27,13 @@ std::unique_ptr<Shader> Shader::CreateFromFile(const std::string &file_name) {
   return nullptr;
 }
 
-Shader::Type Shader::DetectShaderType(const std::string &file_name) {
+Shader::Type Shader::DetectShaderType(const std::string& file_name) {
   const std::vector<std::string> split{absl::StrSplit(file_name, '.')};
   if (split.empty()) {
     absl::FPrintF(stderr, "Shader file: '%s' has no extention\n", file_name);
     return Shader::Type::kUndefined;
   }
-  const std::string &extention = split.back();
+  const std::string& extention = split.back();
   if (extention == "vert") { return Shader::Type::kVertexShader; }
   if (extention == "frag") { return Shader::Type::kFragmentShader; }
   absl::FPrintF(stderr,
@@ -44,7 +44,7 @@ Shader::Type Shader::DetectShaderType(const std::string &file_name) {
 }
 
 bool Shader::CompileShader() {
-  const char *data = shader_source_.data();
+  const char* data = shader_source_.data();
   glShaderSource(id_, 1, &data, nullptr);
   glCompileShader(id_);
   int success;

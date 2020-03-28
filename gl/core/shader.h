@@ -19,7 +19,7 @@ class Shader : public OpenGlObject {
     kFragmentShader = GL_FRAGMENT_SHADER
   };
 
-  static std::unique_ptr<Shader> CreateFromFile(const std::string &file_name);
+  static std::unique_ptr<Shader> CreateFromFile(const std::string& file_name);
   inline Shader::Type type() const { return type_; }
 
   ~Shader() { glDeleteShader(id_); }
@@ -31,7 +31,7 @@ class Shader : public OpenGlObject {
                 gl_shader_type))},
         shader_source_{std::move(shader_source)} {}
 
-  static Shader::Type DetectShaderType(const std::string &file_name);
+  static Shader::Type DetectShaderType(const std::string& file_name);
 
   bool CompileShader();
 
