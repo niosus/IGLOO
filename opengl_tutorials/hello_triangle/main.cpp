@@ -28,7 +28,7 @@ const eigen::vector<Eigen::Vector3f> vertices{
 };
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
 
   gl::glfw::Viewer viewer{"OpenGlViewer"};
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  gl::Uniform uniform{"ourColor", program->id()};
+  auto* color_uniform = program->EmplaceUniform({"ourColor", program->id()});
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
     program->Use();
     float green_value = (sin(viewer.GetTime() * 3.0f) / 2.0f) + 0.5f;
-    uniform.UpdateValue(0.0f, green_value, 0.0f);
+    color_uniform->UpdateValue(0.0f, green_value, 0.0f);
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();

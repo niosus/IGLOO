@@ -3,11 +3,11 @@
 
 /// Generate a specialization that calls an appropriate version of glUniform
 /// based on the number of parameters and their type.
-#define GENERATE_FOR_PACKS(type, letter, num_of_params, ...)            \
-  template <>                                                           \
-  void Uniform::UpdateValueFromPack(                                    \
-      std::uint32_t id, _PREFIX_EACH_OF(_PREFIX_##type, __VA_ARGS__)) { \
-    glUniform##num_of_params##letter(id, __VA_ARGS__);                  \
+#define GENERATE_FOR_PACKS(type, letter, num_of_params, ...)             \
+  template <>                                                            \
+  void Uniform::UpdateValueFromPack(std::uint32_t id,                    \
+                                    PREFIX_EACH_OF(type, __VA_ARGS__)) { \
+    glUniform##num_of_params##letter(id, __VA_ARGS__);                   \
   }
 
 /// Generate a specialization that calls an appropriate vector-based version of
@@ -81,9 +81,9 @@ GENERATE_PACK_SPECIALIZATIONS(float, f);
 GENERATE_ARRAY_SPECIALIZATIONS(float, f);
 GENERATE_MATRIX_SPECIALIZATIONS(float, f);
 
-GENERATE_PACK_SPECIALIZATIONS(int32_t, i);
-GENERATE_ARRAY_SPECIALIZATIONS(int32_t, i);
+GENERATE_PACK_SPECIALIZATIONS(std::int32_t, i);
+GENERATE_ARRAY_SPECIALIZATIONS(std::int32_t, i);
 
-GENERATE_PACK_SPECIALIZATIONS(uint32_t, ui);
-GENERATE_ARRAY_SPECIALIZATIONS(uint32_t, ui);
+GENERATE_PACK_SPECIALIZATIONS(std::uint32_t, ui);
+GENERATE_ARRAY_SPECIALIZATIONS(std::uint32_t, ui);
 }  // namespace gl
