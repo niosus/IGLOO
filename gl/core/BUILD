@@ -6,6 +6,7 @@ cc_library(
         "shader.cpp",
         "uniform.cpp",
         "texture.cpp",
+        "program.cpp",
     ],
     hdrs = [
         "buffer.h",

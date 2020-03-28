@@ -29,22 +29,22 @@ class Uniform : public OpenGlObject {
     UpdateArrayLike<T>(static_cast<const void*>(data), number_of_elements);
   }
 
-  template <typename T, typename... Ts>
+  template <typename T,
+            typename = std::enable_if_t<traits::is_matrix_v<T> ||
+                                        traits::is_vector_v<T>>>
+  void UpdateValue(const T& matrix_or_vector) {
+    UpdateArrayLike<std::remove_reference_t<T>>(
+        static_cast<const void*>(&matrix_or_vector), 1ul);
+  }
+
+  template <typename T,
+            typename... Ts,
+            typename = std::enable_if_t<
+                ::traits::all_types_are_same_v<T, Ts...> &&
+                (::traits::all_types_integral_v<T, Ts...> ||
+                 ::traits::all_types_floating_point_v<T, Ts...>)>>
   void UpdateValue(T number, Ts... numbers) {
-    static_assert(::traits::all_types_are_same_v<T, Ts...>,
-                  "All types in the pack must be the same.");
-    if constexpr (traits::is_matrix_v<T> || traits::is_vector_v<T>) {
-      static_assert(sizeof...(numbers) == 0,
-                    "You can pass only one matrix or vector at a time.");
-      UpdateArrayLike<T>(static_cast<const void*>(&number), 1ul);
-    } else {
-      static_assert(
-          ::traits::all_types_integral_v<T, Ts...> ||
-              ::traits::all_types_floating_point_v<T, Ts...>,
-          "Only use pack initialization for simple types like float or "
-          "int. Use vector initialization for more complex types.");
-      UpdateValueFromPack(id_, number, numbers...);
-    }
+    UpdateValueFromPack(id_, number, numbers...);
   }
 
   inline const std::string& name() const { return name_; }

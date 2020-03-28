@@ -31,6 +31,11 @@ struct number_of_rows<
   static const int value{1};
 };
 
+template <typename T, typename A>
+struct number_of_rows<std::vector<T, A>> {
+  static const int value{1};
+};
+
 template <typename T, typename Enable = void>
 struct number_of_cols {};
 
@@ -39,6 +44,11 @@ struct number_of_cols<
     T,
     typename std::enable_if<std::is_floating_point<T>::value ||
                             std::is_integral<T>::value>::type> {
+  static const int value{1};
+};
+
+template <typename T, typename A>
+struct number_of_cols<std::vector<T, A>> {
   static const int value{1};
 };
 

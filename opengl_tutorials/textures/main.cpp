@@ -30,7 +30,7 @@ const eigen::vector<float> vertices{
 };
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
 
   gl::glfw::Viewer viewer{"OpenGlViewer"};
@@ -79,19 +79,15 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
   program->Use();
-  gl::Uniform texture_1_uniform{"texture1", program->id()};
-  texture_1_uniform.UpdateValue(0);
-  gl::Uniform texture_2_uniform{"texture2", program->id()};
-  texture_2_uniform.UpdateValue(1);
+  program->SetUniform("texture1", 0);
+  program->SetUniform("texture2", 1);
 
   float mixture = 0.0f;
-  gl::Uniform mix_ratio_uniform{"mix_ratio", program->id()};
-  mix_ratio_uniform.UpdateValue(mixture);
+  program->SetUniform("mix_ratio", mixture);
 
   Eigen::Affine3f transform{
       Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
-  gl::Uniform transform_uniform{"transform", program->id()};
-  transform_uniform.UpdateValue(transform.matrix());
+  program->SetUniform("transform", transform.matrix());
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -112,8 +108,7 @@ int main(int argc, char *argv[]) {
   vertex_array_buffer.EnableVertexAttributePointer(
       2, stride, texture_coords_offset, components_per_entry);
 
-  auto on_key_press = [&mixture, &mix_ratio_uniform, &transform_uniform](
-                          gl::glfw::KeyPress key_press) {
+  auto on_key_press = [&mixture, &program](gl::glfw::KeyPress key_press) {
     if (key_press == gl::glfw::KeyPress::kArrowUp) {
       mixture = std::min(1.0f, mixture + 0.02f);
     } else if (key_press == gl::glfw::KeyPress::kArrowDown) {
@@ -121,8 +116,8 @@ int main(int argc, char *argv[]) {
     }
     Eigen::Affine3f transform{
         Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
-    transform_uniform.UpdateValue(transform.matrix());
-    mix_ratio_uniform.UpdateValue(mixture);
+    program->SetUniform("transform", transform.matrix());
+    program->SetUniform("mix_ratio", mixture);
   };
 
   viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp, on_key_press);
