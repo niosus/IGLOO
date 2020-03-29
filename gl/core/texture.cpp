@@ -26,9 +26,7 @@ void Texture::SetFiltering(FilteringType filtering_type,
                   static_cast<GLint>(filtering_mode));
 }
 
-void Texture::SetImage(const utils::Image& image,
-                       int level_of_detail,
-                       int border) {
+void Texture::SetImage(const utils::Image& image, int level_of_detail) {
   if (image.data() == nullptr) {
     std::cerr << "No data in the image." << std::endl;
     return;
@@ -41,10 +39,10 @@ void Texture::SetImage(const utils::Image& image,
   }
   glTexImage2D(static_cast<GLenum>(texture_type_),
                level_of_detail,
-               GL_RGB,
+               GL_RGBA,
                image.width(),
                image.height(),
-               border,
+               0,  // Legacy stuff. Was border before.
                color_mode,
                GL_UNSIGNED_BYTE,
                image.data());
@@ -81,9 +79,8 @@ Texture::Builder& Texture::Builder::WithFiltering(
   return *this;
 }
 Texture::Builder& Texture::Builder::WithImage(const utils::Image& image,
-                                              int level_of_detail,
-                                              int border) {
-  texture_->SetImage(image, level_of_detail, border);
+                                              int level_of_detail) {
+  texture_->SetImage(image, level_of_detail);
   return *this;
 }
 std::unique_ptr<Texture> Texture::Builder::Build() {

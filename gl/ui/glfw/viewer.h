@@ -86,6 +86,8 @@ class Viewer {
     key_press_handlers[key_press] = key_press_handler;
   }
 
+  inline const WindowSize& window_size() const { return window_size_; }
+
  private:
   static inline KeyPress MapToKeyPress(int glfw_keypress) {
     switch (glfw_keypress) {
@@ -105,6 +107,7 @@ class Viewer {
   bool initialized_{};
   std::string window_name_{};
   GLFWwindow* window_{};
+  WindowSize window_size_{};
 
   std::vector<int> keys_to_monitor_{GLFW_KEY_ESCAPE,
                                     GLFW_KEY_LEFT,

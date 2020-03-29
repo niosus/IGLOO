@@ -26,9 +26,7 @@ class Texture : public OpenGlObject {
                           float* border_color = nullptr);
     Builder& WithFiltering(FilteringType filtering_type,
                            FilteringMode filtering_mode);
-    Builder& WithImage(const utils::Image& image,
-                       int level_of_detail = 0,
-                       int border = 0);
+    Builder& WithImage(const utils::Image& image, int level_of_detail = 0);
     std::unique_ptr<Texture> Build();
 
    private:
@@ -53,9 +51,7 @@ class Texture : public OpenGlObject {
 
   void SetFiltering(FilteringType filtering_type, FilteringMode filtering_mode);
 
-  void SetImage(const utils::Image& image,
-                int level_of_detail = 0,
-                int border = 0);
+  void SetImage(const utils::Image& image, int level_of_detail = 0);
 
  private:
   Type texture_type_{};

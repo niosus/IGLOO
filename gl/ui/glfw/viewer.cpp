@@ -43,6 +43,7 @@ bool Viewer::Initialize(const WindowSize& window_size,
     glfwSetWindowShouldClose(window_, true);
   };
 
+  window_size_ = window_size;
   initialized_ = true;
   return true;
 }

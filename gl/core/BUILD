@@ -37,8 +37,8 @@ cc_test(
     name = "core_test",
     srcs = [
         "buffer_test.cpp",
-        "main_test.cpp",
         "uniform_test.cpp",
+        "main_test.cpp",
     ],
     deps = [
         ":core",

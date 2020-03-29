@@ -30,7 +30,7 @@ class VertexArrayBuffer : public OpenGlObject {
   }
   void UnBind() { glBindVertexArray(0u); }
 
-  bool Draw(int gl_primitive_mode) {
+  bool Draw(int gl_primitive_mode, int stride = 1) {
     int number_of_elements{};
     int gl_type{};
     const auto& indices_buffer =
@@ -38,15 +38,18 @@ class VertexArrayBuffer : public OpenGlObject {
     if (indices_buffer) {
       number_of_elements = indices_buffer->number_of_elements();
       gl_type = indices_buffer->gl_underlying_data_type();
-    } else {
-      const auto& vertex_buffer =
-          bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
-      if (!vertex_buffer) { return false; }
-      number_of_elements = vertex_buffer->number_of_elements();
-      gl_type = vertex_buffer->gl_underlying_data_type();
+      Bind();
+      glDrawElements(gl_primitive_mode, number_of_elements, gl_type, 0);
+      UnBind();
+      return true;
     }
+    const auto& vertex_buffer =
+        bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
+    if (!vertex_buffer) { return false; }
+    number_of_elements = vertex_buffer->number_of_elements();
+    gl_type = vertex_buffer->gl_underlying_data_type();
     Bind();
-    glDrawElements(gl_primitive_mode, number_of_elements, gl_type, 0);
+    glDrawArrays(gl_primitive_mode, 0, number_of_elements / stride);
     UnBind();
     return true;
   }

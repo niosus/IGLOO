@@ -38,9 +38,9 @@ int main(int argc, char* argv[]) {
   if (!success) { return EXIT_FAILURE; }
 
   const auto image_container =
-      Image::CreateFrom("opengl_tutorials/textures/textures/container.jpg");
+      Image::CreateFrom("opengl_tutorials/2_textures/textures/container.jpg");
   const auto image_face = Image::CreateFrom(
-      "opengl_tutorials/textures/textures/awesomeface.png", true);
+      "opengl_tutorials/2_textures/textures/awesomeface.png", true);
   if (!image_container || !image_face) {
     absl::FPrintF(stderr, "Error: images not found.\n");
     return EXIT_FAILURE;
@@ -67,9 +67,9 @@ int main(int argc, char* argv[]) {
                      .Build()};
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/textures/shaders/triangle.vert")};
+      "opengl_tutorials/2_textures/shaders/triangle.vert")};
   const std::shared_ptr<gl::Shader> fragment_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/textures/shaders/triangle.frag")};
+      "opengl_tutorials/2_textures/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
   const auto program =
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
   program->SetUniform("mix_ratio", mixture);
 
   Eigen::Affine3f transform{
-      Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
+      Eigen::AngleAxisf{mixture, Eigen::Vector3f::UnitZ()}};
   program->SetUniform("transform", transform.matrix());
 
   gl::VertexArrayBuffer vertex_array_buffer{};
