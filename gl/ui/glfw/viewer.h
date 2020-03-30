@@ -3,8 +3,9 @@
 
 #include "gl/core/opengl_object.h"
 #include "gl/ui/core/user_input_handler.h"
+#include "gl/ui/glfw/mouse_event_handler.h"
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 #include <functional>
 #include <map>
@@ -27,7 +28,8 @@ struct GlVersion {
 
 class Viewer {
  public:
-  Viewer(const std::string& window_name) : window_name_{window_name} {}
+  Viewer(const std::string& window_name)
+      : window_name_{window_name}, mouse_event_handler_{&user_input_handler_} {}
 
   bool InitializeHidden(const WindowSize& window_size = {800, 600},
                         const GlVersion& gl_verions = {3, 3}) {
@@ -42,6 +44,7 @@ class Viewer {
   Viewer(Viewer&&) = delete;
   Viewer& operator=(Viewer&&) = delete;
   Viewer& operator=(const Viewer&) = delete;
+
   ~Viewer() {
     if (window_) { glfwDestroyWindow(window_); }
     glfwTerminate();
@@ -59,6 +62,9 @@ class Viewer {
       user_input_handler_.DispatchKeyboardEvent(MapToKeyPress(key),
                                                 MapToPressState(GLFW_PRESS));
     }
+    mouse_event_handler_.CheckClick(window_);
+    mouse_event_handler_.CheckMove(window_);
+    mouse_event_handler_.DispatchEventIfNeeded();
   }
 
   inline void Spin() {
@@ -111,6 +117,7 @@ class Viewer {
                                     GLFW_KEY_DOWN};
 
   UserInputHandler user_input_handler_;
+  MouseEventHandler mouse_event_handler_;
 };
 
 }  // namespace glfw

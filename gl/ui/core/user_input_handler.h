@@ -32,8 +32,13 @@ class UserInputHandler {
     for (auto& callback : keyboard_callbacks_) { callback(key, state); }
   }
 
-  void DispatchMouseEvent(MouseKey key, PressState state, float increment) {
-    for (auto& callback : mouse_callbacks_) { callback(key, state, increment); }
+  void DispatchMouseEvent(MouseKey key,
+                          PressState state,
+                          float x_increment,
+                          float y_increment) {
+    for (auto& callback : mouse_callbacks_) {
+      callback(key, state, x_increment, y_increment);
+    }
   }
 
   void RegisterKeyboardCallback(
@@ -42,13 +47,13 @@ class UserInputHandler {
   }
 
   void RegisterMouseCallback(
-      std::function<void(MouseKey, PressState, float)> callback) {
+      std::function<void(MouseKey, PressState, float, float)> callback) {
     mouse_callbacks_.emplace_back(std::move(callback));
   }
 
  protected:
   std::vector<std::function<void(KeyboardKey, PressState)>> keyboard_callbacks_;
-  std::vector<std::function<void(MouseKey, PressState, float)>>
+  std::vector<std::function<void(MouseKey, PressState, float, float)>>
       mouse_callbacks_;
 };
 

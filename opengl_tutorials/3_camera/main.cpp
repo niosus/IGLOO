@@ -119,7 +119,6 @@ int main(int argc, char* argv[]) {
   viewer.user_input_handler().RegisterKeyboardCallback(
       [&camera](gl::KeyboardKey key, gl::PressState state) {
         if (state != gl::PressState::kPressed) { return; }
-        // const float speed = 0.02;
         switch (key) {
           case gl::KeyboardKey::kArrowUp:
             camera.Rotate(gl::Camera::RotationDirection::kVertical, 0.1_rad);
@@ -135,6 +134,21 @@ int main(int argc, char* argv[]) {
             break;
           default: return;
         }
+      });
+
+  viewer.user_input_handler().RegisterMouseCallback(
+      [&camera](gl::MouseKey key,
+                gl::PressState state,
+                float x_increment,
+                float y_increment) {
+        if (state != gl::PressState::kPressed) { return; }
+        float modifier = 0.01f;
+        camera.Rotate(gl::Camera::RotationDirection::kHorizontal,
+                      units::angle::radian_t{x_increment},
+                      modifier);
+        camera.Rotate(gl::Camera::RotationDirection::kVertical,
+                      units::angle::radian_t{y_increment},
+                      modifier);
       });
 
   camera.LookAt({0, 0, 0}, {5, 0, 0});
