@@ -18,6 +18,9 @@ class Camera {
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
+    // Note that target and camera position are reversed in this cross product
+    // because OpenGL z axis points towards the viewer, thus, the camera z
+    // direction must be inverted.
     Eigen::Vector3f z_direction = (camera_position - target).normalized();
     if ((z_direction - world_up).isApprox(Eigen::Vector3f::Zero())) {
       // Make sure cross product is always well-defined.

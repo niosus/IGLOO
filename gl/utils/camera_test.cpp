@@ -28,10 +28,10 @@ TEST(CameraTest, CameraFromWorld) {
   camera.LookAt({0, 0, 0}, position);
   EXPECT_TRUE(camera.GetPosition().isApprox(position))
       << camera.tf_camera_world().matrix();
-  Check(camera, {0, 0, 0, 1}, {0, 0, 1, 1});
+  Check(camera, {0, 0, 0, 1}, {0, 0, -1, 1});
   position = {2, 2, 2};
   camera.LookAt({0, 0, 0}, position);
   EXPECT_TRUE(camera.GetPosition().isApprox(position))
       << camera.tf_camera_world().matrix();
-  Check(camera, {1, 1, 1, 1}, {0, 0, sqrt(3), 1});
+  Check(camera, {1, 1, 1, 1}, {0, 0, -sqrt(3), 1});
 }
