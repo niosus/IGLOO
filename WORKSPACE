@@ -62,3 +62,20 @@ git_repository(
     shallow_since = "1572259405 +0000",
     remote = "https://github.com/nitronoid/rules_stb"
 )
+
+http_archive(
+    name = "com_github_glog_glog",
+    strip_prefix = "glog-0.4.0",
+    sha256 = "9e1b54eb2782f53cd8af107ecf08d2ab64b8d0dc2b7f5594472f3bd63ca85cdc",
+    urls = ["https://github.com/google/glog/archive/v0.4.0.zip"],
+)
+
+http_archive(
+    name = "com_github_gflags_gflags",
+    strip_prefix = "gflags-2.2.2",
+    sha256 = "34af2f15cf7367513b352bdcd2493ab14ce43692d2dcd9dfc499492966c64dcf",
+    urls = [
+        "https://mirror.bazel.build/github.com/gflags/gflags/archive/v2.2.2.tar.gz",
+        "https://github.com/gflags/gflags/archive/v2.2.2.tar.gz",
+    ],
+)

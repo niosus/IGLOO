@@ -4,6 +4,8 @@
 #include "gl/core/buffer.h"
 #include "gl/core/opengl_object.h"
 
+#include "glog/logging.h"
+
 #include <array>
 #include <iostream>
 #include <memory>
@@ -14,42 +16,45 @@ class VertexArrayBuffer : public OpenGlObject {
  public:
   VertexArrayBuffer() : OpenGlObject{0} { glGenVertexArrays(1, &id_); }
 
-  void AssignBuffer(const std::shared_ptr<Buffer>& buffer) {
-    Bind();
-    auto& bound_buffer = bound_buffers_[GetBoundBufferIndex(buffer->type())];
-    if (bound_buffer) { bound_buffer->UnBind(); }
-    bound_buffer = buffer;
-    bound_buffer->Bind();
-    UnBind();
-  }
-
-  void Bind() {
-    // TODO(igor): check if something was bound before. We don't want to change
-    // the state.
-    glBindVertexArray(id_);
-  }
-  void UnBind() { glBindVertexArray(0u); }
-
-  bool Draw(int gl_primitive_mode, int stride = 1) {
-    int number_of_elements{};
-    int gl_type{};
-    const auto& indices_buffer =
-        bound_buffers_[GetBoundBufferIndex(Buffer::Type::kElementArrayBuffer)];
-    if (indices_buffer) {
-      number_of_elements = indices_buffer->number_of_elements();
-      gl_type = indices_buffer->gl_underlying_data_type();
-      Bind();
-      glDrawElements(gl_primitive_mode, number_of_elements, gl_type, 0);
-      UnBind();
-      return true;
+  const Buffer* AssignBuffer(const std::shared_ptr<Buffer>& buffer) {
+    if (buffer->type() == Buffer::Type::kElementArrayBuffer) {
+      CHECK(bound_buffers_[buffer->type()].empty())
+          << "Multiple GL_ELEMENT_ARRAY_BUFFERs are not allowed.";
+      indices_present_ = true;
+      gl_indices_type_ = buffer->gl_underlying_data_type();
+      number_of_elements_to_draw_ = buffer->number_of_elements();
+    } else {
+      CHECK(GetStoredBuffer(buffer->type(), buffer->id()) == nullptr)
+          << "This buffer is already stored.";
+      if (!indices_present_) {
+        // We only want to update this number here if there are no indices
+        // present.
+        number_of_elements_to_draw_ = buffer->number_of_elements();
+      }
     }
-    const auto& vertex_buffer =
-        bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
-    if (!vertex_buffer) { return false; }
-    number_of_elements = vertex_buffer->number_of_elements();
-    gl_type = vertex_buffer->gl_underlying_data_type();
+    bound_buffers_[buffer->type()].emplace(buffer->id(), buffer);
     Bind();
-    glDrawArrays(gl_primitive_mode, 0, number_of_elements / stride);
+    buffer->Bind();
+    UnBind();
+    return buffer.get();
+  }
+
+  bool EnableVertexAttributePointer(int layout_index,
+                                    const std::shared_ptr<Buffer>& buffer,
+                                    int stride = 1,
+                                    int offset = 0,
+                                    bool normalized = false) {
+    const auto* buffer_ptr = GetStoredBuffer(buffer->type(), buffer->id());
+    if (!buffer_ptr) { buffer_ptr = AssignBuffer(buffer); }
+    Bind();
+    glVertexAttribPointer(
+        layout_index,
+        buffer_ptr->components_per_vertex(),
+        buffer_ptr->gl_underlying_data_type(),
+        normalized ? GL_TRUE : GL_FALSE,
+        stride * buffer_ptr->data_sizeof(),
+        reinterpret_cast<void*>(offset * buffer_ptr->data_sizeof()));
+    glEnableVertexAttribArray(layout_index);
     UnBind();
     return true;
   }
@@ -59,18 +64,36 @@ class VertexArrayBuffer : public OpenGlObject {
                                     int offset = 0,
                                     int override_component_count = 1,
                                     bool normalized = false) {
-    auto& bound_vertex_buffer =
-        bound_buffers_[GetBoundBufferIndex(Buffer::Type::kArrayBuffer)];
-    if (!bound_vertex_buffer) { return false; }
+    CHECK_EQ(bound_buffers_[Buffer::Type::kArrayBuffer].size(), 1ul)
+        << "This is a low-level interface. Use it only if you have a single "
+           "array buffer bound.";
+    const auto& buffer =
+        bound_buffers_.at(Buffer::Type::kArrayBuffer).begin()->second;
     Bind();
     glVertexAttribPointer(
         layout_index,
-        override_component_count * bound_vertex_buffer->components_per_vertex(),
-        bound_vertex_buffer->gl_underlying_data_type(),
+        override_component_count * buffer->components_per_vertex(),
+        buffer->gl_underlying_data_type(),
         normalized ? GL_TRUE : GL_FALSE,
-        stride * bound_vertex_buffer->data_sizeof(),
-        reinterpret_cast<void*>(offset * bound_vertex_buffer->data_sizeof()));
+        stride * buffer->data_sizeof(),
+        reinterpret_cast<void*>(offset * buffer->data_sizeof()));
     glEnableVertexAttribArray(layout_index);
+    UnBind();
+    return true;
+  }
+
+  void Bind() { glBindVertexArray(id_); }
+  void UnBind() { glBindVertexArray(0u); }
+
+  bool Draw(GLint gl_primitive_mode, int stride = 1) {
+    CHECK(!bound_buffers_.empty()) << "There are no buffers to draw.";
+    Bind();
+    if (indices_present_) {
+      glDrawElements(
+          gl_primitive_mode, number_of_elements_to_draw_, gl_indices_type_, 0);
+    } else {
+      glDrawArrays(gl_primitive_mode, 0, number_of_elements_to_draw_ / stride);
+    }
     UnBind();
     return true;
   }
@@ -78,16 +101,22 @@ class VertexArrayBuffer : public OpenGlObject {
   ~VertexArrayBuffer() { glDeleteVertexArrays(1, &id_); }
 
  private:
-  static inline std::size_t GetBoundBufferIndex(Buffer::Type type) {
-    switch (type) {
-      case Buffer::Type::kArrayBuffer: return 0;
-      case Buffer::Type::kElementArrayBuffer: return 1;
-    }
-    // Todo(igor): transition to optional?
-    return 666;
+  Buffer* GetStoredBuffer(Buffer::Type buffer_type,
+                          OpenGlObject::IdType id) const {
+    const auto buffers_iter = bound_buffers_.find(buffer_type);
+    if (buffers_iter == bound_buffers_.end()) { return nullptr; }
+    const auto buffer_iter = buffers_iter->second.find(id);
+    if (buffer_iter == buffers_iter->second.end()) { return nullptr; }
+    return buffer_iter->second.get();
   }
 
-  std::array<std::shared_ptr<Buffer>, 2ul> bound_buffers_{};
+  bool indices_present_{false};
+  GLint gl_indices_type_{};
+  GLint number_of_elements_to_draw_{};
+
+  std::map<Buffer::Type,
+           std::map<OpenGlObject::IdType, std::shared_ptr<Buffer>>>
+      bound_buffers_{};
 };
 
 }  // namespace gl

@@ -20,30 +20,29 @@
 
 using utils::Image;
 
-const eigen::vector<float> vertices{
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
-    0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-    -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+const eigen::vector<Eigen::Vector3f> vertices{
+    {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f},
+    {0.5f, 0.5f, -0.5f},   {-0.5f, 0.5f, -0.5f}, {-0.5f, -0.5f, -0.5f},
+    {-0.5f, -0.5f, 0.5f},  {0.5f, -0.5f, 0.5f},  {0.5f, 0.5f, 0.5f},
+    {0.5f, 0.5f, 0.5f},    {-0.5f, 0.5f, 0.5f},  {-0.5f, -0.5f, 0.5f},
+    {-0.5f, 0.5f, 0.5f},   {-0.5f, 0.5f, -0.5f}, {-0.5f, -0.5f, -0.5f},
+    {-0.5f, -0.5f, -0.5f}, {-0.5f, -0.5f, 0.5f}, {-0.5f, 0.5f, 0.5f},
+    {0.5f, 0.5f, 0.5f},    {0.5f, 0.5f, -0.5f},  {0.5f, -0.5f, -0.5f},
+    {0.5f, -0.5f, -0.5f},  {0.5f, -0.5f, 0.5f},  {0.5f, 0.5f, 0.5f},
+    {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, 0.5f},
+    {0.5f, -0.5f, 0.5f},   {-0.5f, -0.5f, 0.5f}, {-0.5f, -0.5f, -0.5f},
+    {-0.5f, 0.5f, -0.5f},  {0.5f, 0.5f, -0.5f},  {0.5f, 0.5f, 0.5f},
+    {0.5f, 0.5f, 0.5f},    {-0.5f, 0.5f, 0.5f},  {-0.5f, 0.5f, -0.5f}};
 
-    -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
-
-    -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
-
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-    0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-    0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
-    0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-    -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
+const eigen::vector<Eigen::Vector2f> texture_coordinates{
+    {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 1.0f},
+    {0.0f, 0.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f},
+    {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f},
+    {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+    {0.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f},
+    {1.0f, 1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f},
+    {0.0f, 1.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f},
+    {0.0f, 1.0f}};
 
 Eigen::Vector3f GetLocalCameraPos(float radius,
                                   float rot_vertical,
@@ -67,15 +66,6 @@ int main(int argc, char* argv[]) {
     absl::FPrintF(stderr, "Error: images not found.\n");
     return EXIT_FAILURE;
   }
-  absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
-               image_container->width(),
-               image_container->height(),
-               image_container->number_of_channels());
-
-  absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
-               image_face->width(),
-               image_face->height(),
-               image_face->number_of_channels());
 
   auto texture_1{gl::Texture::Builder{gl::Texture::Type::kTexture2D,
                                       gl::Texture::Identifier::kTexture0}
@@ -117,21 +107,16 @@ int main(int argc, char* argv[]) {
   program->SetUniform("projection", perspective);
 
   gl::VertexArrayBuffer vertex_array_buffer{};
-  vertex_array_buffer.AssignBuffer(
+  vertex_array_buffer.EnableVertexAttributePointer(
+      0,
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    vertices));
-  const int stride = 5;
-  const int pos_offset = 0;
-  const int vertex_layout_index = 0;
-  const int components_per_vertex_entry = 3;
   vertex_array_buffer.EnableVertexAttributePointer(
-      vertex_layout_index, stride, pos_offset, components_per_vertex_entry);
-  const int tex_layout_index = 1;
-  const int tex_coords_offset = 3;
-  const int components_per_tex_entry = 2;
-  vertex_array_buffer.EnableVertexAttributePointer(
-      tex_layout_index, stride, tex_coords_offset, components_per_tex_entry);
+      1,
+      std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
+                                   gl::Buffer::Usage::kStaticDraw,
+                                   texture_coordinates));
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
@@ -150,7 +135,7 @@ int main(int argc, char* argv[]) {
     Eigen::Affine3f model{Eigen::AngleAxisf{1.0f, Eigen::Vector3f::UnitX()}};
     program->SetUniform("model", model.matrix());
 
-    vertex_array_buffer.Draw(GL_TRIANGLES, stride);
+    vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();
   }
   return EXIT_SUCCESS;

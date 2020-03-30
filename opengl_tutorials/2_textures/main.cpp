@@ -9,6 +9,7 @@
 #include "gl/core/vertex_array_buffer.h"
 #include "gl/ui/glfw/viewer.h"
 #include "gl/utils/eigen_traits.h"
+#include "glog/logging.h"
 #include "utils/eigen_utils.h"
 #include "utils/image.h"
 
@@ -21,13 +22,27 @@
 
 using utils::Image;
 
-const eigen::vector<float> vertices{
-    // positions        // colors         // texture coords
-    0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 2.0f, 2.0f,  // top right
-    0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // bottom left
-    -0.5f, 0.5f,  0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 2.0f   // top left
+const eigen::vector<Eigen::Vector3f> vertices{
+    {0.5f, 0.5f, 0.0f},
+    {0.5f, -0.5f, 0.0f},
+    {-0.5f, -0.5f, 0.0f},
+    {-0.5f, 0.5f, 0.0f},
 };
+
+const eigen::vector<Eigen::Vector3f> colors{
+    {1.0f, 0.0f, 0.0f},
+    {0.0f, 1.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f},
+    {1.0f, 1.0f, 0.0f},
+};
+
+const eigen::vector<Eigen::Vector2f> texture_coordinates{
+    {2.0f, 2.0f},
+    {2.0f, 0.0f},
+    {0.0f, 0.0f},
+    {0.0f, 2.0f},
+};
+
 const std::vector<uint32_t> indices = {0, 1, 3, 1, 2, 3};  // Two triangles.
 
 int main(int argc, char* argv[]) {
@@ -35,25 +50,14 @@ int main(int argc, char* argv[]) {
 
   gl::glfw::Viewer viewer{"OpenGlViewer"};
   const bool success = viewer.Initialize();
-  if (!success) { return EXIT_FAILURE; }
+  CHECK(success) << "Viewer could not initialize.";
 
   const auto image_container =
       Image::CreateFrom("opengl_tutorials/2_textures/textures/container.jpg");
   const auto image_face = Image::CreateFrom(
       "opengl_tutorials/2_textures/textures/awesomeface.png", true);
-  if (!image_container || !image_face) {
-    absl::FPrintF(stderr, "Error: images not found.\n");
-    return EXIT_FAILURE;
-  }
-  absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
-               image_container->width(),
-               image_container->height(),
-               image_container->number_of_channels());
-
-  absl::PrintF("Width: %d, Height: %d, Number of channels: %d\n",
-               image_face->width(),
-               image_face->height(),
-               image_face->number_of_channels());
+  CHECK(image_container.has_value() && image_face.has_value())
+      << "Error: images not found.";
 
   auto texture_1{gl::Texture::Builder{gl::Texture::Type::kTexture2D,
                                       gl::Texture::Identifier::kTexture0}
@@ -70,14 +74,13 @@ int main(int argc, char* argv[]) {
       "opengl_tutorials/2_textures/shaders/triangle.vert")};
   const std::shared_ptr<gl::Shader> fragment_shader{gl::Shader::CreateFromFile(
       "opengl_tutorials/2_textures/shaders/triangle.frag")};
-  if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
+  CHECK(vertex_shader) << "Could not create vertex shader.";
+  CHECK(fragment_shader) << "Could not create fragment shader.";
 
   const auto program =
       gl::Program::CreateFromShaders({vertex_shader, fragment_shader});
-  if (!program) {
-    std::cerr << "Failed to link program" << std::endl;
-    return EXIT_FAILURE;
-  }
+  CHECK(program) << "Failed to link program.";
+
   program->Use();
   program->SetUniform("texture1", 0);
   program->SetUniform("texture2", 1);
@@ -90,23 +93,25 @@ int main(int argc, char* argv[]) {
   program->SetUniform("transform", transform.matrix());
 
   gl::VertexArrayBuffer vertex_array_buffer{};
-  vertex_array_buffer.AssignBuffer(
+  vertex_array_buffer.EnableVertexAttributePointer(
+      0,
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    vertices));
+  vertex_array_buffer.EnableVertexAttributePointer(
+      1,
+      std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
+                                   gl::Buffer::Usage::kStaticDraw,
+                                   colors));
+  vertex_array_buffer.EnableVertexAttributePointer(
+      2,
+      std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
+                                   gl::Buffer::Usage::kStaticDraw,
+                                   texture_coordinates));
   vertex_array_buffer.AssignBuffer(
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kElementArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    indices));
-  const int stride = 8;
-  const int pos_offset = 0;
-  vertex_array_buffer.EnableVertexAttributePointer(0, stride, pos_offset, 3);
-  const int color_offset = 3;
-  vertex_array_buffer.EnableVertexAttributePointer(1, stride, color_offset, 3);
-  const int texture_coords_offset = 6;
-  const int components_per_entry = 2;
-  vertex_array_buffer.EnableVertexAttributePointer(
-      2, stride, texture_coords_offset, components_per_entry);
 
   auto on_key_press = [&mixture, &program](gl::glfw::KeyPress key_press) {
     if (key_press == gl::glfw::KeyPress::kArrowUp) {

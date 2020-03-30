@@ -30,6 +30,7 @@ cc_library(
         "//utils:image",
         "@abseil//absl/strings",
         "@abseil//absl/strings:str_format",
+        "@com_github_glog_glog//:glog",
     ],
 )
 
