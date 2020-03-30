@@ -9,6 +9,7 @@ cc_library(
     hdrs = ["viewer.h"],
     deps = [
         "//gl/core:core",
+        "//gl/ui/core:user_input_handler",
         "@glfw//:glfw",
     ],
 )

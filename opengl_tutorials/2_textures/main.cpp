@@ -7,6 +7,7 @@
 #include "gl/core/texture.h"
 #include "gl/core/uniform.h"
 #include "gl/core/vertex_array_buffer.h"
+#include "gl/ui/core/user_input_handler.h"
 #include "gl/ui/glfw/viewer.h"
 #include "gl/utils/eigen_traits.h"
 #include "glog/logging.h"
@@ -113,10 +114,11 @@ int main(int argc, char* argv[]) {
                                    gl::Buffer::Usage::kStaticDraw,
                                    indices));
 
-  auto on_key_press = [&mixture, &program](gl::glfw::KeyPress key_press) {
-    if (key_press == gl::glfw::KeyPress::kArrowUp) {
+  auto on_key_press = [&mixture, &program](gl::KeyboardKey key_press,
+                                           gl::PressState press_state) {
+    if (key_press == gl::KeyboardKey::kArrowUp) {
       mixture = std::min(1.0f, mixture + 0.02f);
-    } else if (key_press == gl::glfw::KeyPress::kArrowDown) {
+    } else if (key_press == gl::KeyboardKey::kArrowDown) {
       mixture = std::max(0.0f, mixture - 0.02f);
     }
     Eigen::Affine3f transform{
@@ -125,8 +127,7 @@ int main(int argc, char* argv[]) {
     program->SetUniform("mix_ratio", mixture);
   };
 
-  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowUp, on_key_press);
-  viewer.RegisterKeyPressCallback(gl::glfw::KeyPress::kArrowDown, on_key_press);
+  viewer.user_input_handler().RegisterKeyboardCallback(on_key_press);
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();

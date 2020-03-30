@@ -2,6 +2,7 @@
 #define OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 
 #include "gl/core/opengl_object.h"
+#include "gl/ui/core/user_input_handler.h"
 
 #include <GLFW/glfw3.h>
 
@@ -22,15 +23,6 @@ struct WindowSize {
 struct GlVersion {
   std::uint32_t major;
   std::uint32_t minor;
-};
-
-enum class KeyPress {
-  kUnknown,
-  kArrowUp,
-  kArrowDown,
-  kArrowLeft,
-  kArrowRight,
-  kEscape
 };
 
 class Viewer {
@@ -64,10 +56,8 @@ class Viewer {
     if (!window_) { return; }
     for (int key : keys_to_monitor_) {
       if (glfwGetKey(window_, key) != GLFW_PRESS) { continue; }
-      auto key_from_enum = MapToKeyPress(key);
-      const auto& callback_iter = key_press_handlers.find(key_from_enum);
-      if (callback_iter == key_press_handlers.end()) { continue; }
-      callback_iter->second(key_from_enum);
+      user_input_handler_.DispatchKeyboardEvent(MapToKeyPress(key),
+                                                MapToPressState(GLFW_PRESS));
     }
   }
 
@@ -81,23 +71,28 @@ class Viewer {
 
   inline float GetTime() const { return glfwGetTime(); }
 
-  inline void RegisterKeyPressCallback(
-      KeyPress key_press, std::function<void(KeyPress)> key_press_handler) {
-    key_press_handlers[key_press] = key_press_handler;
-  }
-
   inline const WindowSize& window_size() const { return window_size_; }
 
+  inline UserInputHandler& user_input_handler() { return user_input_handler_; }
+
  private:
-  static inline KeyPress MapToKeyPress(int glfw_keypress) {
+  static inline KeyboardKey MapToKeyPress(int glfw_keypress) {
     switch (glfw_keypress) {
-      case GLFW_KEY_LEFT: return KeyPress::kArrowLeft;
-      case GLFW_KEY_RIGHT: return KeyPress::kArrowRight;
-      case GLFW_KEY_UP: return KeyPress::kArrowUp;
-      case GLFW_KEY_DOWN: return KeyPress::kArrowDown;
-      case GLFW_KEY_ESCAPE: return KeyPress::kEscape;
+      case GLFW_KEY_LEFT: return KeyboardKey::kArrowLeft;
+      case GLFW_KEY_RIGHT: return KeyboardKey::kArrowRight;
+      case GLFW_KEY_UP: return KeyboardKey::kArrowUp;
+      case GLFW_KEY_DOWN: return KeyboardKey::kArrowDown;
+      case GLFW_KEY_ESCAPE: return KeyboardKey::kEscape;
     }
-    return KeyPress::kUnknown;
+    return KeyboardKey::kNone;
+  }
+
+  static inline PressState MapToPressState(int glfw_keypress_state) {
+    switch (glfw_keypress_state) {
+      case GLFW_PRESS: return PressState::kPressed;
+      case GLFW_RELEASE: return PressState::kReleased;
+    }
+    return PressState::kNone;
   }
 
   static inline void OnResize(GLFWwindow* window, int width, int height) {
@@ -115,7 +110,7 @@ class Viewer {
                                     GLFW_KEY_UP,
                                     GLFW_KEY_DOWN};
 
-  std::map<KeyPress, std::function<void(KeyPress)>> key_press_handlers;
+  UserInputHandler user_input_handler_;
 };
 
 }  // namespace glfw
