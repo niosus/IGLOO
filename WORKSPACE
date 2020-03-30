@@ -79,3 +79,10 @@ http_archive(
         "https://github.com/gflags/gflags/archive/v2.2.2.tar.gz",
     ],
 )
+
+http_archive(
+  name = "com_nholthaus_units",
+  urls = ["https://github.com/nholthaus/units/archive/v2.3.1.zip"],  # 2019-03-14
+  strip_prefix = "units-2.3.1",
+  build_file = "@//:third_party/units/units.BUILD",
+)

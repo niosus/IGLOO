@@ -18,6 +18,7 @@
 #include <ostream>
 #include <vector>
 
+using namespace units::literals;
 using utils::Image;
 
 const eigen::vector<Eigen::Vector3f> vertices{
@@ -99,11 +100,8 @@ int main(int argc, char* argv[]) {
 
   gl::Camera camera{};
 
-  Eigen::Matrix4f perspective = camera.Perspective(M_PI_4,
-                                                   viewer.window_size().width,
-                                                   viewer.window_size().height,
-                                                   0.1f,
-                                                   100.0f);
+  Eigen::Matrix4f perspective = camera.Perspective(
+      45_deg, viewer.window_size().width, viewer.window_size().height);
   program->SetUniform("projection", perspective);
 
   gl::VertexArrayBuffer vertex_array_buffer{};
@@ -121,24 +119,25 @@ int main(int argc, char* argv[]) {
   viewer.user_input_handler().RegisterKeyboardCallback(
       [&camera](gl::KeyboardKey key, gl::PressState state) {
         if (state != gl::PressState::kPressed) { return; }
+        // const float speed = 0.02;
         switch (key) {
           case gl::KeyboardKey::kArrowUp:
-            camera.IncrementPosition(Eigen::Vector3f{-0.1f, 0.0f, 0.0f});
+            camera.Rotate(gl::Camera::RotationDirection::kVertical, 0.1_rad);
             break;
           case gl::KeyboardKey::kArrowDown:
-            camera.IncrementPosition(Eigen::Vector3f{0.1f, 0.0f, 0.0f});
+            camera.Rotate(gl::Camera::RotationDirection::kVertical, -0.1_rad);
             break;
           case gl::KeyboardKey::kArrowLeft:
-            camera.IncrementPosition(Eigen::Vector3f{0.0f, -0.1f, 0.0f});
+            camera.Rotate(gl::Camera::RotationDirection::kHorizontal, -0.1_rad);
             break;
           case gl::KeyboardKey::kArrowRight:
-            camera.IncrementPosition(Eigen::Vector3f{0.0f, 0.1f, 0.0f});
+            camera.Rotate(gl::Camera::RotationDirection::kHorizontal, 0.1_rad);
             break;
           default: return;
         }
       });
 
-  camera.LookAt({0, 0, 0}, {3, 0, 0});
+  camera.LookAt({0, 0, 0}, {5, 0, 0});
 
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
@@ -150,9 +149,8 @@ int main(int argc, char* argv[]) {
     program->Use();
     texture_1->Bind();
     texture_2->Bind();
-    program->SetUniform("view", camera.tf_camera_world().matrix());
-    Eigen::Affine3f model{
-        Eigen::AngleAxisf{glfwGetTime(), Eigen::Vector3f::UnitX()}};
+    program->SetUniform("view", camera.TfCameraWorld().matrix());
+    Eigen::Affine3f model{Eigen::AngleAxisf{0.0f, Eigen::Vector3f::UnitX()}};
     program->SetUniform("model", model.matrix());
 
     vertex_array_buffer.Draw(GL_TRIANGLES);

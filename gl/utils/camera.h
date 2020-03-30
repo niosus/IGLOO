@@ -5,19 +5,30 @@
 #ifndef OPENGL_TUTORIALS_GL_CORE_CAMERA_H_
 #define OPENGL_TUTORIALS_GL_CORE_CAMERA_H_
 
-#include <Eigen/Geometry>
+#include "Eigen/Geometry"
+#include "nholthaus/units.h"
 
 #include <cmath>
 #include <iostream>
+
+#include <iostream>
+#include <vector>
 
 namespace gl {
 
 class Camera {
  public:
+  enum class RotationDirection { kVertical, kHorizontal };
+
+  Camera() { UpdateWorldCameraPosition(); }
+
   Eigen::Affine3f LookAt(
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
+    // TODO(igor): we might want to update the radius and angles if this is
+    // called directly.
+    //
     // Note that target and camera position are reversed in this cross product
     // because OpenGL z axis points towards the viewer, thus, the camera z
     // direction must be inverted.
@@ -33,16 +44,35 @@ class Camera {
     return tf_world_camera_.inverse();
   }
 
-  Eigen::Matrix4f Perspective(float fov_y,
-                              float window_width,
-                              float window_height,
-                              float z_near,
-                              float z_far) {
+  void Rotate(RotationDirection rotation,
+              units::angle::radian_t radians,
+              float speed_multiplier = 1.0f) {
+    switch (rotation) {
+      case RotationDirection::kVertical:
+        rotation_vertical_ += radians * speed_multiplier;
+        rotation_vertical_ = units::math::max(
+            units::math::min(rotation_vertical_, units::angle::degree_t{89.9}),
+            units::angle::degree_t{-89.9});
+        break;
+      case RotationDirection::kHorizontal:
+        rotation_horizontal_ += radians * speed_multiplier;
+        break;
+    }
+    UpdateWorldCameraPosition();
+  }
+
+  static Eigen::Matrix4f Perspective(units::angle::radian_t fov_y,
+                                     std::int32_t window_width,
+                                     std::int32_t window_height,
+                                     float z_near = 0.1f,
+                                     float z_far = 100.0f) {
     // https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
     Eigen::Matrix4f M = Eigen::Matrix4f::Zero();
     // Copied from gluPerspective
-    float f = 1.0f / std::tan(0.5f * fov_y);
-    M(0, 0) = f / (window_width / window_height);
+    const float aspect_ratio =
+        static_cast<float>(window_width) / static_cast<float>(window_height);
+    const float f = 1.0f / std::tan(0.5f * fov_y.value());
+    M(0, 0) = f / aspect_ratio;
     M(1, 1) = f;
     M(2, 2) = (z_near + z_far) / (z_near - z_far);
     M(2, 3) = (2.0f * z_far * z_near) / (z_near - z_far);
@@ -51,20 +81,59 @@ class Camera {
   }
 
   void SetPosition(const Eigen::Vector3f& position) {
-    tf_world_camera_.translation() = position;
+    tf_world_target_.translation() = position;
+    UpdateWorldCameraPosition();
   }
 
-  void IncrementPosition(const Eigen::Vector3f& increment) {
-    tf_world_camera_.translation() += increment;
+  void Translate(const Eigen::Vector3f& translation, float speed = 1.0f) {
+    // Compute the transform from "rotated_target" to "target" frame.
+    Eigen::Isometry3f tf_target_rotated(Eigen::AngleAxisf(
+        rotation_horizontal_.value(), Eigen::Vector3f::UnitZ()));
+    Eigen::Vector3f translation_in_target =
+        tf_target_rotated * (translation * speed * radius_);
+    tf_world_target_.translation() += translation_in_target;
+    UpdateWorldCameraPosition();
   }
 
-  Eigen::Vector3f GetPosition() const { return tf_world_camera_.translation(); }
+  Eigen::Vector3f GetTargetPosition() const {
+    return tf_world_target_.translation();
+  }
 
-  Eigen::Affine3f tf_camera_world() const { return tf_world_camera_.inverse(); }
+  Eigen::Affine3f TfCameraWorld() const { return tf_world_camera_.inverse(); }
   const Eigen::Affine3f& tf_world_camera() const { return tf_world_camera_; }
 
+  Eigen::Matrix4f TfViewportWorld() const {
+    return tf_camera_viewport_ * TfCameraWorld().matrix();
+  }
+
  private:
+  Eigen::Vector3f CameraPositionInTargetFrame() const {
+    float radius_2d = radius_ * cosf(rotation_vertical_.value());
+    return {radius_2d * cosf(rotation_horizontal_.value()),
+            radius_2d * sinf(rotation_horizontal_.value()),
+            radius_ * sinf(rotation_vertical_.value())};
+  }
+
+  Eigen::Affine3f UpdateWorldCameraPosition() {
+    Eigen::Vector3f camera_world =
+        tf_world_target_ * CameraPositionInTargetFrame();
+    // Lookat handles also rotation of the frame from z-up coordinate system to
+    // the OpenGL (z-back) coordinate system. No need for explicit
+    // transformation.
+    return LookAt(GetTargetPosition(), camera_world);
+  }
+
+  Eigen::Affine3f tf_world_target_{Eigen::Affine3f::Identity()};
   Eigen::Affine3f tf_world_camera_{Eigen::Affine3f::Identity()};
+
+  Eigen::Vector3f camera_pos_in_target_frame_{Eigen::Vector3f::Zero()};
+
+  float radius_ = 5.0f;
+  units::angle::radian_t rotation_horizontal_ = units::angle::radian_t{0};
+  units::angle::radian_t rotation_vertical_ = units::angle::radian_t{0};
+
+  Eigen::Matrix4f tf_camera_viewport_ =
+      Camera::Perspective(units::angle::degree_t{45}, 800, 600);
 };
 
 }  // namespace gl

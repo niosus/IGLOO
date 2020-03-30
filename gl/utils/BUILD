@@ -31,6 +31,7 @@ cc_library(
     hdrs = ["camera.h"],
     deps = [
         "//gl/core:core",
+        "@com_nholthaus_units//:units",
         "@eigen//:eigen",
     ]
 )
