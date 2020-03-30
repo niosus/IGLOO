@@ -118,6 +118,28 @@ int main(int argc, char* argv[]) {
                                    gl::Buffer::Usage::kStaticDraw,
                                    texture_coordinates));
 
+  viewer.user_input_handler().RegisterKeyboardCallback(
+      [&camera](gl::KeyboardKey key, gl::PressState state) {
+        if (state != gl::PressState::kPressed) { return; }
+        switch (key) {
+          case gl::KeyboardKey::kArrowUp:
+            camera.IncrementPosition(Eigen::Vector3f{-0.1f, 0.0f, 0.0f});
+            break;
+          case gl::KeyboardKey::kArrowDown:
+            camera.IncrementPosition(Eigen::Vector3f{0.1f, 0.0f, 0.0f});
+            break;
+          case gl::KeyboardKey::kArrowLeft:
+            camera.IncrementPosition(Eigen::Vector3f{0.0f, -0.1f, 0.0f});
+            break;
+          case gl::KeyboardKey::kArrowRight:
+            camera.IncrementPosition(Eigen::Vector3f{0.0f, 0.1f, 0.0f});
+            break;
+          default: return;
+        }
+      });
+
+  camera.LookAt({0, 0, 0}, {3, 0, 0});
+
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
 
@@ -128,11 +150,9 @@ int main(int argc, char* argv[]) {
     program->Use();
     texture_1->Bind();
     texture_2->Bind();
-    float camX = sin(glfwGetTime()) * 3;
-    float camY = cos(glfwGetTime()) * 3;
-    camera.LookAt({0, 0, 0}, {camX, camY, 0});
     program->SetUniform("view", camera.tf_camera_world().matrix());
-    Eigen::Affine3f model{Eigen::AngleAxisf{1.0f, Eigen::Vector3f::UnitX()}};
+    Eigen::Affine3f model{
+        Eigen::AngleAxisf{glfwGetTime(), Eigen::Vector3f::UnitX()}};
     program->SetUniform("model", model.matrix());
 
     vertex_array_buffer.Draw(GL_TRIANGLES);

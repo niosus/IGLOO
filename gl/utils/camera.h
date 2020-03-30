@@ -54,6 +54,10 @@ class Camera {
     tf_world_camera_.translation() = position;
   }
 
+  void IncrementPosition(const Eigen::Vector3f& increment) {
+    tf_world_camera_.translation() += increment;
+  }
+
   Eigen::Vector3f GetPosition() const { return tf_world_camera_.translation(); }
 
   Eigen::Affine3f tf_camera_world() const { return tf_world_camera_.inverse(); }
