@@ -119,18 +119,19 @@ int main(int argc, char* argv[]) {
   viewer.user_input_handler().RegisterKeyboardCallback(
       [&camera](gl::KeyboardKey key, gl::PressState state) {
         if (state != gl::PressState::kPressed) { return; }
+        const float increment = 0.02f;
         switch (key) {
           case gl::KeyboardKey::kArrowUp:
-            camera.Rotate(gl::Camera::RotationDirection::kVertical, 0.1_rad);
+            camera.Translate({-increment, 0.0f, 0.0f});
             break;
           case gl::KeyboardKey::kArrowDown:
-            camera.Rotate(gl::Camera::RotationDirection::kVertical, -0.1_rad);
+            camera.Translate({increment, 0.0f, 0.0f});
             break;
           case gl::KeyboardKey::kArrowLeft:
-            camera.Rotate(gl::Camera::RotationDirection::kHorizontal, -0.1_rad);
+            camera.Translate({0.0f, -increment, 0.0f});
             break;
           case gl::KeyboardKey::kArrowRight:
-            camera.Rotate(gl::Camera::RotationDirection::kHorizontal, 0.1_rad);
+            camera.Translate({0.0f, increment, 0.0f});
             break;
           default: return;
         }

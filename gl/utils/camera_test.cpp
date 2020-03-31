@@ -4,10 +4,17 @@
 using namespace gl;
 
 TEST(CameraTest, Posititon) {
-  Camera camera{};
-  // EXPECT_TRUE(camera.TfCameraWorld().isApprox(Eigen::Affine3f::Identity()));
+  const float radius{5.0f};
+  Camera camera{radius};
+  Eigen::Matrix4f tf_camera_world;
+  tf_camera_world << 0, 1, 0, -0,  //
+      0, 0, 1, -0,                 //
+      1, 0, 0, -5,                 //
+      0, 0, 0, 1;
+  EXPECT_TRUE(camera.TfCameraWorld().matrix().isApprox(tf_camera_world))
+      << camera.TfCameraWorld().matrix();
   const Eigen::Vector3f position{1, 2, 3};
-  camera.SetPosition(position);
+  camera.SetTargetPosition(position);
   EXPECT_TRUE(camera.GetTargetPosition().isApprox(position));
 }
 
@@ -23,15 +30,17 @@ TEST(CameraTest, CameraFromWorld) {
         << "\nExpected: " << expected_camera_point.transpose();
   };
 
-  Eigen::Vector3f position;
-  position = {1, 0, 0};
-  camera.LookAt({0, 0, 0}, position);
-  // EXPECT_TRUE(camera.GetTargetPosition().isApprox(position))
-  //     << camera.TfCameraWorld().matrix();
+  Eigen::Vector3f camera_position;
+  Eigen::Vector3f target_position;
+  camera_position = {1, 0, 0};
+  target_position = {0, 0, 0};
+  camera.LookAt(target_position, camera_position);
+  EXPECT_TRUE(camera.GetTargetPosition().isApprox(target_position))
+      << camera.TfCameraWorld().matrix();
   Check(camera, {0, 0, 0, 1}, {0, 0, -1, 1});
-  position = {2, 2, 2};
-  camera.LookAt({0, 0, 0}, position);
-  // EXPECT_TRUE(camera.GetTargetPosition().isApprox(position))
-  //     << camera.TfCameraWorld().matrix();
+  camera_position = {2, 2, 2};
+  camera.LookAt(target_position, camera_position);
+  EXPECT_TRUE(camera.GetTargetPosition().isApprox(target_position))
+      << camera.TfCameraWorld().matrix();
   Check(camera, {1, 1, 1, 1}, {0, 0, -sqrt(3), 1});
 }
