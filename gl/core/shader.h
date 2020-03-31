@@ -16,7 +16,8 @@ class Shader : public OpenGlObject {
   enum class Type : GLint {
     kUndefined = -1,
     kVertexShader = GL_VERTEX_SHADER,
-    kFragmentShader = GL_FRAGMENT_SHADER
+    kFragmentShader = GL_FRAGMENT_SHADER,
+    kGeometryShader = GL_GEOMETRY_SHADER
   };
 
   static std::unique_ptr<Shader> CreateFromFile(const std::string& file_name);

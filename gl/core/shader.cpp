@@ -36,6 +36,7 @@ Shader::Type Shader::DetectShaderType(const std::string& file_name) {
   const std::string& extention = split.back();
   if (extention == "vert") { return Shader::Type::kVertexShader; }
   if (extention == "frag") { return Shader::Type::kFragmentShader; }
+  if (extention == "geom") { return Shader::Type::kGeometryShader; }
   absl::FPrintF(stderr,
                 "Unknown shader file extention: '%s' for file '%s'\n",
                 extention,
