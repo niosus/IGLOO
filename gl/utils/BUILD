@@ -25,3 +25,27 @@ cc_test(
     ],
     size="small",
 )
+
+cc_library(
+    name = "camera",
+    hdrs = ["camera.h"],
+    deps = [
+        "//gl/core:core",
+        "@com_nholthaus_units//:units",
+        "@eigen//:eigen",
+    ]
+)
+
+cc_test(
+    name = "camera_test",
+    srcs = [
+        "camera_test.cpp",
+    ],
+    deps = [
+        ":camera",
+        "@eigen//:eigen",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+    size="small",
+)

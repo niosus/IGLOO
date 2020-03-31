@@ -30,6 +30,7 @@ cc_library(
         "//utils:image",
         "@abseil//absl/strings",
         "@abseil//absl/strings:str_format",
+        "@com_github_glog_glog//:glog",
     ],
 )
 
@@ -37,8 +38,8 @@ cc_test(
     name = "core_test",
     srcs = [
         "buffer_test.cpp",
-        "main_test.cpp",
         "uniform_test.cpp",
+        "main_test.cpp",
     ],
     deps = [
         ":core",

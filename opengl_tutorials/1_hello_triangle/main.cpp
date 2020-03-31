@@ -16,6 +16,8 @@
 #include <ostream>
 #include <vector>
 
+ABSL_FLAG(bool, use_indices, false, "Use indices when drawing.");
+
 const eigen::vector<Eigen::Vector3f> vertices{
     {0.5f, 0.5f, 0.0f},    // top right
     {1.0f, 0.0f, 0.0f},    // top right color
@@ -36,9 +38,9 @@ int main(int argc, char* argv[]) {
   if (!success) { return EXIT_FAILURE; }
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/hello_triangle/shaders/triangle.vert")};
+      "opengl_tutorials/1_hello_triangle/shaders/triangle.vert")};
   const std::shared_ptr<gl::Shader> fragment_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/hello_triangle/shaders/triangle.frag")};
+      "opengl_tutorials/1_hello_triangle/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
   const auto program =
@@ -55,10 +57,13 @@ int main(int argc, char* argv[]) {
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    vertices));
-  vertex_array_buffer.AssignBuffer(
-      std::make_shared<gl::Buffer>(gl::Buffer::Type::kElementArrayBuffer,
-                                   gl::Buffer::Usage::kStaticDraw,
-                                   indices));
+  if (FLAGS_use_indices.Get()) {
+    vertex_array_buffer.AssignBuffer(
+        std::make_shared<gl::Buffer>(gl::Buffer::Type::kElementArrayBuffer,
+                                     gl::Buffer::Usage::kStaticDraw,
+                                     indices));
+  }
+
   const int stride = 2;
   const int pos_offset = 0;
   vertex_array_buffer.EnableVertexAttributePointer(0, stride, pos_offset);

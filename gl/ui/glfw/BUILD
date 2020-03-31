@@ -6,9 +6,13 @@ package(default_visibility = [
 cc_library(
     name = "viewer",
     srcs = ["viewer.cpp"],
-    hdrs = ["viewer.h"],
+    hdrs = [
+        "mouse_event_handler.h",
+        "viewer.h"
+    ],
     deps = [
         "//gl/core:core",
+        "//gl/ui/core:user_input_handler",
         "@glfw//:glfw",
     ],
 )
