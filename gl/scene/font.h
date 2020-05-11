@@ -1,11 +1,11 @@
-// Copyright Igor Bogoslavskyi, year 2018.
+// Copyright Igor Bogoslavskyi, year 2020.
 // In case of any problems with the code please contact me.
-// Email: igor.bogoslavskyi@uni-bonn.de.
+// Email: <name>.<family_name>@gmail.com.
 
 #ifndef CODE_OPENGL_TUTORIALS_GL_SCENE_FONT_H_
 #define CODE_OPENGL_TUTORIALS_GL_SCENE_FONT_H_
 
-#include <glog/logging.h>
+#include "glog/logging.h"
 
 #include "utils/image.h"
 
@@ -26,7 +26,7 @@ class Font {
   using UniquePtr = std::unique_ptr<Font>;
   using SharedPtr = std::shared_ptr<Font>;
 
-  explicit Font(const std::string& path_to_font);
+  explicit Font(const std::string& file_name);
 
   /// Get the coordinates of the characted in the texture.
   inline const TextureCoords& GetCharCoords(char symbol) const {

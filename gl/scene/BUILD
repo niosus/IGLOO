@@ -1,11 +1,9 @@
 cc_library(
     name = "scene",
     srcs = [
-        "program_pool.cpp",
         "font.cpp",
     ],
     hdrs = [
-        "program_pool.h",
         "font.h",
     ],
     visibility = [
@@ -14,5 +12,27 @@ cc_library(
     ],
     deps = [
         "//gl/core:core",
+        "//utils:file_utils",
+        "@abseil//absl/strings",
+        "@com_github_glog_glog//:glog",
     ],
+)
+
+cc_test(
+    name = "scene_test",
+    srcs = [
+        "font_test.cpp",
+    ],
+    deps = [
+        ":scene",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
+    ],
+    data = [":fonts"],
+    size="small",
+)
+
+filegroup(
+    name = "fonts",
+    srcs = glob(["fonts/*"]),
 )

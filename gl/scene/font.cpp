@@ -3,67 +3,81 @@
 // Email: igor.bogoslavskyi@uni-bonn.de.
 
 #include "gl/scene/font.h"
+#include "absl/strings/str_split.h"
 
 #include <fstream>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/filesystem.hpp>
+namespace {
+const char kFontExtension[]{".fnt"};
+const char kImageExtension[]{".png"};
+const char kPathDelimeter{'/'};
+}  // namespace
 
-namespace ipb {
-namespace vis {
+namespace gl {
 
-Font::Font(const std::string& path_to_font) {
-  CHECK(boost::ends_with(path_to_font, ".fnt")) << "We only read *.fnt files";
-  auto full_path = boost::filesystem::path(kIpbOpenGlPath) / path_to_font;
-  CHECK(boost::filesystem::exists(full_path)) << full_path;
-  LOG(INFO) << "Reading font from " << full_path;
-  std::ifstream file(full_path.string());
+Font::Font(const std::string& file_name) {
+  CHECK(absl::EndsWith(file_name, kFontExtension))
+      << "We only read " << kFontExtension << " files";
 
-  auto SplitNextLine = [](std::ifstream* file) {
+  auto ConcatenateWithDelimeter = [](const std::string& a,
+                                     const std::string& b) {
+    if (a.empty()) { return b; }
+    return a + kPathDelimeter + b;
+  };
+  const std::vector<std::string> split_path{
+      absl::StrSplit(file_name, kPathDelimeter)};
+  const auto folder{std::accumulate(split_path.begin(),
+                                    split_path.end() - 1,
+                                    std::string{},
+                                    ConcatenateWithDelimeter)};
+
+  const auto font_content{utils::ReadFileContents(file_name)};
+
+  LOG(INFO) << "Reading font from " << file_name;
+  std::ifstream file(file_name);
+
+  auto SplitNextLine = [](std::ifstream* file) -> std::vector<std::string> {
     std::string line;
-    std::vector<std::string> split_string;
-    if (!std::getline(*file, line, '\n')) { return split_string; }
-    boost::split(split_string, line, boost::is_any_of("\t "));
-    return split_string;
+    if (!std::getline(*file, line, '\n')) { return {}; }
+    return absl::StrSplit(line, absl::ByAnyChar("\t "));
   };
 
   auto GetTextureImageName = [&SplitNextLine](std::ifstream* file) {
-    std::vector<std::string> split_string = SplitNextLine(file);
+    std::vector<std::string> split_string{SplitNextLine(file)};
     CHECK_EQ(split_string.size(), static_cast<size_t>(2))
         << "Wrong line format.";
-    CHECK(boost::ends_with(split_string[1], ".png")) << "Texture must be png.";
+    CHECK(absl::EndsWith(split_string[1], kImageExtension))
+        << "Texture must be " << kImageExtension;
     return split_string[1];
   };
 
   auto GetFontName = [&SplitNextLine](std::ifstream* file) {
-    std::vector<std::string> split_string = SplitNextLine(file);
+    std::vector<std::string> split_string{SplitNextLine(file)};
     return std::accumulate(
         split_string.begin(), split_string.end() - 1, std::string(""));
   };
 
   // Load image.
-  auto image_name = GetTextureImageName(&file);
-  full_path.replace_extension(".png");
-  CHECK(boost::filesystem::exists(full_path)) << full_path;
-  font_texture_ = cv::imread(full_path.string(), cv::IMREAD_UNCHANGED);
-  cv::flip(font_texture_, font_texture_, 0);  // Flip image vertically.
-
+  const auto image_name{GetTextureImageName(&file)};
+  const auto path_to_image{folder + kPathDelimeter + image_name};
+  const auto texture{utils::Image::CreateFrom(path_to_image)};
+  CHECK(texture.has_value()) << "Could not load image: " << path_to_image;
+  font_texture_ = texture.value();
   // Get font name for storage purposes.
   name_ = GetFontName(&file);
 
-  // Real all the chars and store their Texture coordinates. These are different
+  // Read all the chars and store their Texture coordinates. These are different
   // from image coordinates and are intended to be used with OpenGL.
-  const float kYNormalizer = 1.0f / font_texture_.rows;
-  const float kXNormalizer = 1.0f / font_texture_.cols;
+  const float kYNormalizer{1.0f / font_texture_.height()};
+  const float kXNormalizer{1.0f / font_texture_.width()};
   while (true) {
-    auto split = SplitNextLine(&file);
-    if (split.size() != 9) {
+    const auto split{SplitNextLine(&file)};
+    if (split.size() != 9ul) {
       LOG(INFO) << "Read all relevant chars.";
       break;
     }
-    CHECK_GE(split.size(), static_cast<size_t>(5)) << "Wrong format. ";
+    CHECK_GE(split.size(), 5ul) << "Wrong format. ";
     TextureCoords coords{kXNormalizer * std::stoi(split[1]),
                          1.0f - kYNormalizer * std::stoi(split[2]),
                          kXNormalizer * std::stoi(split[3]),
@@ -72,5 +86,4 @@ Font::Font(const std::string& path_to_font) {
   }
 }
 
-}  // namespace vis
-}  // namespace ipb
+}  // namespace gl
