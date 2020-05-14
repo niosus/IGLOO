@@ -2,8 +2,10 @@
 // In case of any problems with the code please contact me.
 // Email: igor.bogoslavskyi@uni-bonn.de.
 
-#pragma once
-#include <ipb_opengl_tools/gl/drawables/drawable.h>
+#ifndef OPENGL_TUTORIALS_GL_SCENE_SCENE_GRAPH_H_
+#define OPENGL_TUTORIALS_GL_SCENE_SCENE_GRAPH_H_
+
+#include "gl/scene/drawables/drawable.h"
 
 #include <Eigen/Geometry>
 
@@ -12,8 +14,7 @@
 #include <set>
 #include <unordered_map>
 
-namespace ipb {
-namespace vis {
+namespace gl {
 
 /// A scene graph class where all drawables are organized into a tree where the
 /// edges hold the relative transformation information.
@@ -126,5 +127,6 @@ class SceneGraph {
   std::recursive_mutex graph_mutex;
 };
 
-}  // namespace vis
-}  // namespace ipb
+}  // namespace gl
+
+#endif  // OPENGL_TUTORIALS_GL_SCENE_SCENE_GRAPH_H_

@@ -1,10 +1,18 @@
 cc_library(
-    name = "drawables",
+    name = "scene",
     srcs = [
+        "font.cpp",
+        "font_pool.cpp",
+        "program_pool.cpp",
+        "scene_graph.cpp",
         "drawables/drawable.cpp",
         "drawables/all.cpp",
     ],
     hdrs = [
+        "font.h",
+        "font_pool.h",
+        "program_pool.h",
+        "scene_graph.h",
         "drawables/drawable.h",
         "drawables/all.h",
     ],
@@ -13,7 +21,6 @@ cc_library(
         "//opengl_tutorials:__subpackages__",
     ],
     deps = [
-        ":scene",
         "//gl/core:core",
         "//gl/utils:eigen_traits",
         "//utils:eigen_utils",
@@ -23,30 +30,6 @@ cc_library(
         "@abseil//absl/strings",
         "@com_github_glog_glog//:glog",
         "@eigen//:eigen",
-    ],
-)
-
-cc_library(
-    name = "scene",
-    srcs = [
-        "font.cpp",
-        "font_pool.cpp",
-        "program_pool.cpp",
-    ],
-    hdrs = [
-        "font.h",
-        "font_pool.h",
-        "program_pool.h",
-    ],
-    visibility = [
-        "//gl:__subpackages__",
-        "//opengl_tutorials:__subpackages__",
-    ],
-    deps = [
-        "//gl/core:core",
-        "//utils:file_utils",
-        "@abseil//absl/strings",
-        "@com_github_glog_glog//:glog",
     ],
 )
 

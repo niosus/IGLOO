@@ -2,15 +2,11 @@
 // In case of any problems with the code please contact me.
 // Email: igor.bogoslavskyi@uni-bonn.de.
 
-#include <ipb_opengl_tools/gl/scene_graph.h>
+#include "gl/scene/scene_graph.h"
 
 #include <Eigen/Geometry>
 
-#include <ipb_core/utils/memory.h>
-#include <ipb_core/utils/timer.h>
-
-namespace ipb {
-namespace vis {
+namespace gl {
 
 SceneGraph::Key SceneGraph::global_node_counter_ = 0;
 const SceneGraph::Key SceneGraph::kRootKey = SceneGraph::GenerateNextKey();
@@ -34,8 +30,8 @@ SceneGraph::Key SceneGraph::RegisterBranchKey(Key key) {
     LOG(WARNING) << "Key " << key << " already registered in scene graph.";
     return false;
   }
-  // Our root is a null renderable that has base key as the parent.
-  auto branch_root = ipb::make_unique<Node>(
+  // Our root is a null drawable that has base key as the parent.
+  auto branch_root = std::make_unique<Node>(
       key, kRootKey, nullptr, Eigen::Isometry3f::Identity(), &storage_);
 
   // Add it to storage.
@@ -49,7 +45,7 @@ SceneGraph::Key SceneGraph::Attach(Key parent_key,
                                    Key new_key) {
   std::lock_guard<std::recursive_mutex> guard(graph_mutex);
   CHECK_GT(storage_.count(parent_key), 0u) << "Must have a real parent";
-  auto node = ipb::make_unique<Node>(
+  auto node = std::make_unique<Node>(
       new_key, parent_key, drawable, tx_parent_local, &storage_);
   storage_.emplace(new_key, std::move(node));
   storage_.at(parent_key)->AddChildKey(new_key);
@@ -108,7 +104,7 @@ void SceneGraph::Node::Draw(const Eigen::Isometry3f& tx_accumulated) const {
   CHECK_NOTNULL(storage_);
   Eigen::Isometry3f tx_world_local = tx_accumulated * tx_parent_local_;
   if (drawable_) {
-    drawable_->model() = tx_world_local.matrix();
+    drawable_->SetModel(tx_world_local.matrix());
     if (!drawable_->ready_to_draw()) { drawable_->FillBuffers(); }
     drawable_->Draw();
   }
@@ -132,5 +128,4 @@ Eigen::Isometry3f SceneGraph::Node::ComputeTxAccumulated() const {
   return tx_accumulated;
 }
 
-}  // namespace vis
-}  // namespace ipb
+}  // namespace gl
