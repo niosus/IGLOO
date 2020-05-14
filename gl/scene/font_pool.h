@@ -1,19 +1,18 @@
-// Copyright Igor Bogoslavskyi, year 2018.
+// Copyright Igor Bogoslavskyi, year 2020.
 // In case of any problems with the code please contact me.
-// Email: igor.bogoslavskyi@uni-bonn.de.
+// Email: <name>.<family_name>@gmail.com.
 
-#pragma once
+#ifndef CODE_OPENGL_TUTORIALS_GL_SCENE_FONT_POOL_H_
+#define CODE_OPENGL_TUTORIALS_GL_SCENE_FONT_POOL_H_
 
-#include <ipb_opengl_tools/current_path.h>
-#include <ipb_opengl_tools/gl/font.h>
+#include "gl/scene/font.h"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace ipb {
-namespace vis {
+namespace gl {
 
 /// Container for all available fonts.
 class FontPool {
@@ -36,5 +35,6 @@ class FontPool {
   std::map<std::string, Font::SharedPtr> fonts_;
 };
 
-}  // namespace vis
-}  // namespace ipb
+}  // namespace gl
+
+#endif  // CODE_OPENGL_TUTORIALS_GL_SCENE_FONT_POOL_H_

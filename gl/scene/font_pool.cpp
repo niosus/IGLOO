@@ -1,15 +1,14 @@
-// Copyright Igor Bogoslavskyi, year 2018.
+// Copyright Igor Bogoslavskyi, year 2020.
 // In case of any problems with the code please contact me.
-// Email: igor.bogoslavskyi@uni-bonn.de.
+// Email: <name>.<family_name>@gmail.com.
 
-#include "ipb_opengl_tools/gl/font_pool.h"
-
-#include <ipb_core/utils/memory.h>
+#include "gl/scene/font_pool.h"
 
 #include <glog/logging.h>
 
-namespace ipb {
-namespace vis {
+#include <memory>
+
+namespace gl {
 
 FontPool& FontPool::Instance() {
   static FontPool pool;
@@ -26,11 +25,10 @@ const Font::SharedPtr& FontPool::Get(const std::string& font_tag) const {
 }
 
 std::string FontPool::LoadFont(const std::string& font_path) {
-  auto font = ipb::make_shared<Font>(font_path);
+  auto font = std::make_shared<Font>(font_path);
   font_names_.push_back(font->name());
   fonts_.emplace(font->name(), std::move(font));
   return font_names_.back();
 }
 
-}  // namespace vis
-}  // namespace ipb
+}  // namespace gl

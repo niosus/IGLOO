@@ -2,9 +2,11 @@ cc_library(
     name = "scene",
     srcs = [
         "font.cpp",
+        "font_pool.cpp",
     ],
     hdrs = [
         "font.h",
+        "font_pool.h",
     ],
     visibility = [
         "//gl:__subpackages__",
@@ -22,6 +24,7 @@ cc_test(
     name = "scene_test",
     srcs = [
         "font_test.cpp",
+        "font_pool_test.cpp",
     ],
     deps = [
         ":scene",
