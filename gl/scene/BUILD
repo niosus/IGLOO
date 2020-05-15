@@ -31,6 +31,12 @@ cc_library(
         "@com_github_glog_glog//:glog",
         "@eigen//:eigen",
     ],
+    data = [":shaders"]
+)
+
+filegroup(
+    name = "shaders",
+    srcs = glob(["shaders/*"]),
 )
 
 cc_test(
