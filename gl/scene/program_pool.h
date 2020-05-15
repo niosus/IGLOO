@@ -36,17 +36,20 @@ class ProgramPool {
   static const std::shared_ptr<Program> Get(ProgramType program_type);
 
   template <typename T, typename A>
-  inline void SetUniform(const std::string& uniform_name,
-                         const std::vector<T, A>& data) {
-    for (auto& [program_type, program_ptr] : programs_) {
+  inline static void SetUniform(const std::string& uniform_name,
+                                const std::vector<T, A>& data) {
+    for (auto& kv : programs_) {
+      auto& program_ptr = kv.second;
       program_ptr->Use();
       program_ptr->SetUniform(uniform_name, data);
     }
   }
 
   template <typename... Ts>
-  inline void SetUniform(const std::string& uniform_name, Ts... numbers) {
-    for (auto& [program_type, program_ptr] : programs_) {
+  inline static void SetUniform(const std::string& uniform_name,
+                                Ts... numbers) {
+    for (auto& kv : programs_) {
+      auto& program_ptr = kv.second;
       program_ptr->Use();
       program_ptr->SetUniform(uniform_name, numbers...);
     }

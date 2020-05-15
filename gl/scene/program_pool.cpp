@@ -43,38 +43,28 @@ const std::shared_ptr<Program> ProgramPool::CreateSharedProgram(
   switch (program_type) {
     case ProgramType::DRAW_POINTS: {
       program_ptr->AttachShaders(
-          {Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/points.vert"),
-           Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/simple.frag")});
+          {Shader::CreateFromFile("gl/scene/shaders/points.vert"),
+           Shader::CreateFromFile("gl/scene/shaders/simple.frag")});
       break;
     }
     case ProgramType::DRAW_COORDINATE_SYSTEM: {
       program_ptr->AttachShaders(
-          {Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/coordinate_system.vert"),
-           Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/coordinate_system.geom"),
-           Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/simple.frag")});
+          {Shader::CreateFromFile("gl/scene/shaders/coordinate_system.vert"),
+           Shader::CreateFromFile("gl/scene/shaders/coordinate_system.geom"),
+           Shader::CreateFromFile("gl/scene/shaders/simple.frag")});
       break;
     }
     case ProgramType::DRAW_TEXTURED_RECT: {
       program_ptr->AttachShaders(
-          {Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/texture.vert"),
-           Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/texture.geom"),
-           Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/texture.frag")});
+          {Shader::CreateFromFile("gl/scene/shaders/texture.vert"),
+           Shader::CreateFromFile("gl/scene/shaders/texture.geom"),
+           Shader::CreateFromFile("gl/scene/shaders/texture.frag")});
       break;
     }
     case ProgramType::DRAW_TEXT: {
       program_ptr->AttachShaders(
-          {Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/text.vert"),
-           Shader::CreateFromFile(
-               "opengl_tutorials/gl/scene/shaders/texture.frag")});
+          {Shader::CreateFromFile("gl/scene/shaders/text.vert"),
+           Shader::CreateFromFile("gl/scene/shaders/texture.frag")});
       break;
     }
     default: LOG(WARNING) << "Unhandled program type."; break;
