@@ -44,6 +44,7 @@ cc_test(
     srcs = [
         "font_test.cpp",
         "font_pool_test.cpp",
+        "scene_graph_test.cpp",
     ],
     deps = [
         ":scene",

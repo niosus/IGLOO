@@ -1,6 +1,6 @@
-// Copyright Igor Bogoslavskyi, year 2018.
+// Copyright Igor Bogoslavskyi, year 2020.
 // In case of any problems with the code please contact me.
-// Email: igor.bogoslavskyi@uni-bonn.de.
+// Email: <name>.<family_name>@gmail.com.
 
 #ifndef OPENGL_TUTORIALS_GL_SCENE_SCENE_GRAPH_H_
 #define OPENGL_TUTORIALS_GL_SCENE_SCENE_GRAPH_H_
