@@ -20,6 +20,11 @@ class Shader : public OpenGlObject {
     kGeometryShader = GL_GEOMETRY_SHADER
   };
 
+  Shader(const Shader&) = delete;
+  Shader& operator=(const Shader&) = delete;
+  Shader(Shader&&) = default;
+  Shader& operator=(Shader&&) = default;
+
   static std::unique_ptr<Shader> CreateFromFile(const std::string& file_name);
   inline Shader::Type type() const { return type_; }
 
@@ -30,7 +35,8 @@ class Shader : public OpenGlObject {
       : OpenGlObject{glCreateShader(
             static_cast<std::underlying_type<Shader::Type>::type>(
                 gl_shader_type))},
-        shader_source_{std::move(shader_source)} {}
+        shader_source_{std::move(shader_source)},
+        type_{gl_shader_type} {}
 
   static Shader::Type DetectShaderType(const std::string& file_name);
 

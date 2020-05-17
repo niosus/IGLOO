@@ -6,6 +6,12 @@
 
 using namespace gl;
 
+TEST(UniformDeathTest, InitWithoutProgram) {
+  EXPECT_DEBUG_DEATH(
+      Uniform("some_name", 0),
+      "GL ERROR message: 'GL_INVALID_VALUE in glGetUniformLocation'");
+}
+
 TEST(UniformTest, Init) {
   Uniform uniform{"some_name", 0};
   EXPECT_EQ("some_name", uniform.name());

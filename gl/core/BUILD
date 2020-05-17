@@ -39,6 +39,7 @@ cc_test(
     name = "core_test",
     srcs = [
         "buffer_test.cpp",
+        "shader_test.cpp",
         "uniform_test.cpp",
         "main_test.cpp",
     ],
@@ -49,5 +50,11 @@ cc_test(
         "//utils:eigen_utils",
         "@gtest//:gtest",
     ],
+    data = [":test_shaders"],
     size="small",
+)
+
+filegroup(
+    name = "test_shaders",
+    srcs = glob(["test_shaders/*"]),
 )
