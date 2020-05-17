@@ -9,6 +9,7 @@ cc_library(
         "program.cpp",
     ],
     hdrs = [
+        "init.h",
         "buffer.h",
         "texture.h",
         "traits.h",
