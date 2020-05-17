@@ -19,8 +19,9 @@ void GLAPIENTRY MessageCallback(GLenum source,
                                 GLsizei length,
                                 const GLchar* message,
                                 const void* userParam) {
-  LOG(FATAL) << (type == GL_DEBUG_TYPE_ERROR ? "GL ERROR" : "") << " message: '"
-             << message << "'";
+  if (type == GL_DEBUG_TYPE_ERROR) {
+    LOG(FATAL) << "GL ERROR message: '" << message << "'";
+  }
 }
 
 template <typename FunctionT>

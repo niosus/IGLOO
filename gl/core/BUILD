@@ -40,6 +40,7 @@ cc_test(
     srcs = [
         "buffer_test.cpp",
         "shader_test.cpp",
+        "program_test.cpp",
         "uniform_test.cpp",
         "main_test.cpp",
     ],
