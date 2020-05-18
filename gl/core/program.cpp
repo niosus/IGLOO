@@ -6,14 +6,6 @@ namespace gl {
 
 bool Program::Link() const {
   glLinkProgram(id_);
-  char info_log[512];
-  int success = 0;
-  glGetProgramiv(id_, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(id_, 512, nullptr, info_log);
-    absl::FPrintF(stderr, "Program linking failed: %s\n", info_log);
-    return false;
-  }
   return true;
 }
 
