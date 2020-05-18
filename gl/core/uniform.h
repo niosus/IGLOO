@@ -15,9 +15,11 @@ namespace gl {
 class Uniform : public OpenGlObject {
  public:
   Uniform(const std::string& name, std::uint32_t program_id)
-      : OpenGlObject{0}, name_{name} {
-    id_ = glGetUniformLocation(program_id, name_.c_str());
-  }
+      : OpenGlObject{0},
+        name_{name},
+        location_{glGetUniformLocation(program_id, name_.c_str())} {}
+
+  GLint location() const noexcept { return location_; }
 
   template <typename T, typename A>
   void UpdateValue(const std::vector<T, A>& data) {
@@ -44,7 +46,7 @@ class Uniform : public OpenGlObject {
                 (::traits::all_types_integral_v<T, Ts...> ||
                  ::traits::all_types_floating_point_v<T, Ts...>)>>
   void UpdateValue(T number, Ts... numbers) {
-    UpdateValueFromPack(id_, number, numbers...);
+    UpdateValueFromPack(location_, number, numbers...);
   }
 
   inline const std::string& name() const { return name_; }
@@ -80,29 +82,30 @@ class Uniform : public OpenGlObject {
                     "Missing specialization for trait 'is_column_major'");
       const bool transpose = !traits::is_column_major<T>::value;
       UpdateValueFromMatrix<rows, cols, UnderlyingType>(
-          id_, data, number_of_elements, transpose);
+          location_, data, number_of_elements, transpose);
     } else if (traits::is_vector_v<T>) {
       const int entry_size = rows * cols;
       UpdateValueFromArray<entry_size, UnderlyingType>(
-          id_, data, number_of_elements);
+          location_, data, number_of_elements);
     }
   }
 
   template <typename... Ts>
-  void UpdateValueFromPack(std::uint32_t id, Ts... n1);
+  void UpdateValueFromPack(std::int32_t location, Ts... n1);
 
   template <std::size_t kComponentCount, typename T>
-  void UpdateValueFromArray(std::uint32_t id,
+  void UpdateValueFromArray(std::int32_t location,
                             const void* const data,
                             std::size_t number_of_vectors);
 
   template <std::size_t kRows, std::size_t kCols, typename T>
-  void UpdateValueFromMatrix(std::uint32_t id,
+  void UpdateValueFromMatrix(std::int32_t location,
                              const void* const data,
                              std::size_t number_of_vectors,
                              bool transpose);
 
   std::string name_;
+  std::int32_t location_;
 };
 
 }  // namespace gl

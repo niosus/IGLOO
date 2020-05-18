@@ -1,4 +1,9 @@
+// Copyright Igor Bogoslavskyi, year 2020.
+// In case of any problems with the code please contact me.
+// Email: <name>.<family_name>@gmail.com.
+
 #include "gl/ui/glfw/viewer.h"
+#include "gl/core/init.h"
 
 #include <iostream>
 
@@ -15,9 +20,8 @@ bool Viewer::Initialize(const WindowSize& window_size,
                         const GlVersion& gl_verions,
                         bool hidden) {
   glfwSetErrorCallback(ErrorCallback);
-  if (!glfwInit()) { return false; }
-
   glfwInitHint(GLFW_COCOA_MENUBAR, GLFW_FALSE);
+  if (!glfwInit()) { return false; }
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_verions.major);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_verions.minor);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -31,10 +35,7 @@ bool Viewer::Initialize(const WindowSize& window_size,
   if (!window_) { return false; }
   glfwMakeContextCurrent(window_);
 
-  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    std::cerr << "Failed to initialize GLAD" << std::endl;
-    return false;
-  }
+  InitializeGlContext(glfwGetProcAddress);
 
   glfwSetFramebufferSizeCallback(window_, Viewer::OnResize);
   Resize(window_size);
