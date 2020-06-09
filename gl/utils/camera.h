@@ -29,7 +29,7 @@ class Camera {
     UpdateWorldCameraPosition();
   }
 
-  Eigen::Affine3f LookAt(
+  Eigen::Isometry3f LookAt(
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
@@ -93,8 +93,10 @@ class Camera {
     return tf_world_target_.translation();
   }
 
-  Eigen::Affine3f TfCameraWorld() const { return tf_world_camera_.inverse(); }
-  const Eigen::Affine3f& tf_world_camera() const { return tf_world_camera_; }
+  const Eigen::Isometry3f tf_world_target() const { return tf_world_target_; }
+
+  Eigen::Isometry3f TfCameraWorld() const { return tf_world_camera_.inverse(); }
+  const Eigen::Isometry3f& tf_world_camera() const { return tf_world_camera_; }
 
   Eigen::Matrix4f TfViewportWorld() const {
     return tf_camera_viewport_ * TfCameraWorld().matrix();
@@ -108,7 +110,7 @@ class Camera {
   }
 
  private:
-  Eigen::Affine3f LookAtImpl(
+  Eigen::Isometry3f LookAtImpl(
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
@@ -148,8 +150,8 @@ class Camera {
     LookAtImpl(GetTargetPosition(), camera_world);
   }
 
-  Eigen::Affine3f tf_world_target_{Eigen::Affine3f::Identity()};
-  Eigen::Affine3f tf_world_camera_{Eigen::Affine3f::Identity()};
+  Eigen::Isometry3f tf_world_target_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf_world_camera_{Eigen::Isometry3f::Identity()};
 
   Eigen::Vector3f camera_pos_in_target_frame_{Eigen::Vector3f::Zero()};
 

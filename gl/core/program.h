@@ -48,6 +48,9 @@ class Program : public OpenGlObject {
   static std::unique_ptr<Program> CreateFromShaders(
       const std::vector<std::shared_ptr<Shader>>& shaders);
 
+  Program(const Program&) = delete;
+  Program& operator=(const Program&) = delete;
+
   ~Program() { glDeleteProgram(id_); }
 
  private:
