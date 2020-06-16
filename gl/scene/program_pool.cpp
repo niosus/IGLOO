@@ -8,69 +8,24 @@
 
 namespace gl {
 
-ProgramPool::ProgramMap ProgramPool::programs_;
-std::vector<ProgramPool::ProgramType> ProgramPool::types_;
-
-const std::shared_ptr<Program> ProgramPool::Get(ProgramType program_type) {
-  CHECK(programs_.count(program_type))
-      << "Must run CreateAllPrograms before using a program.";
-  return programs_.at(program_type);
+std::vector<std::string> ProgramPool::Names() {
+  std::vector<std::string> names;
+  names.reserve(name_to_index_mapping_.size());
+  for (const auto& kv : name_to_index_mapping_) {
+    names.emplace_back(kv.first);
+  }
+  return names;
 }
 
-std::vector<ProgramPool::ProgramType> ProgramPool::Types() {
-  if (!types_.empty()) { return types_; }
-  // Populate the types vector.
-  types_ =
-      std::vector<ProgramType>(static_cast<int>(ProgramType::LAST_PROGRAM));
-  for (int i = 0; i < static_cast<int>(ProgramType::LAST_PROGRAM); ++i) {
-    types_[i] = static_cast<ProgramType>(i);
-  }
-  return types_;
-}
-
-void ProgramPool::CreateAllPrograms() {
-  CHECK(programs_.empty()) << "We should create all programs only once.";
-  // Generate all programs needed for execution.
-  for (const auto program_type : ProgramPool::Types()) {
-    LOG(INFO) << "Creating program: " << static_cast<int>(program_type);
-    programs_.emplace(program_type, CreateSharedProgram(program_type));
-  }
-}
-
-const std::shared_ptr<Program> ProgramPool::CreateSharedProgram(
-    ProgramType program_type) {
-  auto program_ptr = std::make_unique<Program>();
-  switch (program_type) {
-    case ProgramType::DRAW_POINTS: {
-      program_ptr->AttachShaders(
-          {Shader::CreateFromFile("gl/scene/shaders/points.vert"),
-           Shader::CreateFromFile("gl/scene/shaders/simple.frag")});
-      break;
-    }
-    case ProgramType::DRAW_COORDINATE_SYSTEM: {
-      program_ptr->AttachShaders(
-          {Shader::CreateFromFile("gl/scene/shaders/coordinate_system.vert"),
-           Shader::CreateFromFile("gl/scene/shaders/coordinate_system.geom"),
-           Shader::CreateFromFile("gl/scene/shaders/simple.frag")});
-      break;
-    }
-    case ProgramType::DRAW_TEXTURED_RECT: {
-      program_ptr->AttachShaders(
-          {Shader::CreateFromFile("gl/scene/shaders/texture.vert"),
-           Shader::CreateFromFile("gl/scene/shaders/texture.geom"),
-           Shader::CreateFromFile("gl/scene/shaders/texture.frag")});
-      break;
-    }
-    case ProgramType::DRAW_TEXT: {
-      program_ptr->AttachShaders(
-          {Shader::CreateFromFile("gl/scene/shaders/text.vert"),
-           Shader::CreateFromFile("gl/scene/shaders/texture.frag")});
-      break;
-    }
-    default: LOG(WARNING) << "Unhandled program type."; break;
-  }
-  program_ptr->Link();
-  return program_ptr;
+ProgramPool::ProgramIndex ProgramPool::Emplace(
+    const std::string& name, std::unique_ptr<Program>&& program) {
+  CHECK_NE(name_to_index_mapping_.count(name), 0u)
+      << "Program with name '" << name
+      << "' is already present. Please use a different name.";
+  const auto index = programs_.size();
+  name_to_index_mapping_.emplace(name, index);
+  programs_.emplace_back(std::move(program));
+  return index;
 }
 
 }  // namespace gl

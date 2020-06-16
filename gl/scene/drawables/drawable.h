@@ -7,9 +7,9 @@
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
-#include "gl/core/program.h"
 #include "gl/core/texture.h"
 #include "gl/core/vertex_array_buffer.h"
+#include "gl/scene/program_pool.h"
 #include "gl/utils/eigen_traits.h"
 #include "glog/logging.h"
 
@@ -30,7 +30,9 @@ class Drawable {
 
   enum class Style { DRAW_2D, DRAW_3D };
 
-  explicit Drawable(Style style,
+  explicit Drawable(std::shared_ptr<ProgramPool> program_pool,
+                    ProgramPool::ProgramIndex program_index,
+                    Style style,
                     GLenum mode = GL_NONE,
                     float point_size = FLAGS_drawable_point_size.Get(),
                     const Eigen::Vector3f& color = Eigen::Vector3f::Ones());
@@ -48,9 +50,8 @@ class Drawable {
   void Draw();
 
   inline void SetModel(const Eigen::Matrix4f& model) const {
-    CHECK(program_);
-    CHECK(model_uniform_);
-    program_->Use();
+    CHECK(program_pool_);
+    program_pool_->Use(program_index_);
     model_uniform_->UpdateValue(model);
   }
 
@@ -58,7 +59,8 @@ class Drawable {
 
  protected:
   /// Every drawable shares ownership over the OpenGL program it uses.
-  std::shared_ptr<Program> program_{nullptr};
+  std::shared_ptr<ProgramPool> program_pool_{nullptr};
+  ProgramPool::ProgramIndex program_index_{};
 
   /// Model matrix that defines where this drawable is situated in the world.
   Uniform* model_uniform_{nullptr};

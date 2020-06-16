@@ -7,6 +7,8 @@
 
 #include "gl/core/program.h"
 
+#include <glog/logging.h>
+
 #include <map>
 #include <memory>
 #include <string>
@@ -17,50 +19,60 @@ namespace gl {
 /// Container for all available OpenGL programs.
 class ProgramPool {
  public:
-  enum class ProgramType {
-    DRAW_POINTS,
-    DRAW_COORDINATE_SYSTEM,
-    DRAW_TEXTURED_RECT,
-    DRAW_TEXT,
-    LAST_PROGRAM
-  };
+  using ProgramVector = std::vector<std::unique_ptr<Program>>;
+  using ProgramIndex = typename ProgramVector::size_type;
+  using ProgramMap = std::map<std::string, ProgramIndex>;
 
-  using ProgramMap = std::map<ProgramType, std::shared_ptr<Program>>;
-
-  /// Generate all programs so that they are ready to use.
-  static void CreateAllPrograms();
+  ProgramIndex Emplace(const std::string& name,
+                       std::unique_ptr<Program>&& program);
 
   /// Iterate over all types of available programs.
-  static std::vector<ProgramType> Types();
+  std::vector<std::string> Names();
 
-  static const std::shared_ptr<Program> Get(ProgramType program_type);
+  inline void Use(const std::string& name) const {
+    CHECK(name_to_index_mapping_.count(name))
+        << "A program with name: '" << name
+        << "' does not exist in the ProgramPool.";
+    this->Use(name_to_index_mapping_.at(name));
+  }
+
+  inline void Use(ProgramIndex index) const {
+    CHECK_LT(index, programs_.size())
+        << "Not enough programs stored to fetch one with index: " << index;
+    auto& program_ptr = programs_[index];
+    CHECK(program_ptr) << "Fetched program pointer is unexpectedly nullptr.";
+    program_ptr->Use();
+  }
 
   template <typename T, typename A>
-  inline static void SetUniform(const std::string& uniform_name,
-                                const std::vector<T, A>& data) {
-    for (auto& kv : programs_) {
-      auto& program_ptr = kv.second;
+  inline void SetUniformToAllPrograms(const std::string& uniform_name,
+                                      const std::vector<T, A>& data) {
+    for (auto& program_ptr : programs_) {
       program_ptr->Use();
       program_ptr->SetUniform(uniform_name, data);
     }
   }
 
   template <typename... Ts>
-  inline static void SetUniform(const std::string& uniform_name,
-                                Ts... numbers) {
-    for (auto& kv : programs_) {
-      auto& program_ptr = kv.second;
+  inline void SetUniformToAllPrograms(const std::string& uniform_name,
+                                      Ts... numbers) {
+    for (auto& program_ptr : programs_) {
       program_ptr->Use();
       program_ptr->SetUniform(uniform_name, numbers...);
     }
   }
 
- private:
-  static ProgramMap programs_;
-  static std::vector<ProgramType> types_;
+  ProgramPool(const ProgramPool&) = delete;
+  ProgramPool& operator=(const ProgramPool&) = delete;
 
-  static const std::shared_ptr<Program> CreateSharedProgram(
-      ProgramType program_type);
+  ProgramPool(ProgramPool&&) = default;
+  ProgramPool& operator=(ProgramPool&&) = default;
+
+  ~ProgramPool() = default;
+
+ private:
+  ProgramMap name_to_index_mapping_;
+  ProgramVector programs_;
 };
 
 }  // namespace gl
