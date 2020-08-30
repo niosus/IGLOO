@@ -9,6 +9,12 @@ Obviously, don't depend on it!
 
 It uses C++17 just for the fun of it.
 
+### Warning ###
+For now, because of this [issue](https://github.com/bazelbuild/bazel/issues/11554) you will need to create a symlink for python on Ubuntu 20.04:
+```cmd
+sudo ln -s /usr/bin/python3 /usr/bin/python 
+```
+
 ## Approach ##
 I try to follow the tutorials as they go, at the same time trying to outsource
 the common functionality into libraries. For example, see the [gl/](gl/) folder
