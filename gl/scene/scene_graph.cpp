@@ -43,17 +43,18 @@ SceneGraph::Key SceneGraph::Attach(Key parent_key,
                                    Drawable::SharedPtr drawable,
                                    const Eigen::Isometry3f& tx_parent_local,
                                    Key new_key) {
-  std::lock_guard<std::recursive_mutex> guard(graph_mutex);
+  std::lock_guard<decltype(graph_mutex)> guard(graph_mutex);
   CHECK_GT(storage_.count(parent_key), 0u) << "Must have a real parent";
-  auto node = std::make_unique<Node>(
-      new_key, parent_key, drawable, tx_parent_local, &storage_);
-  storage_.emplace(new_key, std::move(node));
+  storage_.emplace(
+      new_key,
+      std::make_unique<Node>(
+          new_key, parent_key, drawable, tx_parent_local, &storage_));
   storage_.at(parent_key)->AddChildKey(new_key);
   return new_key;
 }
 
 int SceneGraph::Erase(Key key) {
-  std::lock_guard<std::recursive_mutex> guard(graph_mutex);
+  std::lock_guard<decltype(graph_mutex)> guard(graph_mutex);
   if (!storage_.count(key)) { return 0; }
   int erased_counter = EraseChildren(key);
 
@@ -72,17 +73,19 @@ int SceneGraph::Erase(Key key) {
 int SceneGraph::EraseChildren(Key key) {
   CHECK_GT(storage_.count(key), 0u);
   // Erase children.
-  if (!storage_.count(key)) { return 0; }
   const auto& node_ptr = storage_.at(key);
   int total_erased_count = 0;
-  for (const auto& child_key : node_ptr->children_keys()) {
+  // Need a copy here, as Erase invalidates the iterators, thus causing an
+  // undefined behavior if we do not create this copy.
+  const auto children_keys{node_ptr->children_keys()};
+  for (const auto& child_key : children_keys) {
     total_erased_count += Erase(child_key);
   }
   return total_erased_count;
 }
 
 void SceneGraph::Draw(Key key) {
-  std::lock_guard<std::recursive_mutex> guard(graph_mutex);
+  std::lock_guard<decltype(graph_mutex)> guard(graph_mutex);
   CHECK_GT(storage_.count(key), 0u);
   GetNode(key).Draw();
 }

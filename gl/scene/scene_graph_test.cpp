@@ -112,7 +112,7 @@ TEST(SceneGraphTest, SimpleEraseChildren) {
   EXPECT_TRUE(graph.HasNode(key_3));
   EXPECT_TRUE(graph.HasNode(key_4));
   EXPECT_TRUE(graph.HasNode(key_5));
-  graph.EraseChildren(key_1);
+  EXPECT_EQ(3, graph.EraseChildren(key_1));
   EXPECT_EQ(graph.size(), 3u);
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
