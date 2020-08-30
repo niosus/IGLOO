@@ -23,7 +23,7 @@ TEST(SceneGraphTest, ForgetInit) {
   EXPECT_DEATH(
       graph.SceneGraph::Attach(
           world_key, std::make_shared<Drawable>(Drawable::Style::DRAW_3D)),
-      "Must have a real parent");
+      "New node must have a parent");
 }
 
 TEST(SceneGraphTest, StoringDrawable) {
