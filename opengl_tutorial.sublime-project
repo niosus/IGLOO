@@ -20,7 +20,6 @@
 		{
 			"format_on_save": true
 		},
-		"ecc_clang_binary": "clang++-9",
 		"ecc_ignore_flags":
 		[
 			"*gcc*"
