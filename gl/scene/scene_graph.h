@@ -83,6 +83,8 @@ class SceneGraph {
     inline void AddChildKey(Key key) { children_keys_.emplace(key); }
     /// Erase a child key from the node.
     inline int EraseChildKey(Key key) { return children_keys_.erase(key); }
+    /// Erase all children from the node.
+    inline void ClearChildKeys() noexcept { children_keys_.clear(); }
 
     /// Draw this node at the correct position in the world.
     void Draw(const Eigen::Isometry3f& tx_accumulated =
@@ -103,20 +105,32 @@ class SceneGraph {
 
    private:
     /// Key of this node.
-    Key key_;
+    Key key_{};
     /// A key of a direct parent of this node.
-    Key parent_key_;
+    Key parent_key_{};
     /// Keys of all children of this node.
-    std::set<Key> children_keys_;
+    std::set<Key> children_keys_{};
 
     /// Relative transformation from this coordinate frame to parent's one.
-    Eigen::Isometry3f tx_parent_local_;
+    Eigen::Isometry3f tx_parent_local_{};
 
     /// Every node is storing a drawable.
-    Drawable::SharedPtr drawable_ = nullptr;
+    Drawable::SharedPtr drawable_{};
 
-    /// They nodes are stored elsewhere. We need the pointer to this place.
-    SceneGraph::Storage<Node::UniquePtr>* storage_ = nullptr;
+    /// The nodes are stored elsewhere. We need the pointer to this place.
+    SceneGraph::Storage<Node::UniquePtr>* storage_{};
+  };
+
+  /// This is a view of the storage that helps correctly erasing nodes.
+  class NodeEraser {
+   public:
+    explicit NodeEraser(SceneGraph::Storage<Node::UniquePtr>* storage);
+    int Erase(Key node);
+    int EraseChildren(Key node);
+
+   private:
+    void FindRecursiveChildren(Key key, std::set<Key>* children);
+    SceneGraph::Storage<Node::UniquePtr>* storage_{};
   };
 
   static const Key kRootKey;
