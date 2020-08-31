@@ -23,7 +23,7 @@ TEST(SceneGraphTest, ForgetInit) {
   EXPECT_DEATH(
       graph.SceneGraph::Attach(
           world_key, std::make_shared<Drawable>(Drawable::Style::DRAW_3D)),
-      "Must have a real parent");
+      "New node must have a parent");
 }
 
 TEST(SceneGraphTest, StoringDrawable) {
@@ -112,7 +112,7 @@ TEST(SceneGraphTest, SimpleEraseChildren) {
   EXPECT_TRUE(graph.HasNode(key_3));
   EXPECT_TRUE(graph.HasNode(key_4));
   EXPECT_TRUE(graph.HasNode(key_5));
-  graph.EraseChildren(key_1);
+  EXPECT_EQ(3, graph.EraseChildren(key_1));
   EXPECT_EQ(graph.size(), 3u);
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
