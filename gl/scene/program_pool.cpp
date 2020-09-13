@@ -8,9 +8,6 @@
 
 namespace gl {
 
-ProgramPool::ProgramMap ProgramPool::programs_;
-std::vector<ProgramPool::ProgramType> ProgramPool::types_;
-
 const std::shared_ptr<Program> ProgramPool::Get(ProgramType program_type) {
   CHECK(programs_.count(program_type))
       << "Must run CreateAllPrograms before using a program.";

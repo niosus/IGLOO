@@ -28,16 +28,16 @@ class ProgramPool {
   using ProgramMap = std::map<ProgramType, std::shared_ptr<Program>>;
 
   /// Generate all programs so that they are ready to use.
-  static void CreateAllPrograms();
+  void CreateAllPrograms();
 
   /// Iterate over all types of available programs.
-  static std::vector<ProgramType> Types();
+  std::vector<ProgramType> Types();
 
-  static const std::shared_ptr<Program> Get(ProgramType program_type);
+  const std::shared_ptr<Program> Get(ProgramType program_type);
 
   template <typename T, typename A>
-  inline static void SetUniform(const std::string& uniform_name,
-                                const std::vector<T, A>& data) {
+  inline void SetUniform(const std::string& uniform_name,
+                         const std::vector<T, A>& data) {
     for (auto& kv : programs_) {
       auto& program_ptr = kv.second;
       program_ptr->Use();
@@ -46,8 +46,7 @@ class ProgramPool {
   }
 
   template <typename... Ts>
-  inline static void SetUniform(const std::string& uniform_name,
-                                Ts... numbers) {
+  inline void SetUniform(const std::string& uniform_name, Ts... numbers) {
     for (auto& kv : programs_) {
       auto& program_ptr = kv.second;
       program_ptr->Use();
@@ -56,11 +55,10 @@ class ProgramPool {
   }
 
  private:
-  static ProgramMap programs_;
-  static std::vector<ProgramType> types_;
+  ProgramMap programs_;
+  std::vector<ProgramType> types_;
 
-  static const std::shared_ptr<Program> CreateSharedProgram(
-      ProgramType program_type);
+  const std::shared_ptr<Program> CreateSharedProgram(ProgramType program_type);
 };
 
 }  // namespace gl
