@@ -15,11 +15,13 @@ namespace gl {
 /// A class that is responsible for drawing points.
 class Points : public Drawable {
  public:
-  explicit Points(const eigen::vector<Eigen::Vector3f>& points,
+  explicit Points(const ProgramPool& program_pool,
+                  const eigen::vector<Eigen::Vector3f>& points,
                   const Eigen::Vector3f& color = {1.0f, 1.0f, 1.0f},
                   float point_size = 3.0f,
                   GLenum gl_mode = GL_POINTS);
-  explicit Points(const eigen::vector<Eigen::Vector3f>& points,
+  explicit Points(const ProgramPool& program_pool,
+                  const eigen::vector<Eigen::Vector3f>& points,
                   const std::vector<float>& intensities,
                   const Eigen::Vector3f& color = {1.0f, 1.0f, 1.0f},
                   float point_size = 3.0f,

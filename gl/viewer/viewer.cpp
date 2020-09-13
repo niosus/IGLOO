@@ -26,9 +26,25 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
                 this,
                 std::placeholders::_1,
                 std::placeholders::_2));
-  ProgramPool::CreateAllPrograms();
+  ProgramPool::Instance().AddProgramFromShaders(
+      ProgramPool::ProgramType::DRAW_POINTS,
+      {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
+  ProgramPool::Instance().AddProgramFromShaders(
+      ProgramPool::ProgramType::DRAW_COORDINATE_SYSTEM,
+      {"gl/scene/shaders/coordinate_system.vert",
+       "gl/scene/shaders/coordinate_system.geom",
+       "gl/scene/shaders/simple.frag"});
+  ProgramPool::Instance().AddProgramFromShaders(
+      ProgramPool::ProgramType::DRAW_TEXTURED_RECT,
+      {"gl/scene/shaders/texture.vert",
+       "gl/scene/shaders/texture.geom",
+       "gl/scene/shaders/texture.frag"});
+  ProgramPool::Instance().AddProgramFromShaders(
+      ProgramPool::ProgramType::DRAW_TEXT,
+      {"gl/scene/shaders/text.vert", "gl/scene/shaders/texture.frag"});
+  ProgramPool::Instance().SetUniformToAllPrograms("proj_view",
+                                                  camera_.TfViewportWorld());
   FontPool::Instance().LoadFont("gl/scene/fonts/ubuntu.fnt");
-  ProgramPool::SetUniform("proj_view", camera_.TfViewportWorld());
   opengl_initialized_ = true;
 }
 
@@ -69,7 +85,8 @@ void SceneViewer::OnMouseEvent(gl::MouseKey key,
                  units::angle::radian_t{y_increment},
                  modifier);
   UpdateCameraNodePosition();
-  ProgramPool::SetUniform("proj_view", camera_.TfViewportWorld());
+  ProgramPool::Instance().SetUniformToAllPrograms("proj_view",
+                                                  camera_.TfViewportWorld());
 }
 
 void SceneViewer::OnKeyboardEvent(gl::KeyboardKey key, gl::PressState state) {
@@ -91,7 +108,8 @@ void SceneViewer::OnKeyboardEvent(gl::KeyboardKey key, gl::PressState state) {
     default: return;
   }
   UpdateCameraNodePosition();
-  ProgramPool::SetUniform("proj_view", camera_.TfViewportWorld());
+  ProgramPool::Instance().SetUniformToAllPrograms("proj_view",
+                                                  camera_.TfViewportWorld());
 }
 
 void SceneViewer::UpdateCameraNodePosition() {

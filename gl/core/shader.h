@@ -4,6 +4,7 @@
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
 #include "gl/core/opengl_object.h"
+#include "glog/logging.h"
 
 #include <iostream>
 #include <memory>

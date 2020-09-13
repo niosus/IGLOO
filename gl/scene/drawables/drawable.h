@@ -10,6 +10,7 @@
 #include "gl/core/program.h"
 #include "gl/core/texture.h"
 #include "gl/core/vertex_array_buffer.h"
+#include "gl/scene/program_pool.h"
 #include "gl/utils/eigen_traits.h"
 #include "glog/logging.h"
 
@@ -30,10 +31,18 @@ class Drawable {
 
   enum class Style { DRAW_2D, DRAW_3D };
 
-  explicit Drawable(Style style,
+  explicit Drawable(const ProgramPool& program_pool,
+                    const ProgramPool::ProgramType& program_type,
+                    Style style,
                     GLenum mode = GL_NONE,
                     float point_size = FLAGS_drawable_point_size.Get(),
                     const Eigen::Vector3f& color = Eigen::Vector3f::Ones());
+
+  // Disable value semantics as only pointers of Drawable should be used.
+  Drawable(const Drawable&) = delete;
+  Drawable(Drawable&&) = delete;
+  Drawable& operator=(const Drawable&) = delete;
+  Drawable& operator=(Drawable&&) = delete;
   virtual ~Drawable() {}
 
   /// A funtion that must be called in order to allow drawing a drawable.
@@ -54,6 +63,7 @@ class Drawable {
     model_uniform_->UpdateValue(model);
   }
 
+  /// Return if this is a 2D or a 3D drawable.
   inline Style draw_style() const { return draw_style_; }
 
  protected:

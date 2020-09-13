@@ -27,17 +27,33 @@ class ProgramPool {
 
   using ProgramMap = std::map<ProgramType, std::shared_ptr<Program>>;
 
-  /// Generate all programs so that they are ready to use.
-  void CreateAllPrograms();
+  static ProgramPool& Instance();
+
+  ProgramPool(const ProgramPool&) = delete;
+  ProgramPool(ProgramPool&&) = delete;
+  ProgramPool& operator=(const ProgramPool&) = delete;
+  ProgramPool& operator=(ProgramPool&&) = delete;
 
   /// Iterate over all types of available programs.
-  std::vector<ProgramType> Types();
+  std::vector<ProgramType> QueryAvailableProgramTypes();
 
-  const std::shared_ptr<Program> Get(ProgramType program_type);
+  /// Add a program to the pool.
+  const std::shared_ptr<Program> AddProgram(ProgramType program_type,
+                                            std::shared_ptr<Program> program);
+
+  /// Convenience function to add a program to the pool from shader paths.
+  const std::shared_ptr<Program> AddProgramFromShaders(
+      ProgramType program_type, const std::vector<std::string> shader_paths);
+
+  /// Remove a program associated to this program type from the pool.
+  bool RemoveProgram(ProgramType program_type);
+
+  /// Get a program.
+  const std::shared_ptr<Program> GetProgram(ProgramType program_type) const;
 
   template <typename T, typename A>
-  inline void SetUniform(const std::string& uniform_name,
-                         const std::vector<T, A>& data) {
+  inline void SetUniformToAllPrograms(const std::string& uniform_name,
+                                      const std::vector<T, A>& data) {
     for (auto& kv : programs_) {
       auto& program_ptr = kv.second;
       program_ptr->Use();
@@ -46,7 +62,8 @@ class ProgramPool {
   }
 
   template <typename... Ts>
-  inline void SetUniform(const std::string& uniform_name, Ts... numbers) {
+  inline void SetUniformToAllPrograms(const std::string& uniform_name,
+                                      Ts... numbers) {
     for (auto& kv : programs_) {
       auto& program_ptr = kv.second;
       program_ptr->Use();
@@ -55,8 +72,9 @@ class ProgramPool {
   }
 
  private:
+  ProgramPool() = default;
+
   ProgramMap programs_;
-  std::vector<ProgramType> types_;
 
   const std::shared_ptr<Program> CreateSharedProgram(ProgramType program_type);
 };

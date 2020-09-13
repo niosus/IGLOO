@@ -7,55 +7,88 @@
 #include "gl/scene/scene_graph.h"
 
 using gl::Drawable;
+using gl::ProgramPool;
 using gl::SceneGraph;
+
+class SceneGraphTest : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    auto& program_pool = ProgramPool::Instance();
+    LOG(INFO) << "program_pool address: " << &program_pool;
+    program_pool.AddProgramFromShaders(
+        ProgramPool::ProgramType::DRAW_POINTS,
+        {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
+    LOG(INFO) << "here";
+    default_drawable_ =
+        std::make_shared<Drawable>(program_pool,
+                                   ProgramPool::ProgramType::DRAW_POINTS,
+                                   Drawable::Style::DRAW_3D);
+    LOG(INFO) << "here";
+  }
+
+  void TearDown() override {
+    LOG(INFO) << "here";
+    auto& program_pool = ProgramPool::Instance();
+    program_pool.RemoveProgram(ProgramPool::ProgramType::DRAW_POINTS);
+    LOG(INFO) << "here";
+  }
+
+  std::shared_ptr<Drawable> default_drawable_{nullptr};
+};
 
 SceneGraph::Key world_key = SceneGraph::GenerateNextKey();
 
-TEST(SceneGraphTest, Init) {
+TEST_F(SceneGraphTest, Init) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_TRUE(graph.HasNode(world_key));
 }
 
-TEST(SceneGraphTest, ForgetInit) {
+TEST_F(SceneGraphTest, ForgetInit) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   SceneGraph graph;
   EXPECT_DEATH(
       graph.SceneGraph::Attach(
-          world_key, std::make_shared<Drawable>(Drawable::Style::DRAW_3D)),
+          world_key,
+          std::make_shared<Drawable>(ProgramPool::Instance(),
+                                     ProgramPool::ProgramType::DRAW_POINTS,
+                                     Drawable::Style::DRAW_3D)),
       "New node must have a parent");
 }
 
-TEST(SceneGraphTest, StoringDrawable) {
+TEST_F(SceneGraphTest, StoringDrawable) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
-  auto drawable = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto key = graph.Attach(world_key, drawable);
-  EXPECT_EQ(graph.GetNode(key).drawable().get(), drawable.get());
+  auto key = graph.Attach(world_key, default_drawable_);
+  EXPECT_EQ(graph.GetNode(key).drawable().get(), default_drawable_.get());
 }
 
-TEST(SceneGraphTest, StoringMoreDrawables) {
+TEST_F(SceneGraphTest, StoringMoreDrawables) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1);  // This has a world drawable that points to base.
-  auto drawable_1 = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto drawable_2 = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto key_1 = graph.Attach(world_key, drawable_1);
-  auto key_2 = graph.Attach(world_key, drawable_2);
+  auto other_drawable =
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D);
+  auto key_1 = graph.Attach(world_key, default_drawable_);
+  auto key_2 = graph.Attach(world_key, other_drawable);
   EXPECT_EQ(graph.size(), 3u);
   EXPECT_NE(graph.GetNode(key_1).drawable().get(),
             graph.GetNode(key_2).drawable().get());
 }
 
-TEST(SceneGraphTest, Transform) {
+TEST_F(SceneGraphTest, Transform) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
-  auto drawable_1 = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto drawable_2 = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto key_1 = graph.Attach(world_key, drawable_1);
+  auto other_drawable =
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D);
+  auto key_1 = graph.Attach(world_key, default_drawable_);
   Eigen::Isometry3f test_transform = Eigen::Isometry3f::Identity();
   test_transform.translation() = Eigen::Vector3f{1, 1, 1};
-  auto key_2 = graph.Attach(world_key, drawable_2, test_transform);
+  auto key_2 = graph.Attach(world_key, other_drawable, test_transform);
   EXPECT_EQ(graph.size(), 3u);
   EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().x(), 0);
   EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().y(), 0);
@@ -65,14 +98,13 @@ TEST(SceneGraphTest, Transform) {
   EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().z(), 1);
 }
 
-TEST(SceneGraphTest, ChainTransform) {
+TEST_F(SceneGraphTest, ChainTransform) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
-  auto drawable = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
   Eigen::Isometry3f test_transform = Eigen::Isometry3f::Identity();
   test_transform.translation() = Eigen::Vector3f{1, 1, 1};
-  auto key_1 = graph.Attach(world_key, drawable, test_transform);
-  auto key_2 = graph.Attach(key_1, drawable, test_transform);
+  auto key_1 = graph.Attach(world_key, default_drawable_, test_transform);
+  auto key_2 = graph.Attach(key_1, default_drawable_, test_transform);
   EXPECT_EQ(graph.size(), 3u);
   EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().x(), 1);
   EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().y(), 1);
@@ -85,27 +117,25 @@ TEST(SceneGraphTest, ChainTransform) {
   EXPECT_EQ(graph.GetNode(key_2).ComputeTxAccumulated().translation().z(), 2);
 }
 
-TEST(SceneGraphTest, SimpleErase) {
+TEST_F(SceneGraphTest, SimpleErase) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1);
-  auto drawable_1 = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto key = graph.Attach(world_key, drawable_1);
+  auto key = graph.Attach(world_key, default_drawable_);
   EXPECT_EQ(graph.size(), 2u);
   graph.Erase(key);
   EXPECT_EQ(graph.size(), 1u);
 }
 
-TEST(SceneGraphTest, SimpleEraseChildren) {
+TEST_F(SceneGraphTest, SimpleEraseChildren) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1);
-  auto drawable = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto key_1 = graph.Attach(world_key, drawable);
-  auto key_2 = graph.Attach(world_key, drawable);
-  auto key_3 = graph.Attach(key_1, drawable);
-  auto key_4 = graph.Attach(key_1, drawable);
-  auto key_5 = graph.Attach(key_3, drawable);
+  auto key_1 = graph.Attach(world_key, default_drawable_);
+  auto key_2 = graph.Attach(world_key, default_drawable_);
+  auto key_3 = graph.Attach(key_1, default_drawable_);
+  auto key_4 = graph.Attach(key_1, default_drawable_);
+  auto key_5 = graph.Attach(key_3, default_drawable_);
   EXPECT_EQ(graph.size(), 6u);
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
@@ -122,26 +152,34 @@ TEST(SceneGraphTest, SimpleEraseChildren) {
   EXPECT_FALSE(graph.HasNode(key_5));
 }
 
-TEST(SceneGraphTest, HasNode) {
+TEST_F(SceneGraphTest, HasNode) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
-  auto drawable = std::make_shared<Drawable>(Drawable::Style::DRAW_3D);
-  auto key = graph.Attach(world_key, drawable);
+  auto key = graph.Attach(world_key, default_drawable_);
   EXPECT_TRUE(graph.HasNode(key));
   graph.Erase(key);
   EXPECT_FALSE(graph.HasNode(key));
 }
 
-TEST(SceneGraphTest, ChainedErase) {
+TEST_F(SceneGraphTest, ChainedErase) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1);
   auto key_1 = graph.Attach(
-      world_key, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
-  auto key_2 =
-      graph.Attach(key_1, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
-  auto key_3 =
-      graph.Attach(key_2, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
+      world_key,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
+  auto key_2 = graph.Attach(
+      key_1,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
+  auto key_3 = graph.Attach(
+      key_2,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
   EXPECT_TRUE(graph.HasNode(key_3));
@@ -150,18 +188,30 @@ TEST(SceneGraphTest, ChainedErase) {
   EXPECT_FALSE(graph.HasNode(key_3));
 }
 
-TEST(SceneGraphTest, BroadErase) {
+TEST_F(SceneGraphTest, BroadErase) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1u);
   auto key_1 = graph.Attach(
-      world_key, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
-  auto key_2 =
-      graph.Attach(key_1, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
-  auto key_3 =
-      graph.Attach(key_1, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
-  auto key_4 =
-      graph.Attach(key_2, std::make_shared<Drawable>(Drawable::Style::DRAW_3D));
+      world_key,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
+  auto key_2 = graph.Attach(
+      key_1,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
+  auto key_3 = graph.Attach(
+      key_1,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
+  auto key_4 = graph.Attach(
+      key_2,
+      std::make_shared<Drawable>(ProgramPool::Instance(),
+                                 ProgramPool::ProgramType::DRAW_POINTS,
+                                 Drawable::Style::DRAW_3D));
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
   EXPECT_TRUE(graph.HasNode(key_3));

@@ -19,6 +19,11 @@ class FontPool {
  public:
   static FontPool& Instance();
 
+  FontPool(const FontPool&) = delete;
+  FontPool(FontPool&&) = delete;
+  FontPool& operator=(const FontPool&) = delete;
+  FontPool& operator=(FontPool&&) = delete;
+
   /// Get the font with this tag.
   const Font::SharedPtr& Get(const std::string& font_tag) const;
   /// Load a font from a *.fnt file and return its name.

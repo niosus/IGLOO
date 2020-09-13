@@ -11,29 +11,36 @@
 
 namespace gl {
 
-Points::Points(const eigen::vector<Eigen::Vector3f>& points,
+Points::Points(const ProgramPool& program_pool,
+               const eigen::vector<Eigen::Vector3f>& points,
                const Eigen::Vector3f& color,
                float point_size,
                GLenum gl_mode)
-    : Points{points,
+    : Points{program_pool,
+             points,
              std::vector<float>(points.size(), 1.0f),
              color,
              point_size,
              gl_mode} {}
 
-Points::Points(const eigen::vector<Eigen::Vector3f>& points,
+Points::Points(const ProgramPool& program_pool,
+               const eigen::vector<Eigen::Vector3f>& points,
                const std::vector<float>& intensities,
                const Eigen::Vector3f& color,
                float point_size,
                GLenum gl_mode)
-    : Drawable(Style::DRAW_3D, gl_mode, point_size, color),
+    : Drawable{program_pool,
+               ProgramPool::ProgramType::DRAW_POINTS,
+               Style::DRAW_3D,
+               gl_mode,
+               point_size,
+               color},
       points_{points},
       intensities_{intensities} {}
 
 void Points::FillBuffers() {
+  CHECK(program_) << "Cannot fill buffers without an active program.";
   CHECK_EQ(points_.size(), intensities_.size());
-
-  program_ = ProgramPool::Get(ProgramPool::ProgramType::DRAW_POINTS);
 
   vao_ = std::make_unique<VertexArrayBuffer>();
   vao_->EnableVertexAttributePointer(

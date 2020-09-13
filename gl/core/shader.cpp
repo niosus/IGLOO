@@ -21,9 +21,11 @@ std::unique_ptr<Shader> Shader::CreateFromFile(const std::string& file_name) {
     LOG(ERROR) << "Cannot load shader from path: " << file_name;
     return nullptr;
   }
+  LOG(INFO) << shader_source.value();
   // Cannot use make_unique due to a private constructor.
   std::unique_ptr<Shader> shader{
       new Shader{gl_shader_type, shader_source.value()}};
+  LOG(INFO) << "here";
   if (shader->CompileShader()) { return shader; }
   return nullptr;
 }

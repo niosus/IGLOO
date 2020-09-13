@@ -13,11 +13,17 @@ ABSL_FLAG(float, drawable_point_size, 3.0f, "Default size of the points.");
 
 namespace gl {
 
-Drawable::Drawable(Style style,
+Drawable::Drawable(const ProgramPool& program_pool,
+                   const ProgramPool::ProgramType& program_type,
+                   Style style,
                    GLenum mode,
                    float point_size,
                    const Eigen::Vector3f& color)
-    : draw_style_{style}, mode_{mode}, point_size_{point_size}, color_{color} {}
+    : program_{program_pool.GetProgram(program_type)},
+      draw_style_{style},
+      mode_{mode},
+      point_size_{point_size},
+      color_{color} {}
 
 void Drawable::Draw() {
   CHECK(vao_) << "Need a VAO to draw.";
