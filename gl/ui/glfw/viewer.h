@@ -32,12 +32,12 @@ class Viewer {
       : window_name_{window_name}, mouse_event_handler_{&user_input_handler_} {}
 
   bool InitializeHidden(const WindowSize& window_size = {800, 600},
-                        const GlVersion& gl_verions = {4, 0}) {
+                        const GlVersion& gl_verions = {3, 3}) {
     return Initialize(window_size, gl_verions, true);
   }
 
   bool Initialize(const WindowSize& window_size = {800, 600},
-                  const GlVersion& gl_verions = {4, 0},
+                  const GlVersion& gl_verions = {3, 3},
                   bool hidden = false);
 
   Viewer(const Viewer&) = delete;
