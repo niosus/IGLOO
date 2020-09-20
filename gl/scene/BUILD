@@ -41,11 +41,12 @@ cc_test(
         "font_pool_test.cpp",
         "scene_graph_test.cpp",
         "program_pool_test.cpp",
+        "main_test.cpp",
     ],
     deps = [
         ":scene",
+        "//gl/ui/glfw:viewer",
         "@gtest//:gtest",
-        "@gtest//:gtest_main",
     ],
     data = [":fonts", ":shaders"],
     size="small",

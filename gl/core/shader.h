@@ -23,8 +23,8 @@ class Shader : public OpenGlObject {
 
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
-  Shader(Shader&&) = default;
-  Shader& operator=(Shader&&) = default;
+  Shader(Shader&& other) = delete;
+  Shader& operator=(Shader&& other) = delete;
 
   static std::unique_ptr<Shader> CreateFromFile(const std::string& file_name);
   inline Shader::Type type() const { return type_; }

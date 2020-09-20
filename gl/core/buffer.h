@@ -44,7 +44,28 @@ class Buffer : public OpenGlObject {
          const std::vector<T, A>& vertices)
       : Buffer{type, usage, vertices.data(), vertices.size()} {}
 
+  Buffer(const Buffer&) = delete;
+  Buffer& operator=(const Buffer&) = delete;
+
+  Buffer(Buffer&& other) { *this = std::move(other); }
+
+  Buffer& operator=(Buffer&& other) {
+    if (this == &other) { return *this; }
+    id_ = other.id_;
+    type_ = other.type_;
+    usage_ = other.usage_;
+
+    gl_underlying_data_type_ = other.gl_underlying_data_type_;
+    components_per_vertex_ = other.components_per_vertex_;
+    data_sizeof_ = other.data_sizeof_;
+    number_of_elements_ = other.number_of_elements_;
+    other.id_ = 0u;
+    return *this;
+  }
+
   ~Buffer() {
+    if (id_ < 1u) { return; }
+    // If the id is valid, then we have things to unbind.
     UnBind();
     glDeleteBuffers(1, &id_);
   }

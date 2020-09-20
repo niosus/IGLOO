@@ -14,23 +14,18 @@ class SceneGraphTest : public ::testing::Test {
  protected:
   void SetUp() override {
     auto& program_pool = ProgramPool::Instance();
-    LOG(INFO) << "program_pool address: " << &program_pool;
     program_pool.AddProgramFromShaders(
         ProgramPool::ProgramType::DRAW_POINTS,
         {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
-    LOG(INFO) << "here";
     default_drawable_ =
         std::make_shared<Drawable>(program_pool,
                                    ProgramPool::ProgramType::DRAW_POINTS,
                                    Drawable::Style::DRAW_3D);
-    LOG(INFO) << "here";
   }
 
   void TearDown() override {
-    LOG(INFO) << "here";
     auto& program_pool = ProgramPool::Instance();
-    program_pool.RemoveProgram(ProgramPool::ProgramType::DRAW_POINTS);
-    LOG(INFO) << "here";
+    program_pool.Clear();
   }
 
   std::shared_ptr<Drawable> default_drawable_{nullptr};

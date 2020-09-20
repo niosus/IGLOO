@@ -21,16 +21,14 @@ const std::shared_ptr<Program> ProgramPool::AddProgram(
 }
 
 const std::shared_ptr<Program> ProgramPool::AddProgramFromShaders(
-    ProgramType program_type, const std::vector<std::string> shader_paths) {
-  LOG(INFO) << "here";
+    ProgramType program_type, const std::vector<std::string>& shader_paths) {
   std::vector<std::shared_ptr<Shader>> shaders{};
   std::transform(shader_paths.cbegin(),
                  shader_paths.cend(),
-                 shaders.begin(),
-                 [](const auto& shader_path) {
+                 std::back_inserter(shaders),
+                 [](const auto& shader_path) -> std::shared_ptr<Shader> {
                    return Shader::CreateFromFile(shader_path);
                  });
-  LOG(INFO) << "shaders.size(): " << shaders.size();
   return AddProgram(program_type, Program::CreateFromShaders(shaders));
 }
 
@@ -47,7 +45,7 @@ ProgramPool::QueryAvailableProgramTypes() {
   program_types.reserve(programs_.size());
   std::transform(programs_.cbegin(),
                  programs_.cend(),
-                 program_types.begin(),
+                 std::back_inserter(program_types),
                  [](const auto& program_iter) { return program_iter.first; });
   return program_types;
 }
@@ -86,7 +84,7 @@ const std::shared_ptr<Program> ProgramPool::CreateSharedProgram(
            Shader::CreateFromFile("gl/scene/shaders/texture.frag")});
       break;
     }
-    default: LOG(WARNING) << "Unhandled program type."; break;
+    default: LOG(FATAL) << "Unhandled program type."; break;
   }
   program_ptr->Link();
   return program_ptr;

@@ -16,4 +16,5 @@ TEST(ProgramPoolTest, Simple) {
   const auto& same_program{
       pool.GetProgram(ProgramPool::ProgramType::DRAW_POINTS)};
   ASSERT_EQ(program.get(), same_program.get());
+  pool.Clear();
 }

@@ -33,6 +33,14 @@ class ProgramPool {
   ProgramPool(ProgramPool&&) = delete;
   ProgramPool& operator=(const ProgramPool&) = delete;
   ProgramPool& operator=(ProgramPool&&) = delete;
+  ~ProgramPool() {
+    if (!programs_.empty()) {
+      LOG(FATAL) << "Please explicitly remove all programs from the static "
+                    "program pool. These cannot be removed in static context.";
+    }
+  }
+
+  void Clear() { programs_.clear(); }
 
   /// Iterate over all types of available programs.
   std::vector<ProgramType> QueryAvailableProgramTypes();
@@ -43,7 +51,7 @@ class ProgramPool {
 
   /// Convenience function to add a program to the pool from shader paths.
   const std::shared_ptr<Program> AddProgramFromShaders(
-      ProgramType program_type, const std::vector<std::string> shader_paths);
+      ProgramType program_type, const std::vector<std::string>& shader_paths);
 
   /// Remove a program associated to this program type from the pool.
   bool RemoveProgram(ProgramType program_type);

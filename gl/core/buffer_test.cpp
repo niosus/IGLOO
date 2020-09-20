@@ -25,6 +25,19 @@ TEST(BufferTest, Init) {
   EXPECT_EQ(0ul, buffer.number_of_elements());
 }
 
+TEST(BufferTest, Move) {
+  Buffer buffer_init{Buffer::Type::kArrayBuffer, Buffer::Usage::kStaticDraw};
+  Buffer buffer{std::move(buffer_init)};
+  EXPECT_NE(0u, buffer.id());
+  EXPECT_EQ(Buffer::Type::kArrayBuffer, buffer.type());
+  EXPECT_EQ(GL_ARRAY_BUFFER, buffer.gl_type());
+  EXPECT_EQ(Buffer::Usage::kStaticDraw, buffer.usage());
+  EXPECT_EQ(0, buffer.gl_underlying_data_type());
+  EXPECT_EQ(0, buffer.components_per_vertex());
+  EXPECT_EQ(0ul, buffer.data_sizeof());
+  EXPECT_EQ(0ul, buffer.number_of_elements());
+}
+
 TEST(BufferTest, AssignData) {
   Buffer buffer{Buffer::Type::kArrayBuffer, Buffer::Usage::kStaticDraw};
   std::vector<float> data{1, 2, 3, 4};
