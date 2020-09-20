@@ -1,4 +1,4 @@
-#version 430
+#version 330
 layout (location = 0) in vec2 char_pos;
 layout (location = 1) in vec2 texture_pos;
 
