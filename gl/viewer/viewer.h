@@ -57,6 +57,9 @@ class SceneViewer {
   /// The underlying viewer.
   glfw::Viewer viewer_;
 
+  /// Program pool to use to create all drawables.
+  ProgramPool program_pool_;
+
   /// A convenience bool to not cause multiple redraws for queued updates.
   bool update_pending_;
   /// As we cannot init opengl in constructor, we have to check if it is

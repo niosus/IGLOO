@@ -8,7 +8,7 @@
 using namespace gl;
 
 TEST(ProgramPoolTest, Simple) {
-  auto& pool{ProgramPool::Instance()};
+  ProgramPool pool{};
   const auto& program{pool.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_POINTS,
       {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"})};

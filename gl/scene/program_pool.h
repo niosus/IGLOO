@@ -27,23 +27,17 @@ class ProgramPool {
 
   using ProgramMap = std::map<ProgramType, std::shared_ptr<Program>>;
 
-  static ProgramPool& Instance();
-
+  ProgramPool() = default;
   ProgramPool(const ProgramPool&) = delete;
   ProgramPool(ProgramPool&&) = delete;
   ProgramPool& operator=(const ProgramPool&) = delete;
   ProgramPool& operator=(ProgramPool&&) = delete;
-  ~ProgramPool() {
-    if (!programs_.empty()) {
-      LOG(FATAL) << "Please explicitly remove all programs from the static "
-                    "program pool. These cannot be removed in static context.";
-    }
-  }
+  ~ProgramPool() noexcept = default;
 
   void Clear() { programs_.clear(); }
 
   /// Iterate over all types of available programs.
-  std::vector<ProgramType> QueryAvailableProgramTypes();
+  std::vector<ProgramType> QueryAvailableProgramTypes() const noexcept;
 
   /// Add a program to the pool.
   const std::shared_ptr<Program> AddProgram(ProgramType program_type,
@@ -57,7 +51,8 @@ class ProgramPool {
   bool RemoveProgram(ProgramType program_type);
 
   /// Get a program.
-  const std::shared_ptr<Program> GetProgram(ProgramType program_type) const;
+  const std::shared_ptr<Program> GetProgram(
+      ProgramType program_type) const noexcept;
 
   template <typename T, typename A>
   inline void SetUniformToAllPrograms(const std::string& uniform_name,
@@ -80,10 +75,7 @@ class ProgramPool {
   }
 
  private:
-  ProgramPool() = default;
-
   ProgramMap programs_;
-
   const std::shared_ptr<Program> CreateSharedProgram(ProgramType program_type);
 };
 

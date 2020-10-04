@@ -8,11 +8,6 @@
 
 namespace gl {
 
-ProgramPool& ProgramPool::Instance() {
-  static ProgramPool pool;
-  return pool;
-}
-
 const std::shared_ptr<Program> ProgramPool::AddProgram(
     ProgramType program_type, std::shared_ptr<Program> program) {
   const auto& [iter, emplaced] = programs_.emplace(program_type, program);
@@ -33,14 +28,14 @@ const std::shared_ptr<Program> ProgramPool::AddProgramFromShaders(
 }
 
 const std::shared_ptr<Program> ProgramPool::GetProgram(
-    ProgramType program_type) const {
+    ProgramType program_type) const noexcept {
   CHECK(programs_.count(program_type))
       << "Must add programs before getting them.";
   return programs_.at(program_type);
 }
 
-std::vector<ProgramPool::ProgramType>
-ProgramPool::QueryAvailableProgramTypes() {
+std::vector<ProgramPool::ProgramType> ProgramPool::QueryAvailableProgramTypes()
+    const noexcept {
   std::vector<ProgramType> program_types;
   program_types.reserve(programs_.size());
   std::transform(programs_.cbegin(),
