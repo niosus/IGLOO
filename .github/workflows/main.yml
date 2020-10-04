@@ -3,15 +3,30 @@ name: CI
 on: [push]
 
 jobs:
-  build:
-
+  lint:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Check Clang Format
+      uses: DoozyX/clang-format-lint-action@v0.10
+      with:
+        source: '.'
+        exclude: './third_party'
+        extensions: 'h,cpp'
+        clangFormatVersion: 10
+        style: file
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
     - name: Install prerequisites
       run: >
-        sudo apt install -y 
+        sudo apt install -y
         libx11-dev libxinerama-dev libxi-dev libxcursor-dev libxrandr-dev xvfb
         mesa-common-dev libpthread-stubs0-dev
 

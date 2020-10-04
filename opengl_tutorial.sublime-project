@@ -12,7 +12,7 @@
 	[
 		{
 			"path": ".",
-			"folder_exclude_patterns": ["bazel-*", ".*"],
+			"folder_exclude_patterns": ["bazel-*", ".git"],
 		}
 	],
 	"settings":
