@@ -28,12 +28,13 @@ std::unique_ptr<Program> Program::CreateFromShaders(
   return program;
 }
 
-Uniform& Program::GetUniform(const std::string& uniform_name) {
+size_t Program::GetUniformIndexOrEmplace(const std::string& uniform_name) {
   if (uniform_ids_.count(uniform_name) < 1) {
     uniform_ids_.emplace(uniform_name, uniforms_.size());
-    return uniforms_.emplace_back(uniform_name, id_);
+    uniforms_.emplace_back(uniform_name, id_);
+    return uniforms_.size() - 1U;
   }
-  return uniforms_[uniform_ids_.at(uniform_name)];
+  return uniform_ids_.at(uniform_name);
 }
 
 }  // namespace gl

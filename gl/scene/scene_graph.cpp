@@ -82,8 +82,8 @@ void SceneGraph::Node::Draw(const Eigen::Isometry3f& tx_accumulated) const {
   CHECK_NOTNULL(storage_);
   Eigen::Isometry3f tx_world_local = tx_accumulated * tx_parent_local_;
   if (drawable_) {
-    drawable_->SetModel(tx_world_local.matrix());
     if (!drawable_->ready_to_draw()) { drawable_->FillBuffers(); }
+    drawable_->SetModel(tx_world_local.matrix());
     drawable_->Draw();
   }
   for (const auto& child_key : children_keys_) {

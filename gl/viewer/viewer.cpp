@@ -46,9 +46,9 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
   FontPool::Instance().LoadFont("gl/scene/fonts/ubuntu.fnt");
   opengl_initialized_ = true;
 
-  graph_.RegisterBranchKey(world_key_);
-  graph_.RegisterBranchKey(viewport_key_);
-  graph_.RegisterBranchKey(camera_key_);
+  world_key_ = graph_.RegisterBranchKey();
+  viewport_key_ = graph_.RegisterBranchKey();
+  camera_key_ = graph_.RegisterBranchKey();
 }
 
 void SceneViewer::Paint() {

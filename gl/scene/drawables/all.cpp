@@ -54,12 +54,11 @@ void Points::FillBuffers() {
                                    gl::Buffer::Usage::kStaticDraw,
                                    intensities_));
   program_->Use();
-  color_uniform_ = program_->SetUniform("color", color_);
-  model_uniform_ = program_->SetUniform("model", Eigen::Matrix4f::Identity());
-  if (draw_style_ == Style::DRAW_2D) {
-    projection_view_uniform_ =
-        program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
-  }
+  color_uniform_index_ = program_->SetUniform("color", color_);
+  model_uniform_index_ =
+      program_->SetUniform("model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ =
+      program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
   ready_to_draw_ = true;
 }
 
