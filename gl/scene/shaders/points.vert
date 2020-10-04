@@ -1,4 +1,4 @@
-#version 430
+#version 330
 
 layout (location = 0) in vec3 point;
 layout (location = 1) in float intensity;

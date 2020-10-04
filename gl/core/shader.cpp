@@ -12,15 +12,9 @@ namespace gl {
 
 std::unique_ptr<Shader> Shader::CreateFromFile(const std::string& file_name) {
   auto gl_shader_type = DetectShaderType(file_name);
-  if (gl_shader_type == Shader::Type::kUndefined) {
-    LOG(ERROR) << "Could not detect shader type";
-    return nullptr;
-  }
+  if (gl_shader_type == Shader::Type::kUndefined) { return nullptr; }
   const auto shader_source = utils::ReadFileContents(file_name);
-  if (!shader_source) {
-    LOG(ERROR) << "Cannot load shader from path: " << file_name;
-    return nullptr;
-  }
+  if (!shader_source) { return nullptr; }
   // Cannot use make_unique due to a private constructor.
   std::unique_ptr<Shader> shader{
       new Shader{gl_shader_type, shader_source.value()}};

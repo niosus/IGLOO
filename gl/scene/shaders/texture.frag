@@ -1,4 +1,4 @@
-#version 430
+#version 330
 layout (location = 0) out vec4 result_color;
 
 in vec2 tex_coord;

@@ -11,7 +11,8 @@
 	"folders":
 	[
 		{
-			"path": "."
+			"path": ".",
+			"folder_exclude_patterns": ["bazel-*", ".*"],
 		}
 	],
 	"settings":

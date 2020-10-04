@@ -4,6 +4,7 @@
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
 #include "gl/core/opengl_object.h"
+#include "glog/logging.h"
 
 #include <iostream>
 #include <memory>
@@ -22,8 +23,8 @@ class Shader : public OpenGlObject {
 
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
-  Shader(Shader&&) = default;
-  Shader& operator=(Shader&&) = default;
+  Shader(Shader&& other) = delete;
+  Shader& operator=(Shader&& other) = delete;
 
   static std::unique_ptr<Shader> CreateFromFile(const std::string& file_name);
   inline Shader::Type type() const { return type_; }

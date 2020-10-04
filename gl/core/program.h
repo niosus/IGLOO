@@ -50,7 +50,8 @@ class Program : public OpenGlObject {
 
   Program(const Program&) = delete;
   Program& operator=(const Program&) = delete;
-
+  Program(Program&& other) = delete;
+  Program& operator=(Program&& other) = delete;
   ~Program() { glDeleteProgram(id_); }
 
  private:

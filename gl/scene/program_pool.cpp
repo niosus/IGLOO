@@ -8,33 +8,45 @@
 
 namespace gl {
 
-ProgramPool::ProgramMap ProgramPool::programs_;
-std::vector<ProgramPool::ProgramType> ProgramPool::types_;
+const std::shared_ptr<Program> ProgramPool::AddProgram(
+    ProgramType program_type, std::shared_ptr<Program> program) {
+  const auto& [iter, emplaced] = programs_.emplace(program_type, program);
+  CHECK(emplaced) << "Could not add a program to the pool. It already exists.";
+  return iter->second;
+}
 
-const std::shared_ptr<Program> ProgramPool::Get(ProgramType program_type) {
+const std::shared_ptr<Program> ProgramPool::AddProgramFromShaders(
+    ProgramType program_type, const std::vector<std::string>& shader_paths) {
+  std::vector<std::shared_ptr<Shader>> shaders{};
+  std::transform(shader_paths.cbegin(),
+                 shader_paths.cend(),
+                 std::back_inserter(shaders),
+                 [](const auto& shader_path) -> std::shared_ptr<Shader> {
+                   return Shader::CreateFromFile(shader_path);
+                 });
+  return AddProgram(program_type, Program::CreateFromShaders(shaders));
+}
+
+const std::shared_ptr<Program> ProgramPool::GetProgram(
+    ProgramType program_type) const noexcept {
   CHECK(programs_.count(program_type))
-      << "Must run CreateAllPrograms before using a program.";
+      << "Must add programs before getting them.";
   return programs_.at(program_type);
 }
 
-std::vector<ProgramPool::ProgramType> ProgramPool::Types() {
-  if (!types_.empty()) { return types_; }
-  // Populate the types vector.
-  types_ =
-      std::vector<ProgramType>(static_cast<int>(ProgramType::LAST_PROGRAM));
-  for (int i = 0; i < static_cast<int>(ProgramType::LAST_PROGRAM); ++i) {
-    types_[i] = static_cast<ProgramType>(i);
-  }
-  return types_;
+std::vector<ProgramPool::ProgramType> ProgramPool::QueryAvailableProgramTypes()
+    const noexcept {
+  std::vector<ProgramType> program_types;
+  program_types.reserve(programs_.size());
+  std::transform(programs_.cbegin(),
+                 programs_.cend(),
+                 std::back_inserter(program_types),
+                 [](const auto& program_iter) { return program_iter.first; });
+  return program_types;
 }
 
-void ProgramPool::CreateAllPrograms() {
-  CHECK(programs_.empty()) << "We should create all programs only once.";
-  // Generate all programs needed for execution.
-  for (const auto program_type : ProgramPool::Types()) {
-    LOG(INFO) << "Creating program: " << static_cast<int>(program_type);
-    programs_.emplace(program_type, CreateSharedProgram(program_type));
-  }
+bool ProgramPool::RemoveProgram(ProgramType program_type) {
+  return programs_.erase(program_type) > 0ul;
 }
 
 const std::shared_ptr<Program> ProgramPool::CreateSharedProgram(
@@ -67,7 +79,7 @@ const std::shared_ptr<Program> ProgramPool::CreateSharedProgram(
            Shader::CreateFromFile("gl/scene/shaders/texture.frag")});
       break;
     }
-    default: LOG(WARNING) << "Unhandled program type."; break;
+    default: LOG(FATAL) << "Unhandled program type."; break;
   }
   program_ptr->Link();
   return program_ptr;
