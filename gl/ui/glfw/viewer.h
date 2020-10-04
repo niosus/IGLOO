@@ -73,7 +73,10 @@ class Viewer {
     glfwSwapBuffers(window_);
   }
 
-  inline bool ShouldClose() const { return glfwWindowShouldClose(window_); }
+  inline bool ShouldClose() const {
+    if (!window_) { return true; }
+    return glfwWindowShouldClose(window_);
+  }
 
   inline float GetTime() const { return glfwGetTime(); }
 

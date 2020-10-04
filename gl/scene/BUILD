@@ -31,7 +31,7 @@ cc_library(
         "@com_github_glog_glog//:glog",
         "@eigen//:eigen",
     ],
-    data = [":shaders"]
+    data = [":shaders", ":fonts"]
 )
 
 cc_test(
@@ -48,7 +48,6 @@ cc_test(
         "//gl/ui/glfw:viewer",
         "@gtest//:gtest",
     ],
-    data = [":fonts", ":shaders"],
     size="small",
 )
 
