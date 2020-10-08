@@ -57,11 +57,12 @@ class Viewer {
 
   inline void ProcessInput() {
     if (!window_) { return; }
+    std::map<KeyboardKey, PressState> keys;
     for (int key : keys_to_monitor_) {
       if (glfwGetKey(window_, key) != GLFW_PRESS) { continue; }
-      user_input_handler_.DispatchKeyboardEvent(MapToKeyPress(key),
-                                                MapToPressState(GLFW_PRESS));
+      keys[MapToKeyPress(key)] = MapToPressState(GLFW_PRESS);
     }
+    user_input_handler_.DispatchKeyboardEvent(keys);
     mouse_event_handler_.CheckClick(window_);
     mouse_event_handler_.CheckMove(window_);
     mouse_event_handler_.DispatchEventIfNeeded();
@@ -92,6 +93,8 @@ class Viewer {
       case GLFW_KEY_UP: return KeyboardKey::kArrowUp;
       case GLFW_KEY_DOWN: return KeyboardKey::kArrowDown;
       case GLFW_KEY_ESCAPE: return KeyboardKey::kEscape;
+      case GLFW_KEY_LEFT_SHIFT: return KeyboardKey::kLeftShift;
+      case GLFW_KEY_RIGHT_SHIFT: return KeyboardKey::kRightShift;
     }
     return KeyboardKey::kNone;
   }
@@ -117,7 +120,9 @@ class Viewer {
                                     GLFW_KEY_LEFT,
                                     GLFW_KEY_RIGHT,
                                     GLFW_KEY_UP,
-                                    GLFW_KEY_DOWN};
+                                    GLFW_KEY_DOWN,
+                                    GLFW_KEY_LEFT_SHIFT,
+                                    GLFW_KEY_RIGHT_SHIFT};
 
   UserInputHandler user_input_handler_;
   MouseEventHandler mouse_event_handler_;

@@ -22,10 +22,7 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
                 std::placeholders::_3,
                 std::placeholders::_4));
   viewer_.user_input_handler().RegisterKeyboardCallback(
-      std::bind(&SceneViewer::OnKeyboardEvent,
-                this,
-                std::placeholders::_1,
-                std::placeholders::_2));
+      std::bind(&SceneViewer::OnKeyboardEvent, this, std::placeholders::_1));
   program_pool_.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_POINTS,
       {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
@@ -91,23 +88,38 @@ void SceneViewer::OnMouseEvent(gl::MouseKey key,
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
 }
 
-void SceneViewer::OnKeyboardEvent(gl::KeyboardKey key, gl::PressState state) {
-  if (state != gl::PressState::kPressed) { return; }
+void SceneViewer::OnKeyboardEvent(
+    const std::map<gl::KeyboardKey, gl::PressState>& keys) {
   const float increment = 0.02f;
-  switch (key) {
-    case gl::KeyboardKey::kArrowUp:
-      camera_.Translate({-increment, 0.0f, 0.0f});
-      break;
-    case gl::KeyboardKey::kArrowDown:
-      camera_.Translate({increment, 0.0f, 0.0f});
-      break;
-    case gl::KeyboardKey::kArrowLeft:
-      camera_.Translate({0.0f, -increment, 0.0f});
-      break;
-    case gl::KeyboardKey::kArrowRight:
-      camera_.Translate({0.0f, increment, 0.0f});
-      break;
-    default: return;
+  auto is_key_pressed = [&keys](auto key) {
+    if (auto iter = keys.find(key);
+        iter != keys.end() && iter->second == gl::PressState::kPressed) {
+      return true;
+    }
+    return false;
+  };
+
+  bool shift_pressed{false};
+  if (is_key_pressed(gl::KeyboardKey::kLeftShift) ||
+      is_key_pressed(gl::KeyboardKey::kRightShift)) {
+    shift_pressed = true;
+  }
+
+  if (is_key_pressed(gl::KeyboardKey::kArrowUp)) {
+    camera_.Translate({shift_pressed ? 0.0f : -increment,
+                       0.0f,
+                       shift_pressed ? increment : 0.0f});
+  }
+  if (is_key_pressed(gl::KeyboardKey::kArrowDown)) {
+    camera_.Translate({shift_pressed ? 0.0f : increment,
+                       0.0f,
+                       shift_pressed ? -increment : 0.0f});
+  }
+  if (is_key_pressed(gl::KeyboardKey::kArrowLeft)) {
+    camera_.Translate({0.0f, -increment, 0.0f});
+  }
+  if (is_key_pressed(gl::KeyboardKey::kArrowRight)) {
+    camera_.Translate({0.0f, increment, 0.0f});
   }
   UpdateCameraNodePosition();
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());

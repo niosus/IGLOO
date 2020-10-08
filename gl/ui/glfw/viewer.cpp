@@ -41,8 +41,9 @@ bool Viewer::Initialize(const WindowSize& window_size,
   Resize(window_size);
 
   user_input_handler_.RegisterKeyboardCallback(
-      [this](KeyboardKey key, PressState state) {
-        if (key == KeyboardKey::kEscape && state == PressState::kPressed) {
+      [this](const std::map<KeyboardKey, PressState>& keys) {
+        if (!keys.count(KeyboardKey::kEscape)) { return; }
+        if (keys.at(KeyboardKey::kEscape) == PressState::kPressed) {
           glfwSetWindowShouldClose(window_, true);
         }
       });
