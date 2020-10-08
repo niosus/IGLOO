@@ -1,6 +1,6 @@
 package(default_visibility = [
     "//gl:__subpackages__",
-    "//opengl_tutorials:__subpackages__",
+    "//examples:__subpackages__",
 ])
 
 cc_library(
