@@ -37,7 +37,7 @@ class SceneGraph {
 
   /// Register a key that will be a root of a branch. Example: world, odometry,
   /// etc. These also define a style they should be drawn in, e.g. 2D, 3D.
-  Key RegisterBranchKey(Key key);
+  Key RegisterBranchKey(Key key = GenerateNextKey());
 
   /// Attach a new drawable to a parent with a relative transformation from
   /// child to parent.

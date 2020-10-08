@@ -27,18 +27,29 @@ class Program : public OpenGlObject {
   inline void Use() const { glUseProgram(id_); }
 
   template <typename T, typename A>
-  inline Uniform* SetUniform(const std::string& uniform_name,
-                             const std::vector<T, A>& data) {
-    auto& uniform{GetUniform(uniform_name)};
-    uniform.UpdateValue(data);
-    return &uniform;
+  inline std::size_t SetUniform(const std::string& uniform_name,
+                                const std::vector<T, A>& data) {
+    auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
+    uniforms_[uniform_index].UpdateValue(data);
+    return uniform_index;
   }
 
   template <typename... Ts>
-  inline Uniform* SetUniform(const std::string& uniform_name, Ts... numbers) {
-    auto& uniform{GetUniform(uniform_name)};
-    uniform.UpdateValue(numbers...);
-    return &uniform;
+  inline std::size_t SetUniform(const std::string& uniform_name,
+                                Ts... numbers) {
+    auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
+    uniforms_[uniform_index].UpdateValue(numbers...);
+    return uniform_index;
+  }
+
+  Uniform& GetUniform(std::size_t index) noexcept {
+    CHECK_LT(index, uniforms_.size());
+    return uniforms_[index];
+  }
+
+  const Uniform& GetUniform(std::size_t index) const noexcept {
+    CHECK_LT(index, uniforms_.size());
+    return uniforms_[index];
   }
 
   bool Link() const;
@@ -55,10 +66,10 @@ class Program : public OpenGlObject {
   ~Program() { glDeleteProgram(id_); }
 
  private:
-  Uniform& GetUniform(const std::string& uniform_name);
+  std::size_t GetUniformIndexOrEmplace(const std::string& uniform_name);
 
   std::vector<Uniform> uniforms_;
-  std::map<std::string, size_t> uniform_ids_;
+  std::map<std::string, std::size_t> uniform_ids_;
 
   std::vector<std::shared_ptr<Shader>> attached_shaders_;
 };

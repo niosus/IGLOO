@@ -58,9 +58,9 @@ class Drawable {
 
   inline void SetModel(const Eigen::Matrix4f& model) const {
     CHECK(program_);
-    CHECK(model_uniform_);
+    CHECK_GT(model_uniform_index_, 0UL);
     program_->Use();
-    model_uniform_->UpdateValue(model);
+    program_->GetUniform(model_uniform_index_).UpdateValue(model);
   }
 
   /// Return if this is a 2D or a 3D drawable.
@@ -71,11 +71,11 @@ class Drawable {
   std::shared_ptr<Program> program_{nullptr};
 
   /// Model matrix that defines where this drawable is situated in the world.
-  Uniform* model_uniform_{nullptr};
+  std::size_t model_uniform_index_{};
   /// A uniform for tweaking the projection-view matrix.
-  Uniform* projection_view_uniform_{nullptr};
+  std::size_t projection_view_uniform_index_{};
   /// A uniform to set color to the points.
-  Uniform* color_uniform_{nullptr};
+  std::size_t color_uniform_index_{};
 
   /// Which is the draw style of this drawable.
   Style draw_style_{};

@@ -30,7 +30,7 @@ void Drawable::Draw() {
   CHECK(program_) << "Need a Program to draw.";
 
   program_->Use();
-  color_uniform_->UpdateValue(color_);
+  program_->GetUniform(color_uniform_index_).UpdateValue(color_);
 
   if (texture_) { texture_->Bind(); }
 

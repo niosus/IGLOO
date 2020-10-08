@@ -53,6 +53,8 @@ class SceneViewer {
 
   void Spin();
 
+  const ProgramPool& program_pool() const noexcept { return program_pool_; }
+
  protected:
   /// The underlying viewer.
   glfw::Viewer viewer_;
