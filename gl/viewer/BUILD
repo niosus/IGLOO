@@ -8,7 +8,7 @@ cc_library(
     ],
     visibility = [
         "//gl:__subpackages__",
-        "//opengl_tutorials:__subpackages__",
+        "//examples:__subpackages__",
     ],
     deps = [
         "//gl/core:core",
