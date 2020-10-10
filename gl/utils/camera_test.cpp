@@ -42,5 +42,8 @@ TEST(CameraTest, CameraFromWorld) {
   camera.LookAt(target_position, camera_position);
   EXPECT_TRUE(camera.GetTargetPosition().isApprox(target_position))
       << camera.TfCameraWorld().matrix();
+  EXPECT_TRUE((camera.tf_world_camera() * Eigen::Vector3f{0.0f, 0.0f, 0.0f})
+                  .isApprox(camera_position))
+      << camera.tf_world_camera().matrix();
   Check(camera, {1, 1, 1, 1}, {0, 0, -sqrt(3), 1});
 }
