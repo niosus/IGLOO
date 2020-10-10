@@ -68,6 +68,8 @@ class SceneViewer {
   /// initialized before using any functionality from it.
   bool opengl_initialized_;
 
+  bool shift_pressed_{};
+
   void Paint();
 
   /// Update the current position of the camera node from the current position

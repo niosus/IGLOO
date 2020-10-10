@@ -19,6 +19,10 @@ constexpr std::array kKeyboardKeysToMOnitor{GLFW_KEY_ESCAPE,
                                             GLFW_KEY_RIGHT,
                                             GLFW_KEY_UP,
                                             GLFW_KEY_DOWN,
+                                            GLFW_KEY_A,
+                                            GLFW_KEY_D,
+                                            GLFW_KEY_W,
+                                            GLFW_KEY_S,
                                             GLFW_KEY_LEFT_SHIFT,
                                             GLFW_KEY_RIGHT_SHIFT};
 constexpr std::array kMouseKeysToMOnitor{
@@ -64,9 +68,13 @@ class UserInputHandler {
   [[nodiscard]] static inline core::KeyboardKey MapToKeyboardKeyPress(
       int glfw_keypress) {
     switch (glfw_keypress) {
+      case GLFW_KEY_A:
       case GLFW_KEY_LEFT: return core::KeyboardKey::kArrowLeft;
+      case GLFW_KEY_D:
       case GLFW_KEY_RIGHT: return core::KeyboardKey::kArrowRight;
+      case GLFW_KEY_W:
       case GLFW_KEY_UP: return core::KeyboardKey::kArrowUp;
+      case GLFW_KEY_S:
       case GLFW_KEY_DOWN: return core::KeyboardKey::kArrowDown;
       case GLFW_KEY_ESCAPE: return core::KeyboardKey::kEscape;
       case GLFW_KEY_LEFT_SHIFT: return core::KeyboardKey::kLeftShift;

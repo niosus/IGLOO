@@ -76,13 +76,18 @@ void SceneViewer::OnMouseEvent(gl::core::MouseKey key,
                                gl::core::PressState state,
                                const gl::core::MouseMovement& mouse_movement) {
   if (state != gl::core::PressState::kPressed) { return; }
-  float modifier = 0.01f;
-  camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
-                 units::angle::radian_t{mouse_movement.x},
-                 modifier);
-  camera_.Rotate(gl::Camera::RotationDirection::kVertical,
-                 units::angle::radian_t{mouse_movement.y},
-                 modifier);
+  float speed_multiplier = 0.01f;
+  if (shift_pressed_) {
+    camera_.Translate(
+        {0.0f, 0.0f, speed_multiplier * static_cast<float>(mouse_movement.y)});
+  } else {
+    camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
+                   units::angle::radian_t{mouse_movement.x},
+                   speed_multiplier);
+    camera_.Rotate(gl::Camera::RotationDirection::kVertical,
+                   units::angle::radian_t{mouse_movement.y},
+                   speed_multiplier);
+  }
   UpdateCameraNodePosition();
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
 }
@@ -98,21 +103,22 @@ void SceneViewer::OnKeyboardEvent(
     return false;
   };
 
-  bool shift_pressed{false};
   if (is_key_pressed(gl::core::KeyboardKey::kLeftShift) ||
       is_key_pressed(gl::core::KeyboardKey::kRightShift)) {
-    shift_pressed = true;
+    shift_pressed_ = true;
+  } else {
+    shift_pressed_ = false;
   }
 
   if (is_key_pressed(gl::core::KeyboardKey::kArrowUp)) {
-    camera_.Translate({shift_pressed ? 0.0f : -increment,
+    camera_.Translate({shift_pressed_ ? 0.0f : -increment,
                        0.0f,
-                       shift_pressed ? increment : 0.0f});
+                       shift_pressed_ ? increment : 0.0f});
   }
   if (is_key_pressed(gl::core::KeyboardKey::kArrowDown)) {
-    camera_.Translate({shift_pressed ? 0.0f : increment,
+    camera_.Translate({shift_pressed_ ? 0.0f : increment,
                        0.0f,
-                       shift_pressed ? -increment : 0.0f});
+                       shift_pressed_ ? -increment : 0.0f});
   }
   if (is_key_pressed(gl::core::KeyboardKey::kArrowLeft)) {
     camera_.Translate({0.0f, -increment, 0.0f});
