@@ -55,7 +55,8 @@ class Viewer {
 
   inline void ProcessInput() {
     if (!window_) { return; }
-    user_input_handler_.DispatchEventsIfNeeded(window_);
+    if (!user_input_handler_.has_value()) { return; }
+    user_input_handler_->DispatchEventsIfNeeded(window_);
   }
 
   inline void Spin() {
@@ -74,7 +75,8 @@ class Viewer {
   inline const WindowSize& window_size() const { return window_size_; }
 
   inline core::UserInputHandler& user_input_handler() {
-    return user_input_handler_.user_input_handler();
+    CHECK(user_input_handler_.has_value());
+    return user_input_handler_->user_input_handler();
   }
 
  private:
@@ -87,7 +89,7 @@ class Viewer {
   GLFWwindow* window_{};
   WindowSize window_size_{};
 
-  UserInputHandler user_input_handler_;
+  std::optional<UserInputHandler> user_input_handler_;
 };
 
 }  // namespace glfw

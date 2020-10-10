@@ -5,7 +5,10 @@ package(default_visibility = [
 
 cc_library(
     name = "viewer",
-    srcs = ["viewer.cpp"],
+    srcs = [
+        "glfw_user_input_handler.cpp",
+        "viewer.cpp",
+    ],
     hdrs = [
         "glfw_user_input_handler.h",
         "viewer.h"

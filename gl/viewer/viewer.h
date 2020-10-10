@@ -40,7 +40,7 @@ class SceneViewer {
 
   void OnMouseEvent(gl::core::MouseKey key,
                     gl::core::PressState state,
-                    const gl::core::MouseMovement& mouse_movement);
+                    const gl::core::PointXY& mouse_movement);
 
   void OnKeyboardEvent(
       const std::map<gl::core::KeyboardKey, gl::core::PressState>& keys);

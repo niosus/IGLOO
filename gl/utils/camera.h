@@ -14,6 +14,12 @@
 #include <iostream>
 #include <vector>
 
+namespace detail {
+constexpr float kMinZ{0.1f};
+constexpr float kMaxZ{200.0f};
+constexpr float kMaxRadius{kMaxZ - 20.0f};
+}  // namespace detail
+
 namespace gl {
 
 class Camera {
@@ -38,6 +44,11 @@ class Camera {
     return LookAtImpl(target, camera_position, world_up);
   }
 
+  void SetRadius(float radius) {
+    radius_ = std::min(std::max(radius, detail::kMinZ), detail::kMaxRadius);
+    UpdateWorldCameraPosition();
+  }
+
   void Rotate(RotationDirection rotation,
               units::angle::radian_t radians,
               float speed_multiplier = 1.0f) {
@@ -58,8 +69,8 @@ class Camera {
   static Eigen::Matrix4f Perspective(units::angle::radian_t fov_y,
                                      std::int32_t window_width,
                                      std::int32_t window_height,
-                                     float z_near = 0.1f,
-                                     float z_far = 100.0f) {
+                                     float z_near = detail::kMinZ,
+                                     float z_far = detail::kMaxZ) {
     // https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
     Eigen::Matrix4f M = Eigen::Matrix4f::Zero();
     // Copied from gluPerspective
@@ -108,6 +119,8 @@ class Camera {
             radius_2d * sinf(rotation_horizontal_.value()),
             radius_ * sinf(rotation_vertical_.value())};
   }
+
+  float radius() const noexcept { return radius_; }
 
  private:
   Eigen::Isometry3f LookAtImpl(

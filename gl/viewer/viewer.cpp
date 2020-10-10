@@ -74,19 +74,25 @@ void SceneViewer::Spin() {
 
 void SceneViewer::OnMouseEvent(gl::core::MouseKey key,
                                gl::core::PressState state,
-                               const gl::core::MouseMovement& mouse_movement) {
+                               const gl::core::PointXY& mouse_movement) {
   if (state != gl::core::PressState::kPressed) { return; }
-  float speed_multiplier = 0.01f;
-  if (shift_pressed_) {
-    camera_.Translate(
-        {0.0f, 0.0f, speed_multiplier * static_cast<float>(mouse_movement.y)});
+  if (key == gl::core::MouseKey::kWheel) {
+    const float multiplier = 0.5f;
+    camera_.SetRadius(camera_.radius() +
+                      static_cast<float>(mouse_movement.y) * multiplier);
   } else {
-    camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
-                   units::angle::radian_t{mouse_movement.x},
-                   speed_multiplier);
-    camera_.Rotate(gl::Camera::RotationDirection::kVertical,
-                   units::angle::radian_t{mouse_movement.y},
-                   speed_multiplier);
+    const float multiplier = 0.01f;
+    if (shift_pressed_) {
+      camera_.Translate(
+          {0.0f, 0.0f, multiplier * static_cast<float>(mouse_movement.y)});
+    } else {
+      camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
+                     units::angle::radian_t{mouse_movement.x},
+                     multiplier);
+      camera_.Rotate(gl::Camera::RotationDirection::kVertical,
+                     units::angle::radian_t{mouse_movement.y},
+                     multiplier);
+    }
   }
   UpdateCameraNodePosition();
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());

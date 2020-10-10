@@ -22,7 +22,7 @@ enum class KeyboardKey {
   kRightShift
 };
 
-enum class MouseKey { kNone, kLeft, kRight, kMiddle, kWheelUp, kWheelDown };
+enum class MouseKey { kNone, kLeft, kRight, kMiddle, kWheel };
 
 enum class PressState {
   kNone,
@@ -30,7 +30,7 @@ enum class PressState {
   kReleased,
 };
 
-struct MouseMovement {
+struct PointXY {
   double x;
   double y;
 };
@@ -44,7 +44,7 @@ class UserInputHandler {
 
   void DispatchMouseEvent(MouseKey key,
                           PressState state,
-                          const MouseMovement& mouse_movement) const {
+                          const PointXY& mouse_movement) const {
     for (auto& callback : mouse_callbacks_) {
       callback(key, state, mouse_movement);
     }
@@ -56,15 +56,14 @@ class UserInputHandler {
   }
 
   void RegisterMouseCallback(
-      std::function<void(MouseKey, PressState, const MouseMovement&)>
-          callback) {
+      std::function<void(MouseKey, PressState, const PointXY&)> callback) {
     mouse_callbacks_.emplace_back(callback);
   }
 
  protected:
   std::vector<std::function<void(const std::map<KeyboardKey, PressState>&)>>
       keyboard_callbacks_;
-  std::vector<std::function<void(MouseKey, PressState, const MouseMovement&)>>
+  std::vector<std::function<void(MouseKey, PressState, const PointXY&)>>
       mouse_callbacks_;
 };
 
