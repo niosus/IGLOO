@@ -42,8 +42,7 @@ class SceneViewer {
                     gl::core::PressState state,
                     const gl::core::PointXY& mouse_movement);
 
-  void OnKeyboardEvent(
-      const std::map<gl::core::KeyboardKey, gl::core::PressState>& keys);
+  void OnKeyboardEvent(const std::set<gl::core::KeyboardKey>& keys);
 
   const inline gl::SceneGraph::Key& world_key() const { return world_key_; }
   const inline gl::SceneGraph::Key& viewport_key() const {

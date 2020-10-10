@@ -59,10 +59,10 @@ int main(int argc, char* argv[]) {
   const bool success = viewer.Initialize();
   if (!success) { return EXIT_FAILURE; }
 
-  const auto image_container =
-      Image::CreateFrom("opengl_tutorials/3_camera/textures/container.jpg");
+  const auto image_container = Image::CreateFrom(
+      "examples/opengl_tutorials/3_camera/textures/container.jpg");
   const auto image_face = Image::CreateFrom(
-      "opengl_tutorials/3_camera/textures/awesomeface.png", true);
+      "examples/opengl_tutorials/3_camera/textures/awesomeface.png", true);
   if (!image_container || !image_face) {
     absl::FPrintF(stderr, "Error: images not found.\n");
     return EXIT_FAILURE;
@@ -80,9 +80,9 @@ int main(int argc, char* argv[]) {
                      .Build()};
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/3_camera/shaders/triangle.vert")};
+      "examples/opengl_tutorials/3_camera/shaders/triangle.vert")};
   const std::shared_ptr<gl::Shader> fragment_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/3_camera/shaders/triangle.frag")};
+      "examples/opengl_tutorials/3_camera/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
   const auto program =
@@ -117,38 +117,33 @@ int main(int argc, char* argv[]) {
                                    texture_coordinates));
 
   viewer.user_input_handler().RegisterKeyboardCallback(
-      [&camera](gl::KeyboardKey key, gl::PressState state) {
-        if (state != gl::PressState::kPressed) { return; }
+      [&camera](const std::set<gl::core::KeyboardKey>& keys) {
         const float increment = 0.02f;
-        switch (key) {
-          case gl::KeyboardKey::kArrowUp:
-            camera.Translate({-increment, 0.0f, 0.0f});
-            break;
-          case gl::KeyboardKey::kArrowDown:
-            camera.Translate({increment, 0.0f, 0.0f});
-            break;
-          case gl::KeyboardKey::kArrowLeft:
-            camera.Translate({0.0f, -increment, 0.0f});
-            break;
-          case gl::KeyboardKey::kArrowRight:
-            camera.Translate({0.0f, increment, 0.0f});
-            break;
-          default: return;
+        if (keys.count(gl::core::KeyboardKey::kArrowUp)) {
+          camera.Translate({-increment, 0.0f, 0.0f});
+        }
+        if (keys.count(gl::core::KeyboardKey::kArrowDown)) {
+          camera.Translate({increment, 0.0f, 0.0f});
+        }
+        if (keys.count(gl::core::KeyboardKey::kArrowLeft)) {
+          camera.Translate({0.0f, -increment, 0.0f});
+        }
+        if (keys.count(gl::core::KeyboardKey::kArrowRight)) {
+          camera.Translate({0.0f, increment, 0.0f});
         }
       });
 
   viewer.user_input_handler().RegisterMouseCallback(
-      [&camera](gl::MouseKey key,
-                gl::PressState state,
-                float x_increment,
-                float y_increment) {
-        if (state != gl::PressState::kPressed) { return; }
+      [&camera](gl::core::MouseKey key,
+                gl::core::PressState state,
+                const gl::core::PointXY& increment) {
+        if (state != gl::core::PressState::kPressed) { return; }
         float modifier = 0.01f;
         camera.Rotate(gl::Camera::RotationDirection::kHorizontal,
-                      units::angle::radian_t{x_increment},
+                      units::angle::radian_t{increment.x},
                       modifier);
         camera.Rotate(gl::Camera::RotationDirection::kVertical,
-                      units::angle::radian_t{y_increment},
+                      units::angle::radian_t{increment.y},
                       modifier);
       });
 

@@ -1,3 +1,7 @@
+// Copyright Igor Bogoslavskyi, year 2020.
+// In case of any problems with the code please contact me.
+// Email: <name>.<family_name>@gmail.com.
+
 #include "gl/ui/glfw/glfw_user_input_handler.h"
 
 namespace gl {
@@ -48,10 +52,10 @@ void UserInputHandler::DispatchEventsIfNeeded(GLFWwindow* window) {
       current_scroll_pos_ - last_sent_scroll_pos_);
   last_sent_scroll_pos_ = current_scroll_pos_;
 
-  std::map<core::KeyboardKey, core::PressState> keys;
+  std::set<core::KeyboardKey> keys;
   for (int key : kKeyboardKeysToMOnitor) {
     if (glfwGetKey(window, key) != GLFW_PRESS) { continue; }
-    keys[MapToKeyboardKeyPress(key)] = MapToPressState(GLFW_PRESS);
+    keys.insert(MapToKeyboardKeyPress(key));
   }
   user_input_handler_.DispatchKeyboardEvent(keys);
 }

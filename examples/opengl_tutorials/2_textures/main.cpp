@@ -53,10 +53,10 @@ int main(int argc, char* argv[]) {
   const bool success = viewer.Initialize();
   CHECK(success) << "Viewer could not initialize.";
 
-  const auto image_container =
-      Image::CreateFrom("opengl_tutorials/2_textures/textures/container.jpg");
+  const auto image_container = Image::CreateFrom(
+      "examples/opengl_tutorials/2_textures/textures/container.jpg");
   const auto image_face = Image::CreateFrom(
-      "opengl_tutorials/2_textures/textures/awesomeface.png", true);
+      "examples/opengl_tutorials/2_textures/textures/awesomeface.png", true);
   CHECK(image_container.has_value() && image_face.has_value())
       << "Error: images not found.";
 
@@ -72,9 +72,9 @@ int main(int argc, char* argv[]) {
                      .Build()};
 
   const std::shared_ptr<gl::Shader> vertex_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/2_textures/shaders/triangle.vert")};
+      "examples/opengl_tutorials/2_textures/shaders/triangle.vert")};
   const std::shared_ptr<gl::Shader> fragment_shader{gl::Shader::CreateFromFile(
-      "opengl_tutorials/2_textures/shaders/triangle.frag")};
+      "examples/opengl_tutorials/2_textures/shaders/triangle.frag")};
   CHECK(vertex_shader) << "Could not create vertex shader.";
   CHECK(fragment_shader) << "Could not create fragment shader.";
 
@@ -114,11 +114,11 @@ int main(int argc, char* argv[]) {
                                    gl::Buffer::Usage::kStaticDraw,
                                    indices));
 
-  auto on_key_press = [&mixture, &program](gl::KeyboardKey key_press,
-                                           gl::PressState press_state) {
-    if (key_press == gl::KeyboardKey::kArrowUp) {
+  auto on_key_press = [&mixture,
+                       &program](const std::set<gl::core::KeyboardKey>& keys) {
+    if (keys.count(gl::core::KeyboardKey::kArrowUp)) {
       mixture = std::min(1.0f, mixture + 0.02f);
-    } else if (key_press == gl::KeyboardKey::kArrowDown) {
+    } else if (keys.count(gl::core::KeyboardKey::kArrowDown)) {
       mixture = std::max(0.0f, mixture - 0.02f);
     }
     Eigen::Affine3f transform{

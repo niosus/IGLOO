@@ -6,7 +6,7 @@
 #define OPENGL_TUTORIALS_GL_UI_CORE_UX_INPUT_INTERFACE_H_
 
 #include <functional>
-#include <map>
+#include <set>
 
 namespace gl {
 namespace core {
@@ -37,8 +37,7 @@ struct PointXY {
 
 class UserInputHandler {
  public:
-  void DispatchKeyboardEvent(
-      const std::map<KeyboardKey, PressState>& key_states) const {
+  void DispatchKeyboardEvent(const std::set<KeyboardKey>& key_states) const {
     for (auto& callback : keyboard_callbacks_) { callback(key_states); }
   }
 
@@ -51,7 +50,7 @@ class UserInputHandler {
   }
 
   void RegisterKeyboardCallback(
-      std::function<void(const std::map<KeyboardKey, PressState>&)> callback) {
+      std::function<void(const std::set<KeyboardKey>&)> callback) {
     keyboard_callbacks_.emplace_back(callback);
   }
 
@@ -61,7 +60,7 @@ class UserInputHandler {
   }
 
  protected:
-  std::vector<std::function<void(const std::map<KeyboardKey, PressState>&)>>
+  std::vector<std::function<void(const std::set<KeyboardKey>&)>>
       keyboard_callbacks_;
   std::vector<std::function<void(MouseKey, PressState, const PointXY&)>>
       mouse_callbacks_;
