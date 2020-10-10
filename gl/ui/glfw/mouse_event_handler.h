@@ -5,6 +5,8 @@
 
 #include "GLFW/glfw3.h"
 
+#include "glog/logging.h"
+
 #include <cmath>
 #include <iostream>
 
@@ -17,57 +19,58 @@ class MouseEventHandler {
 
   void DispatchEventIfNeeded() {
     if (!input_handler_) { return; }
-    if (current_clicked_) {
-      input_handler_->DispatchMouseEvent(
-          MouseKey::kLeft, PressState::kPressed, increment_x_, increment_y_);
+    if (currently_pressed_mouse_key_) {
+      input_handler_->DispatchMouseEvent(currently_pressed_mouse_key_.value(),
+                                         PressState::kPressed,
+                                         {increment_x_, increment_y_});
     }
   }
 
   void CheckMove(GLFWwindow* window) {
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
-    if (current_clicked_) {
-      if (!std::isnan(prev_x_) && !std::isnan(prev_y_)) {
-        // We are at not the start of the movement, so update increment!
-        increment_x_ = prev_x_ - xpos;
-        increment_y_ = ypos - prev_y_;
-      }
-      prev_x_ = xpos;
-      prev_y_ = ypos;
+    if (!std::isnan(prev_x_) && !std::isnan(prev_y_)) {
+      // We are at not the start of the movement, so update increment!
+      increment_x_ = prev_x_ - xpos;
+      increment_y_ = ypos - prev_y_;
     }
+    prev_x_ = xpos;
+    prev_y_ = ypos;
   }
 
   void CheckClick(GLFWwindow* window) {
-    int action = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-    if (action == GLFW_PRESS) {
-      if (current_clicked_) { return; }
-      prev_x_ = std::numeric_limits<double>::quiet_NaN();
-      prev_y_ = std::numeric_limits<double>::quiet_NaN();
-      increment_x_ = 0.0;
-      increment_y_ = 0.0;
-      current_clicked_ = true;
-    }
-    if (action == GLFW_RELEASE) {
-      if (!current_clicked_) { return; }
-      current_clicked_ = false;
+    for (auto glfw_button : {GLFW_MOUSE_BUTTON_LEFT,
+                             GLFW_MOUSE_BUTTON_RIGHT,
+                             GLFW_MOUSE_BUTTON_MIDDLE}) {
+      int action = glfwGetMouseButton(window, glfw_button);
+      if (currently_pressed_mouse_key_.has_value() && action == GLFW_RELEASE &&
+          MapToKeyPress(glfw_button) == currently_pressed_mouse_key_.value()) {
+        currently_pressed_mouse_key_.reset();
+        continue;
+      }
+      if (action == GLFW_PRESS) {
+        if (currently_pressed_mouse_key_) { continue; }
+        currently_pressed_mouse_key_ = MapToKeyPress(glfw_button);
+      }
     }
   }
 
  private:
-  bool AreCoordsFarEnoughToPrev(double x, double y) {
-    const double min_dist = 10.0f;
-    return std::abs(last_drop_x_ - x) < min_dist &&
-           std::abs(last_drop_y_ - y) < min_dist;
+  static inline MouseKey MapToKeyPress(int glfw_keypress) {
+    switch (glfw_keypress) {
+      case GLFW_MOUSE_BUTTON_LEFT: return MouseKey::kLeft;
+      case GLFW_MOUSE_BUTTON_RIGHT: return MouseKey::kRight;
+      case GLFW_MOUSE_BUTTON_MIDDLE: return MouseKey::kMiddle;
+    }
+    return MouseKey::kNone;
   }
 
   UserInputHandler* input_handler_{nullptr};
   double increment_x_{};
   double increment_y_{};
-  double prev_x_{};
-  double prev_y_{};
-  double last_drop_x_{};
-  double last_drop_y_{};
-  bool current_clicked_{};
+  double prev_x_{std::numeric_limits<double>::quiet_NaN()};
+  double prev_y_{std::numeric_limits<double>::quiet_NaN()};
+  std::optional<MouseKey> currently_pressed_mouse_key_{};
 };
 }  // namespace glfw
 }  // namespace gl

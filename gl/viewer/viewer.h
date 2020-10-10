@@ -40,8 +40,7 @@ class SceneViewer {
 
   void OnMouseEvent(gl::MouseKey key,
                     gl::PressState state,
-                    float x_increment,
-                    float y_increment);
+                    const gl::MouseMovement& mouse_movement);
 
   void OnKeyboardEvent(const std::map<gl::KeyboardKey, gl::PressState>& keys);
 

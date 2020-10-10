@@ -19,8 +19,7 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
                 this,
                 std::placeholders::_1,
                 std::placeholders::_2,
-                std::placeholders::_3,
-                std::placeholders::_4));
+                std::placeholders::_3));
   viewer_.user_input_handler().RegisterKeyboardCallback(
       std::bind(&SceneViewer::OnKeyboardEvent, this, std::placeholders::_1));
   program_pool_.AddProgramFromShaders(
@@ -74,15 +73,14 @@ void SceneViewer::Spin() {
 
 void SceneViewer::OnMouseEvent(gl::MouseKey key,
                                gl::PressState state,
-                               float x_increment,
-                               float y_increment) {
+                               const gl::MouseMovement& mouse_movement) {
   if (state != gl::PressState::kPressed) { return; }
   float modifier = 0.01f;
   camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
-                 units::angle::radian_t{x_increment},
+                 units::angle::radian_t{mouse_movement.x},
                  modifier);
   camera_.Rotate(gl::Camera::RotationDirection::kVertical,
-                 units::angle::radian_t{y_increment},
+                 units::angle::radian_t{mouse_movement.y},
                  modifier);
   UpdateCameraNodePosition();
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
