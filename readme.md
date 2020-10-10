@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="200" height="200" src=".github/icon/igloo.png">
+</p>
+
 # IGLOO: Intuitive openGL Object Oriented library #
 
 This is a library that wraps OpenGL library into objects. It aims to be close to zero-overhead in terms of runtime while offering intuitive and safe interfaces to underlying OpenGL library. The core idea is to make it hard to make a mistake that is hard to debug while not incurring too high cost for such guarantees. The library tries to use static memory allocation where possible, using traits to make sure the sizes of types are guessed correctly and are translated into OpenGL types properly.
@@ -31,3 +35,6 @@ You can find the implementations for some of these using IGLOO in the folder [ex
 The underlying library is inspired by other efforts to achieve OOP approach to
 OpenGL. Most notably a library of my ex-colleague [Dr. Jens Behley](https://github.com/jbehley):
 https://github.com/jbehley/glow
+
+<div>Icon made by <a href="https://www.flaticon.com/authors/vignesh-oviyan" title="Vignesh Oviyan">Vignesh Oviyan</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
