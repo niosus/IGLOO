@@ -38,6 +38,8 @@ class SceneViewer {
     return new_key;
   }
 
+  gl::Camera& camera() { return camera_; }
+
   void OnMouseEvent(gl::core::MouseKey key,
                     gl::core::PressState state,
                     const gl::core::PointXY& mouse_movement);

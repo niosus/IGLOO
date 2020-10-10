@@ -62,25 +62,34 @@ void Points::FillBuffers() {
   ready_to_draw_ = true;
 }
 
-// Lines::Lines(const eigen::vector<Eigen::Vector3f>& points,
-//              const Eigen::Vector3f& color,
-//              float line_width)
-//     : Points{points, color, line_width, GL_LINES} {}
+Lines::Lines(const ProgramPool& program_pool,
+             const eigen::vector<Eigen::Vector3f>& points,
+             const Eigen::Vector3f& color,
+             float line_width)
+    : Points{program_pool, points, color, line_width, GL_LINES} {}
 
-// CoordinateSystem::CoordinateSystem() : Drawable(Style::DRAW_3D, GL_POINTS) {}
+CoordinateSystem::CoordinateSystem(const ProgramPool& program_pool)
+    : Drawable(program_pool,
+               ProgramPool::ProgramType::DRAW_COORDINATE_SYSTEM,
+               Style::DRAW_3D,
+               GL_POINTS) {}
 
-// void CoordinateSystem::FillBuffers() {
-//   program_ =
-//   ProgramPool::Get(ProgramPool::ProgramType::DRAW_COORDINATE_SYSTEM);
-//   std::vector<Vector4f> points{{0, 0, 0, 1}};
-//   num_points_ = points.size();
+void CoordinateSystem::FillBuffers() {
+  CHECK(program_) << "Cannot fill buffers without an active program.";
+  std::vector<Eigen::Vector4f> points{{0, 0, 0, 1}};
 
-//   vao_ = make_unique<GlVertexArray>();
-//   vao_->bind();
-//   SetVertexAttribute(0, points, vao_.get());
-//   vao_->release();
-//   ready_to_draw_ = true;
-// }
+  vao_ = std::make_unique<VertexArrayBuffer>();
+  vao_->EnableVertexAttributePointer(
+      0,
+      std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
+                                   gl::Buffer::Usage::kStaticDraw,
+                                   points));
+  model_uniform_index_ =
+      program_->SetUniform("model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ =
+      program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
+  ready_to_draw_ = true;
+}
 
 // RectWithTexture::RectWithTexture(const cv::Mat& data,
 //                                  const vec3& bottom_left,

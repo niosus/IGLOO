@@ -15,7 +15,7 @@
 #include <vector>
 
 namespace detail {
-constexpr float kMinZ{0.1f};
+constexpr float kMinZ{0.5f};
 constexpr float kMaxZ{200.0f};
 constexpr float kMaxRadius{kMaxZ - 20.0f};
 }  // namespace detail

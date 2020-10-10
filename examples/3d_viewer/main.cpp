@@ -23,7 +23,15 @@ int main(int argc, char* argv[]) {
   auto points_drawable = std::make_shared<gl::Points>(
       viewer.program_pool(), cloud_ptr->points(), cloud_ptr->intensities());
 
+  auto camera_center_drawable =
+      std::make_shared<gl::CoordinateSystem>(viewer.program_pool());
+
   viewer.Attach(viewer.world_key(), points_drawable);
+  viewer.Attach(viewer.camera_key(), camera_center_drawable);
+
+  // TODO(igor): why are the second coordinates exactly the opposite of what I
+  // expect?
+  viewer.camera().LookAt({0.0f, 0.0f, 0.0f}, {7.0, 0.0, -2.0f});
 
   viewer.Spin();
   return EXIT_SUCCESS;
