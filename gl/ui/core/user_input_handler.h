@@ -9,6 +9,7 @@
 #include <map>
 
 namespace gl {
+namespace core {
 
 enum class KeyboardKey {
   kNone,
@@ -37,13 +38,13 @@ struct MouseMovement {
 class UserInputHandler {
  public:
   void DispatchKeyboardEvent(
-      const std::map<KeyboardKey, PressState>& key_states) {
+      const std::map<KeyboardKey, PressState>& key_states) const {
     for (auto& callback : keyboard_callbacks_) { callback(key_states); }
   }
 
   void DispatchMouseEvent(MouseKey key,
                           PressState state,
-                          const MouseMovement& mouse_movement) {
+                          const MouseMovement& mouse_movement) const {
     for (auto& callback : mouse_callbacks_) {
       callback(key, state, mouse_movement);
     }
@@ -67,6 +68,7 @@ class UserInputHandler {
       mouse_callbacks_;
 };
 
+}  // namespace core
 }  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_GL_UI_CORE_UX_INPUT_INTERFACE_H_

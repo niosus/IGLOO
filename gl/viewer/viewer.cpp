@@ -49,6 +49,7 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
 
 void SceneViewer::Paint() {
   CHECK(opengl_initialized_);
+  glClearColor(0.1, 0.1, 0.1, 0.5);
   glEnable(GL_DEPTH_TEST);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   graph_.Draw(world_key_);
@@ -71,10 +72,10 @@ void SceneViewer::Spin() {
   }
 }
 
-void SceneViewer::OnMouseEvent(gl::MouseKey key,
-                               gl::PressState state,
-                               const gl::MouseMovement& mouse_movement) {
-  if (state != gl::PressState::kPressed) { return; }
+void SceneViewer::OnMouseEvent(gl::core::MouseKey key,
+                               gl::core::PressState state,
+                               const gl::core::MouseMovement& mouse_movement) {
+  if (state != gl::core::PressState::kPressed) { return; }
   float modifier = 0.01f;
   camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
                  units::angle::radian_t{mouse_movement.x},
@@ -87,36 +88,36 @@ void SceneViewer::OnMouseEvent(gl::MouseKey key,
 }
 
 void SceneViewer::OnKeyboardEvent(
-    const std::map<gl::KeyboardKey, gl::PressState>& keys) {
+    const std::map<gl::core::KeyboardKey, gl::core::PressState>& keys) {
   const float increment = 0.02f;
   auto is_key_pressed = [&keys](auto key) {
     if (auto iter = keys.find(key);
-        iter != keys.end() && iter->second == gl::PressState::kPressed) {
+        iter != keys.end() && iter->second == gl::core::PressState::kPressed) {
       return true;
     }
     return false;
   };
 
   bool shift_pressed{false};
-  if (is_key_pressed(gl::KeyboardKey::kLeftShift) ||
-      is_key_pressed(gl::KeyboardKey::kRightShift)) {
+  if (is_key_pressed(gl::core::KeyboardKey::kLeftShift) ||
+      is_key_pressed(gl::core::KeyboardKey::kRightShift)) {
     shift_pressed = true;
   }
 
-  if (is_key_pressed(gl::KeyboardKey::kArrowUp)) {
+  if (is_key_pressed(gl::core::KeyboardKey::kArrowUp)) {
     camera_.Translate({shift_pressed ? 0.0f : -increment,
                        0.0f,
                        shift_pressed ? increment : 0.0f});
   }
-  if (is_key_pressed(gl::KeyboardKey::kArrowDown)) {
+  if (is_key_pressed(gl::core::KeyboardKey::kArrowDown)) {
     camera_.Translate({shift_pressed ? 0.0f : increment,
                        0.0f,
                        shift_pressed ? -increment : 0.0f});
   }
-  if (is_key_pressed(gl::KeyboardKey::kArrowLeft)) {
+  if (is_key_pressed(gl::core::KeyboardKey::kArrowLeft)) {
     camera_.Translate({0.0f, -increment, 0.0f});
   }
-  if (is_key_pressed(gl::KeyboardKey::kArrowRight)) {
+  if (is_key_pressed(gl::core::KeyboardKey::kArrowRight)) {
     camera_.Translate({0.0f, increment, 0.0f});
   }
   UpdateCameraNodePosition();

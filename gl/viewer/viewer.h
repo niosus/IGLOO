@@ -38,11 +38,12 @@ class SceneViewer {
     return new_key;
   }
 
-  void OnMouseEvent(gl::MouseKey key,
-                    gl::PressState state,
-                    const gl::MouseMovement& mouse_movement);
+  void OnMouseEvent(gl::core::MouseKey key,
+                    gl::core::PressState state,
+                    const gl::core::MouseMovement& mouse_movement);
 
-  void OnKeyboardEvent(const std::map<gl::KeyboardKey, gl::PressState>& keys);
+  void OnKeyboardEvent(
+      const std::map<gl::core::KeyboardKey, gl::core::PressState>& keys);
 
   const inline gl::SceneGraph::Key& world_key() const { return world_key_; }
   const inline gl::SceneGraph::Key& viewport_key() const {

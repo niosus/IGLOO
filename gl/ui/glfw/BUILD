@@ -7,7 +7,7 @@ cc_library(
     name = "viewer",
     srcs = ["viewer.cpp"],
     hdrs = [
-        "mouse_event_handler.h",
+        "glfw_user_input_handler.h",
         "viewer.h"
     ],
     deps = [

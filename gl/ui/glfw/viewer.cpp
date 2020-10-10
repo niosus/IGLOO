@@ -40,10 +40,10 @@ bool Viewer::Initialize(const WindowSize& window_size,
   glfwSetFramebufferSizeCallback(window_, Viewer::OnResize);
   Resize(window_size);
 
-  user_input_handler_.RegisterKeyboardCallback(
-      [this](const std::map<KeyboardKey, PressState>& keys) {
-        if (!keys.count(KeyboardKey::kEscape)) { return; }
-        if (keys.at(KeyboardKey::kEscape) == PressState::kPressed) {
+  user_input_handler_.user_input_handler().RegisterKeyboardCallback(
+      [this](const std::map<core::KeyboardKey, core::PressState>& keys) {
+        if (!keys.count(core::KeyboardKey::kEscape)) { return; }
+        if (keys.at(core::KeyboardKey::kEscape) == core::PressState::kPressed) {
           glfwSetWindowShouldClose(window_, true);
         }
       });
