@@ -38,12 +38,11 @@ class SceneViewer {
     return new_key;
   }
 
-  void OnMouseEvent(gl::MouseKey key,
-                    gl::PressState state,
-                    float x_increment,
-                    float y_increment);
+  void OnMouseEvent(gl::core::MouseKey key,
+                    gl::core::PressState state,
+                    const gl::core::PointXY& mouse_movement);
 
-  void OnKeyboardEvent(gl::KeyboardKey key, gl::PressState state);
+  void OnKeyboardEvent(const std::set<gl::core::KeyboardKey>& keys);
 
   const inline gl::SceneGraph::Key& world_key() const { return world_key_; }
   const inline gl::SceneGraph::Key& viewport_key() const {
@@ -67,6 +66,8 @@ class SceneViewer {
   /// As we cannot init opengl in constructor, we have to check if it is
   /// initialized before using any functionality from it.
   bool opengl_initialized_;
+
+  bool shift_pressed_{};
 
   void Paint();
 

@@ -4,6 +4,7 @@
 
 #include "gl/ui/glfw/viewer.h"
 #include "gl/core/init.h"
+#include "glog/logging.h"
 
 #include <iostream>
 
@@ -12,7 +13,7 @@ namespace glfw {
 
 namespace {
 void ErrorCallback(int error, const char* description) {
-  std::cerr << "error[" << error << "]:" << description << std::endl;
+  LOG(FATAL) << "error[" << error << "]: " << description;
 }
 }  // namespace
 
@@ -40,11 +41,11 @@ bool Viewer::Initialize(const WindowSize& window_size,
   glfwSetFramebufferSizeCallback(window_, Viewer::OnResize);
   Resize(window_size);
 
-  user_input_handler_.RegisterKeyboardCallback(
-      [this](KeyboardKey key, PressState state) {
-        if (key == KeyboardKey::kEscape && state == PressState::kPressed) {
-          glfwSetWindowShouldClose(window_, true);
-        }
+  user_input_handler_ = UserInputHandler{window_};
+  user_input_handler_->user_input_handler().RegisterKeyboardCallback(
+      [this](const std::set<core::KeyboardKey>& keys) {
+        if (!keys.count(core::KeyboardKey::kEscape)) { return; }
+        glfwSetWindowShouldClose(window_, true);
       });
 
   window_size_ = window_size;

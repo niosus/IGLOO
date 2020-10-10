@@ -6,8 +6,10 @@
 #define OPENGL_TUTORIALS_GL_UI_CORE_UX_INPUT_INTERFACE_H_
 
 #include <functional>
+#include <set>
 
 namespace gl {
+namespace core {
 
 enum class KeyboardKey {
   kNone,
@@ -15,10 +17,12 @@ enum class KeyboardKey {
   kArrowDown,
   kArrowLeft,
   kArrowRight,
-  kEscape
+  kEscape,
+  kLeftShift,
+  kRightShift
 };
 
-enum class MouseKey { kNone, kLeft, kRight, kMiddle, kWheelUp, kWheelDown };
+enum class MouseKey { kNone, kLeft, kRight, kMiddle, kWheel };
 
 enum class PressState {
   kNone,
@@ -26,37 +30,43 @@ enum class PressState {
   kReleased,
 };
 
+struct PointXY {
+  double x;
+  double y;
+};
+
 class UserInputHandler {
  public:
-  void DispatchKeyboardEvent(KeyboardKey key, PressState state) {
-    for (auto& callback : keyboard_callbacks_) { callback(key, state); }
+  void DispatchKeyboardEvent(const std::set<KeyboardKey>& key_states) const {
+    for (auto& callback : keyboard_callbacks_) { callback(key_states); }
   }
 
   void DispatchMouseEvent(MouseKey key,
                           PressState state,
-                          float x_increment,
-                          float y_increment) {
+                          const PointXY& mouse_movement) const {
     for (auto& callback : mouse_callbacks_) {
-      callback(key, state, x_increment, y_increment);
+      callback(key, state, mouse_movement);
     }
   }
 
   void RegisterKeyboardCallback(
-      std::function<void(KeyboardKey, PressState)> callback) {
-    keyboard_callbacks_.emplace_back(std::move(callback));
+      std::function<void(const std::set<KeyboardKey>&)> callback) {
+    keyboard_callbacks_.emplace_back(callback);
   }
 
   void RegisterMouseCallback(
-      std::function<void(MouseKey, PressState, float, float)> callback) {
-    mouse_callbacks_.emplace_back(std::move(callback));
+      std::function<void(MouseKey, PressState, const PointXY&)> callback) {
+    mouse_callbacks_.emplace_back(callback);
   }
 
  protected:
-  std::vector<std::function<void(KeyboardKey, PressState)>> keyboard_callbacks_;
-  std::vector<std::function<void(MouseKey, PressState, float, float)>>
+  std::vector<std::function<void(const std::set<KeyboardKey>&)>>
+      keyboard_callbacks_;
+  std::vector<std::function<void(MouseKey, PressState, const PointXY&)>>
       mouse_callbacks_;
 };
 
+}  // namespace core
 }  // namespace gl
 
 #endif  // OPENGL_TUTORIALS_GL_UI_CORE_UX_INPUT_INTERFACE_H_

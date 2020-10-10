@@ -19,13 +19,9 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
                 this,
                 std::placeholders::_1,
                 std::placeholders::_2,
-                std::placeholders::_3,
-                std::placeholders::_4));
+                std::placeholders::_3));
   viewer_.user_input_handler().RegisterKeyboardCallback(
-      std::bind(&SceneViewer::OnKeyboardEvent,
-                this,
-                std::placeholders::_1,
-                std::placeholders::_2));
+      std::bind(&SceneViewer::OnKeyboardEvent, this, std::placeholders::_1));
   program_pool_.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_POINTS,
       {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
@@ -53,6 +49,7 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
 
 void SceneViewer::Paint() {
   CHECK(opengl_initialized_);
+  glClearColor(0.1, 0.1, 0.1, 0.5);
   glEnable(GL_DEPTH_TEST);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   graph_.Draw(world_key_);
@@ -75,39 +72,57 @@ void SceneViewer::Spin() {
   }
 }
 
-void SceneViewer::OnMouseEvent(gl::MouseKey key,
-                               gl::PressState state,
-                               float x_increment,
-                               float y_increment) {
-  if (state != gl::PressState::kPressed) { return; }
-  float modifier = 0.01f;
-  camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
-                 units::angle::radian_t{x_increment},
-                 modifier);
-  camera_.Rotate(gl::Camera::RotationDirection::kVertical,
-                 units::angle::radian_t{y_increment},
-                 modifier);
+void SceneViewer::OnMouseEvent(gl::core::MouseKey key,
+                               gl::core::PressState state,
+                               const gl::core::PointXY& mouse_movement) {
+  if (state != gl::core::PressState::kPressed) { return; }
+  if (key == gl::core::MouseKey::kWheel) {
+    const float multiplier = 0.5f;
+    camera_.SetRadius(camera_.radius() +
+                      static_cast<float>(mouse_movement.y) * multiplier);
+  } else {
+    const float multiplier = 0.01f;
+    if (shift_pressed_) {
+      camera_.Translate(
+          {0.0f, 0.0f, multiplier * static_cast<float>(mouse_movement.y)});
+    } else {
+      camera_.Rotate(gl::Camera::RotationDirection::kHorizontal,
+                     units::angle::radian_t{mouse_movement.x},
+                     multiplier);
+      camera_.Rotate(gl::Camera::RotationDirection::kVertical,
+                     units::angle::radian_t{mouse_movement.y},
+                     multiplier);
+    }
+  }
   UpdateCameraNodePosition();
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
 }
 
-void SceneViewer::OnKeyboardEvent(gl::KeyboardKey key, gl::PressState state) {
-  if (state != gl::PressState::kPressed) { return; }
+void SceneViewer::OnKeyboardEvent(const std::set<gl::core::KeyboardKey>& keys) {
   const float increment = 0.02f;
-  switch (key) {
-    case gl::KeyboardKey::kArrowUp:
-      camera_.Translate({-increment, 0.0f, 0.0f});
-      break;
-    case gl::KeyboardKey::kArrowDown:
-      camera_.Translate({increment, 0.0f, 0.0f});
-      break;
-    case gl::KeyboardKey::kArrowLeft:
-      camera_.Translate({0.0f, -increment, 0.0f});
-      break;
-    case gl::KeyboardKey::kArrowRight:
-      camera_.Translate({0.0f, increment, 0.0f});
-      break;
-    default: return;
+
+  if (keys.count(gl::core::KeyboardKey::kLeftShift) ||
+      keys.count(gl::core::KeyboardKey::kRightShift)) {
+    shift_pressed_ = true;
+  } else {
+    shift_pressed_ = false;
+  }
+
+  if (keys.count(gl::core::KeyboardKey::kArrowUp)) {
+    camera_.Translate({shift_pressed_ ? 0.0f : -increment,
+                       0.0f,
+                       shift_pressed_ ? increment : 0.0f});
+  }
+  if (keys.count(gl::core::KeyboardKey::kArrowDown)) {
+    camera_.Translate({shift_pressed_ ? 0.0f : increment,
+                       0.0f,
+                       shift_pressed_ ? -increment : 0.0f});
+  }
+  if (keys.count(gl::core::KeyboardKey::kArrowLeft)) {
+    camera_.Translate({0.0f, -increment, 0.0f});
+  }
+  if (keys.count(gl::core::KeyboardKey::kArrowRight)) {
+    camera_.Translate({0.0f, increment, 0.0f});
   }
   UpdateCameraNodePosition();
   program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
