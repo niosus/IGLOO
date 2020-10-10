@@ -5,6 +5,8 @@
 # IGLOO
 #### **I**ntuitive open**GL** **O**bject **O**riented library
 
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/niosus/IGLOO/CI/master?style=for-the-badge)
+
 This is a library that wraps OpenGL library into objects. It aims to be close to zero-overhead in terms of runtime while offering intuitive and safe interfaces to underlying OpenGL library. The core idea is to make it hard to make a mistake that is hard to debug while not incurring too high cost for such guarantees. The library tries to use static memory allocation where possible, using traits to make sure the sizes of types are guessed correctly and are translated into OpenGL types properly.
 
 #### 🚧 Under construction 🚧
