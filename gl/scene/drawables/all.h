@@ -33,21 +33,22 @@ class Points : public Drawable {
   std::vector<float> intensities_;
 };
 
-// /// A class responsible for drawing lines.
-// class Lines : public Points {
-//  public:
-//   /// Draw lines between non-intersecting sequential pairs of points.
-//   explicit Lines(const ipb::EigenStdVector<Eigen::Vector3f>& points,
-//                  const glow::vec3& color = {1.0f, 1.0f, 1.0f},
-//                  float line_width = 2.0f);
-// };
+/// A class responsible for drawing lines.
+class Lines : public Points {
+ public:
+  /// Draw lines between non-intersecting sequential pairs of points.
+  explicit Lines(const ProgramPool& program_pool,
+                 const eigen::vector<Eigen::Vector3f>& points,
+                 const Eigen::Vector3f& color = {1.0f, 1.0f, 1.0f},
+                 float line_width = 2.0f);
+};
 
-// /// Draw a coordinate system.
-// class CoordinateSystem : public Drawable {
-//  public:
-//   CoordinateSystem();
-//   void FillBuffers() override;
-// };
+/// Draw a coordinate system.
+class CoordinateSystem : public Drawable {
+ public:
+  CoordinateSystem(const ProgramPool& program_pool);
+  void FillBuffers() override;
+};
 
 // /// Draw a rectangle with a texture attached to it.
 // class RectWithTexture : public Drawable {
