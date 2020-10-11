@@ -82,12 +82,12 @@ TEST_F(SceneGraphTest, Transform) {
   test_transform.translation() = Eigen::Vector3f{1, 1, 1};
   auto key_2 = graph.Attach(world_key, other_drawable, test_transform);
   EXPECT_EQ(graph.size(), 3u);
-  EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().x(), 0);
-  EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().y(), 0);
-  EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().z(), 0);
-  EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().x(), 1);
-  EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().y(), 1);
-  EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().z(), 1);
+  EXPECT_EQ(graph.GetNode(key_1).tf__parent__local().translation().x(), 0);
+  EXPECT_EQ(graph.GetNode(key_1).tf__parent__local().translation().y(), 0);
+  EXPECT_EQ(graph.GetNode(key_1).tf__parent__local().translation().z(), 0);
+  EXPECT_EQ(graph.GetNode(key_2).tf__parent__local().translation().x(), 1);
+  EXPECT_EQ(graph.GetNode(key_2).tf__parent__local().translation().y(), 1);
+  EXPECT_EQ(graph.GetNode(key_2).tf__parent__local().translation().z(), 1);
 }
 
 TEST_F(SceneGraphTest, ChainTransform) {
@@ -98,12 +98,12 @@ TEST_F(SceneGraphTest, ChainTransform) {
   auto key_1 = graph.Attach(world_key, default_drawable_, test_transform);
   auto key_2 = graph.Attach(key_1, default_drawable_, test_transform);
   EXPECT_EQ(graph.size(), 3u);
-  EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().x(), 1);
-  EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().y(), 1);
-  EXPECT_EQ(graph.GetNode(key_1).tx_parent_local().translation().z(), 1);
-  EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().x(), 1);
-  EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().y(), 1);
-  EXPECT_EQ(graph.GetNode(key_2).tx_parent_local().translation().z(), 1);
+  EXPECT_EQ(graph.GetNode(key_1).tf__parent__local().translation().x(), 1);
+  EXPECT_EQ(graph.GetNode(key_1).tf__parent__local().translation().y(), 1);
+  EXPECT_EQ(graph.GetNode(key_1).tf__parent__local().translation().z(), 1);
+  EXPECT_EQ(graph.GetNode(key_2).tf__parent__local().translation().x(), 1);
+  EXPECT_EQ(graph.GetNode(key_2).tf__parent__local().translation().y(), 1);
+  EXPECT_EQ(graph.GetNode(key_2).tf__parent__local().translation().z(), 1);
   EXPECT_EQ(graph.GetNode(key_2).ComputeTxAccumulated().translation().x(), 2);
   EXPECT_EQ(graph.GetNode(key_2).ComputeTxAccumulated().translation().y(), 2);
   EXPECT_EQ(graph.GetNode(key_2).ComputeTxAccumulated().translation().z(), 2);

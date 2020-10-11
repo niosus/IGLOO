@@ -6,6 +6,7 @@
 #define OPENGL_TUTORIALS_GL_CORE_CAMERA_H_
 
 #include "Eigen/Geometry"
+#include "glog/logging.h"
 #include "nholthaus/units.h"
 
 #include <cmath>
@@ -22,6 +23,9 @@ constexpr float kMaxRadius{kMaxZ - 20.0f};
 
 namespace gl {
 
+/// Camera class that represents a typical computer vision camera, i.e., z -
+/// forward, y - down, x - to the right. It handles transformation between such
+/// a frame and a typical opengl frame in the transformation to the viewport.
 class Camera {
  public:
   enum class RotationDirection { kVertical, kHorizontal };
@@ -149,7 +153,7 @@ class Camera {
 
   void UpdateCameraAngles(const Eigen::Vector3f& world_target,
                           const Eigen::Vector3f& world_camera) {
-    const Eigen::Vector3f diff = world_target - world_camera;
+    const Eigen::Vector3f diff = world_camera - world_target;
     const float x_diff = diff.x();
     const float y_diff = diff.y();
     const float z_diff = diff.z();

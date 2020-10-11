@@ -130,7 +130,7 @@ void SceneViewer::OnKeyboardEvent(const std::set<gl::core::KeyboardKey>& keys) {
 
 void SceneViewer::UpdateCameraNodePosition() {
   CHECK(graph_.HasNode(camera_key_));
-  graph_.GetNode(camera_key_).tx_parent_local() = camera_.tf__world__target();
+  graph_.GetNode(camera_key_).tf__parent__local() = camera_.tf__world__target();
 }
 
 }  // namespace gl
