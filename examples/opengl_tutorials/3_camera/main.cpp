@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
     program->Use();
     texture_1->Bind();
     texture_2->Bind();
-    program->SetUniform("view", camera.TfCameraWorld().matrix());
+    program->SetUniform("view", camera.tf__camera__world().matrix());
     Eigen::Affine3f model{Eigen::AngleAxisf{0.0f, Eigen::Vector3f::UnitX()}};
     program->SetUniform("model", model.matrix());
 
