@@ -6,6 +6,7 @@
 #define OPENGL_TUTORIALS_GL_CORE_CAMERA_H_
 
 #include "Eigen/Geometry"
+#include "glog/logging.h"
 #include "nholthaus/units.h"
 
 #include <cmath>
@@ -22,6 +23,9 @@ constexpr float kMaxRadius{kMaxZ - 20.0f};
 
 namespace gl {
 
+/// Camera class that represents a typical computer vision camera, i.e., z -
+/// forward, y - down, x - to the right. It handles transformation between such
+/// a frame and a typical opengl frame in the transformation to the viewport.
 class Camera {
  public:
   enum class RotationDirection { kVertical, kHorizontal };
@@ -39,7 +43,7 @@ class Camera {
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
-    tf_world_target_.translation() = target;
+    tf__world__target_.translation() = target;
     UpdateCameraAngles(target, camera_position);
     return LookAtImpl(target, camera_position, world_up);
   }
@@ -86,7 +90,7 @@ class Camera {
   }
 
   void SetTargetPosition(const Eigen::Vector3f& position) {
-    tf_world_target_.translation() = position;
+    tf__world__target_.translation() = position;
     UpdateWorldCameraPosition();
   }
 
@@ -96,21 +100,28 @@ class Camera {
         rotation_horizontal_.value(), Eigen::Vector3f::UnitZ()));
     Eigen::Vector3f translation_in_target =
         tf_target_rotated * (translation * speed * radius_);
-    tf_world_target_.translation() += translation_in_target;
+    tf__world__target_.translation() += translation_in_target;
     UpdateWorldCameraPosition();
   }
 
   Eigen::Vector3f GetTargetPosition() const {
-    return tf_world_target_.translation();
+    return tf__world__target_.translation();
   }
 
-  const Eigen::Isometry3f tf_world_target() const { return tf_world_target_; }
+  const Eigen::Isometry3f tf__world__target() const {
+    return tf__world__target_;
+  }
 
-  Eigen::Isometry3f TfCameraWorld() const { return tf_world_camera_.inverse(); }
-  const Eigen::Isometry3f& tf_world_camera() const { return tf_world_camera_; }
+  const Eigen::Isometry3f& tf__camera__world() const {
+    return tf__camera__world_;
+  }
+  const Eigen::Isometry3f& tf__world__camera() const {
+    return tf__world__camera_;
+  }
 
   Eigen::Matrix4f TfViewportWorld() const {
-    return tf_camera_viewport_ * TfCameraWorld().matrix();
+    return tf__viewport__gl_camera *
+           (tf__gl_camera__camera_ * tf__camera__world()).matrix();
   }
 
   Eigen::Vector3f GetCameraPositionInTargetFrame() const {
@@ -127,24 +138,22 @@ class Camera {
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
-    // Note that target and camera position are reversed in this cross product
-    // because OpenGL z axis points towards the viewer, thus, the camera z
-    // direction must be inverted.
-    Eigen::Vector3f z_direction = (camera_position - target).normalized();
+    Eigen::Vector3f z_direction = (target - camera_position).normalized();
     if ((z_direction - world_up).isApprox(Eigen::Vector3f::Zero())) {
       // Make sure cross product is always well-defined.
       z_direction(0) -= 0.00001;
     }
-    Eigen::Vector3f x_direction = world_up.cross(z_direction).normalized();
+    Eigen::Vector3f x_direction = z_direction.cross(world_up).normalized();
     Eigen::Vector3f y_direction = z_direction.cross(x_direction).normalized();
-    tf_world_camera_.linear() << x_direction, y_direction, z_direction;
-    tf_world_camera_.translation() = camera_position;
-    return tf_world_camera_.inverse();
+    tf__world__camera_.linear() << x_direction, y_direction, z_direction;
+    tf__world__camera_.translation() = camera_position;
+    tf__camera__world_ = tf__world__camera_.inverse();
+    return tf__camera__world_;
   }
 
   void UpdateCameraAngles(const Eigen::Vector3f& world_target,
                           const Eigen::Vector3f& world_camera) {
-    const Eigen::Vector3f diff = world_target - world_camera;
+    const Eigen::Vector3f diff = world_camera - world_target;
     const float x_diff = diff.x();
     const float y_diff = diff.y();
     const float z_diff = diff.z();
@@ -156,15 +165,22 @@ class Camera {
 
   void UpdateWorldCameraPosition() {
     Eigen::Vector3f camera_world =
-        tf_world_target_ * GetCameraPositionInTargetFrame();
+        tf__world__target_ * GetCameraPositionInTargetFrame();
     // Lookat handles also rotation of the frame from z-up coordinate system to
     // the OpenGL (z-back) coordinate system. No need for explicit
     // transformation.
     LookAtImpl(GetTargetPosition(), camera_world);
   }
 
-  Eigen::Isometry3f tf_world_target_{Eigen::Isometry3f::Identity()};
-  Eigen::Isometry3f tf_world_camera_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf__world__target_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf__world__camera_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf__camera__world_{Eigen::Isometry3f::Identity()};
+
+  /// Rotation around x axis by M_PI brings our normal computer vision camera
+  // (z - forward from the user, x - right, y - down) to the opengl coordinate
+  /// system (z - backwards, towards the user, x - right, y - up).
+  Eigen::Isometry3f tf__gl_camera__camera_{
+      Eigen::AngleAxisf{M_PI, Eigen::Vector3f::UnitX()}};
 
   Eigen::Vector3f camera_pos_in_target_frame_{Eigen::Vector3f::Zero()};
 
@@ -172,7 +188,7 @@ class Camera {
   units::angle::radian_t rotation_horizontal_{};
   units::angle::radian_t rotation_vertical_{};
 
-  Eigen::Matrix4f tf_camera_viewport_ =
+  Eigen::Matrix4f tf__viewport__gl_camera =
       Camera::Perspective(units::angle::degree_t{45}, 800, 600);
 };
 

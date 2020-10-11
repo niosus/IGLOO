@@ -41,11 +41,11 @@ class SceneGraph {
 
   /// Attach a new drawable to a parent with a relative transformation from
   /// child to parent.
-  Key Attach(
-      Key parent_key,
-      Drawable::SharedPtr drawable,
-      const Eigen::Isometry3f& tx_parent_local = Eigen::Isometry3f::Identity(),
-      Key new_key = SceneGraph::GenerateNextKey());
+  Key Attach(Key parent_key,
+             Drawable::SharedPtr drawable,
+             const Eigen::Isometry3f& tf__parent__local =
+                 Eigen::Isometry3f::Identity(),
+             Key new_key = SceneGraph::GenerateNextKey());
 
   /// Get a node reference at the key for changing it.
   SceneGraph::Node& GetNode(Key key);
@@ -76,7 +76,7 @@ class SceneGraph {
     Node(Key node_key,
          Key parent_key,
          Drawable::SharedPtr drawable,
-         const Eigen::Isometry3f& tx_parent_local_,
+         const Eigen::Isometry3f& tf__parent__local_,
          SceneGraph::Storage<UniquePtr>* storage);
 
     /// Add a child key to the node.
@@ -94,9 +94,9 @@ class SceneGraph {
     Key key() const { return key_; }
     Key parent_key() const { return parent_key_; }
 
-    Eigen::Isometry3f& tx_parent_local() { return tx_parent_local_; }
-    const Eigen::Isometry3f& tx_parent_local() const {
-      return tx_parent_local_;
+    Eigen::Isometry3f& tf__parent__local() { return tf__parent__local_; }
+    const Eigen::Isometry3f& tf__parent__local() const {
+      return tf__parent__local_;
     }
 
     const std::set<Key>& children_keys() const { return children_keys_; }
@@ -112,7 +112,7 @@ class SceneGraph {
     std::set<Key> children_keys_{};
 
     /// Relative transformation from this coordinate frame to parent's one.
-    Eigen::Isometry3f tx_parent_local_{};
+    Eigen::Isometry3f tf__parent__local_{};
 
     /// Every node is storing a drawable.
     Drawable::SharedPtr drawable_{};

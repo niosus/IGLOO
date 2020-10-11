@@ -149,6 +149,12 @@ int main(int argc, char* argv[]) {
 
   camera.LookAt({0, 0, 0}, {5, 0, 0});
 
+  /// Rotation around x axis by M_PI brings our normal computer vision camera
+  // (z - forward from the user, x - right, y - down) to the opengl coordinate
+  /// system (z - backwards, towards the user, x - right, y - up).
+  const Eigen::Isometry3f tf__gl_camera__camera{
+      Eigen::AngleAxisf{M_PI, Eigen::Vector3f::UnitX()}};
+
   while (!viewer.ShouldClose()) {
     viewer.ProcessInput();
 
@@ -159,7 +165,9 @@ int main(int argc, char* argv[]) {
     program->Use();
     texture_1->Bind();
     texture_2->Bind();
-    program->SetUniform("view", camera.TfCameraWorld().matrix());
+
+    program->SetUniform(
+        "view", (tf__gl_camera__camera * camera.tf__camera__world()).matrix());
     Eigen::Affine3f model{Eigen::AngleAxisf{0.0f, Eigen::Vector3f::UnitX()}};
     program->SetUniform("model", model.matrix());
 
