@@ -12,7 +12,7 @@ RUN_GLAD_CMD =\
     "--generator=c " +\
     "--reproducible " +\
     "--local-files " +\
-    "--out-path=$(@D)/$(GENDIR)"
+    "--out-path=$(@D)"
 
 genrule(
     name = "gen_glad_hdrs",
@@ -21,9 +21,7 @@ genrule(
         "glad.h",
         "khrplatform.h",
     ],
-    cmd = RUN_GLAD_CMD + " ; " +
-        "cp $(@D)/$(GENDIR)/glad.h $(@D)/glad.h ; " +
-        "cp $(@D)/$(GENDIR)/khrplatform.h $(@D)/khrplatform.h"
+    cmd = RUN_GLAD_CMD
 )
 
 genrule(
@@ -32,8 +30,7 @@ genrule(
     outs = [
         "glad.c",
     ],
-    cmd = RUN_GLAD_CMD + " ; " +
-        "cp $(@D)/$(GENDIR)/glad.c $(@D)/glad.c"
+    cmd = RUN_GLAD_CMD
 )
 
 cc_library(

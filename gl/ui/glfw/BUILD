@@ -14,8 +14,10 @@ cc_library(
         "viewer.h"
     ],
     deps = [
+        "//third_party/glad",
         "//gl/core:core",
         "//gl/ui/core:user_input_handler",
         "@glfw//:glfw",
+        "@imgui//:imgui"
     ],
 )

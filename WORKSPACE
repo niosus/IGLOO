@@ -91,3 +91,10 @@ http_archive(
   strip_prefix = "units-2.3.1",
   build_file = "@//:third_party/units/units.BUILD",
 )
+
+http_archive(
+  name = "imgui",
+  urls = ['https://github.com/ocornut/imgui/archive/v1.79.tar.gz'],
+  strip_prefix = 'imgui-1.79',
+  build_file = "@//:third_party/imgui/imgui.BUILD",
+)

@@ -6,6 +6,11 @@
 #include "gl/core/init.h"
 #include "glog/logging.h"
 
+#include "imgui.h"
+
+#include "examples/imgui_impl_glfw.h"
+#include "examples/imgui_impl_opengl3.h"
+
 #include <iostream>
 
 namespace gl {
@@ -49,6 +54,18 @@ bool Viewer::Initialize(const WindowSize& window_size,
       });
 
   window_size_ = window_size;
+
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  (void)io;
+  // Setup Platform/Renderer bindings
+  ImGui_ImplGlfw_InitForOpenGL(window_, true);
+  ImGui_ImplOpenGL3_Init("#version 330");
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+
   initialized_ = true;
   return true;
 }

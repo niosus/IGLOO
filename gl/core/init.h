@@ -5,8 +5,8 @@
 #ifndef CODE_OPENGL_TUTORIALS_GL_CORE_INIT_H_
 #define CODE_OPENGL_TUTORIALS_GL_CORE_INIT_H_
 
+#include "glad/glad.h"
 #include "glog/logging.h"
-#include "third_party/glad/glad.h"
 
 #include <functional>
 

@@ -1,7 +1,7 @@
 #ifndef CODE_OPENGL_TUTORIALS_GL_CORE_OPENGL_OBJECT_H_
 #define CODE_OPENGL_TUTORIALS_GL_CORE_OPENGL_OBJECT_H_
 
-#include "third_party/glad/glad.h"
+#include "glad/glad.h"
 
 #include <cstdint>
 
