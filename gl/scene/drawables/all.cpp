@@ -91,84 +91,68 @@ void CoordinateSystem::FillBuffers() {
   ready_to_draw_ = true;
 }
 
-// RectWithTexture::RectWithTexture(const cv::Mat& data,
-//                                  const vec3& bottom_left,
-//                                  const vec2& size,
-//                                  Style draw_style)
-//     : Drawable{draw_style, GL_POINTS},
-//       data_{data},
-//       bottom_left_{bottom_left},
-//       size_{size} {}
+RectWithTexture::RectWithTexture(const ProgramPool& program_pool,
+                                 const utils::Image& data,
+                                 const Eigen::Vector3f& bottom_left,
+                                 const Eigen::Vector2f& size,
+                                 Style draw_style)
+    : Drawable{program_pool,
+               ProgramPool::ProgramType::DRAW_TEXTURED_RECT,
+               draw_style,
+               GL_POINTS},
+      data_{data},
+      bottom_left_{bottom_left},
+      size_{size} {}
 
-// RectWithTexture::RectWithTexture(const cv::Mat& data,
-//                                  const vec3& bottom_left,
-//                                  const vec2& size)
-//     : RectWithTexture(data, bottom_left, size, Style::DRAW_3D) {}
+RectWithTexture::RectWithTexture(const ProgramPool& program_pool,
+                                 const utils::Image& data,
+                                 const Eigen::Vector3f& bottom_left,
+                                 const Eigen::Vector2f& size)
+    : RectWithTexture{program_pool, data, bottom_left, size, Style::DRAW_3D} {}
 
-// RectWithTexture::RectWithTexture(const cv::Mat& data,
-//                                  const vec2& bottom_left,
-//                                  const vec2& size)
-//     : RectWithTexture(
-//           data, {bottom_left.x, bottom_left.y, -1.0f}, size, Style::DRAW_2D)
-//           {
-//   CHECK_LE(bottom_left.x + size.x, 1.0) << "Drawing outside of viewport.";
-//   CHECK_LE(bottom_left.y + size.y, 1.0) << "Drawing outside of viewport.";
-//   CHECK_GE(bottom_left.x, -1.0) << "Drawing outside of viewport.";
-//   CHECK_GE(bottom_left.y, -1.0) << "Drawing outside of viewport.";
-// }
+RectWithTexture::RectWithTexture(const ProgramPool& program_pool,
+                                 const utils::Image& data,
+                                 const Eigen::Vector2f& bottom_left,
+                                 const Eigen::Vector2f& size)
+    : RectWithTexture{program_pool,
+                      data,
+                      {bottom_left.x(), bottom_left.y(), -1.0f},
+                      size,
+                      Style::DRAW_2D} {
+  CHECK_LE(bottom_left.x() + size.x(), 1.0f) << "Drawing outside of viewport.";
+  CHECK_LE(bottom_left.y() + size.y(), 1.0f) << "Drawing outside of viewport.";
+  CHECK_GE(bottom_left.x(), -1.0f) << "Drawing outside of viewport.";
+  CHECK_GE(bottom_left.y(), -1.0f) << "Drawing outside of viewport.";
+}
 
-// void RectWithTexture::FillBuffers() {
-//   program_ = ProgramPool::Get(ProgramPool::ProgramType::DRAW_TEXTURED_RECT);
+void RectWithTexture::FillBuffers() {
+  CHECK(program_) << "Cannot fill buffers without an active program.";
+  // TODO(igor): for now it is always the texture 0. Is this fine?
+  texture_ = Texture::Builder(Texture::Type::kTexture2D,
+                              Texture::Identifier::kTexture0)
+                 .WithImage(data_)
+                 .WithSaneDefaults()
+                 .Build();
 
-//   cv::Mat flipped;
-//   cv::flip(data_, flipped, 0);
+  const std::vector<Eigen::Vector3f> raw = {bottom_left_};
 
-//   auto pixel_type = glow::PixelType::UNSIGNED_BYTE;
+  vao_ = std::make_unique<VertexArrayBuffer>();
+  vao_->EnableVertexAttributePointer(
+      0,
+      std::make_shared<gl::Buffer>(
+          gl::Buffer::Type::kArrayBuffer, gl::Buffer::Usage::kStaticDraw, raw));
+  program_->Use();
+  color_uniform_index_ = program_->SetUniform("color", color_);
+  model_uniform_index_ =
+      program_->SetUniform("model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ =
+      program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
 
-//   auto cv_depth = flipped.depth();
-//   if (cv_depth == CV_8U) {
-//     pixel_type = glow::PixelType::UNSIGNED_BYTE;
-//   } else if (cv_depth == CV_32F) {
-//     pixel_type = glow::PixelType::FLOAT;
-//   } else {
-//     LOG(FATAL) << "Unexpected type of image.";
-//   }
-
-//   auto texture_format = glow::TextureFormat::RGB;
-//   auto pixel_format = glow::PixelFormat::BRG;
-//   int num_channels = flipped.channels();
-//   if (num_channels == 1) {
-//     texture_format = glow::TextureFormat::R;
-//     pixel_format = glow::PixelFormat::R;
-//   } else if (num_channels == 3) {
-//     texture_format = glow::TextureFormat::RGB;
-//     pixel_format = glow::PixelFormat::BRG;
-//   } else if (num_channels == 4) {
-//     texture_format = glow::TextureFormat::RGBA;
-//     pixel_format = glow::PixelFormat::BGRA;
-//   } else {
-//     LOG(FATAL) << "Unexpected number of channels.";
-//   }
-
-//   texture_ =
-//       make_unique<glow::GlTexture>(data_.cols, data_.rows, texture_format);
-//   texture_->assign(pixel_format, pixel_type, flipped.data);
-
-//   const std::vector<vec3> raw = {bottom_left_};
-//   num_points_ = raw.size();
-
-//   vao_ = make_unique<GlVertexArray>();
-//   vao_->bind();
-//   SetVertexAttribute(0, raw, vao_.get());
-//   vao_->release();
-
-//   sampler_index_ = 0;
-//   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<int>>("source", sampler_index_));
-//   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<vec2>>("rect_size", size_));
-//   ready_to_draw_ = true;
-// }
+  sampler_index_ = 0;  // This should match the number of the texture we picked.
+  program_->SetUniform("source", sampler_index_);
+  program_->SetUniform("rect_size", size_);
+  ready_to_draw_ = true;
+}
 
 // Text::Text(const std::string& text,
 //            const std::string& font_name,
@@ -188,14 +172,14 @@ void CoordinateSystem::FillBuffers() {
 //     : Text(text, font_name, pos, scale, Style::DRAW_3D) {}
 // Text::Text(const std::string& text,
 //            const std::string& font_name,
-//            const glow::vec2& pos,
+//            const glow::Eigen::Vector2f& pos,
 //            float scale)
 //     : Text(text, font_name, {pos.x, pos.y, -1.0f}, scale, Style::DRAW_2D) {}
 
 // void Text::FillBuffers() {
 //   CHECK(FontPool::Instance().HasFont(font_name_));
 //   auto font = FontPool::Instance().Get(font_name_);
-//   const cv::Mat& texture = font->texture();
+//   const utils::Image& texture = font->texture();
 
 //   program_ = ProgramPool::Get(ProgramPool::ProgramType::DRAW_TEXT);
 
@@ -204,9 +188,9 @@ void CoordinateSystem::FillBuffers() {
 //   texture_->assign(PixelFormat::BGRA, PixelType::UNSIGNED_BYTE,
 //   texture.data);
 
-//   std::vector<vec2> rect_coords;
+//   std::vector<Eigen::Vector2f> rect_coords;
 //   rect_coords.reserve(text_.size());
-//   std::vector<vec2> texture_coords;
+//   std::vector<Eigen::Vector2f> texture_coords;
 //   texture_coords.reserve(text_.size());
 //   float x_start = 0.0f;
 //   float y_start = 0.0f;
@@ -252,7 +236,7 @@ void CoordinateSystem::FillBuffers() {
 //   uniforms_to_override_.emplace_back(
 //       make_unique<GlUniform<int>>("source", sampler_index_));
 //   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<vec3>>("anchor", pos_));
+//       make_unique<GlUniform<Eigen::Vector3f>>("anchor", pos_));
 //   ready_to_draw_ = true;
 // }
 

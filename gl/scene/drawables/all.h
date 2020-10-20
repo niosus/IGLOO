@@ -50,49 +50,56 @@ class CoordinateSystem : public Drawable {
   void FillBuffers() override;
 };
 
-// /// Draw a rectangle with a texture attached to it.
-// class RectWithTexture : public Drawable {
-//  public:
-//   RectWithTexture(const cv::Mat& data,
-//                   const glow::vec3& bottom_left,
-//                   const glow::vec2& size,
-//                   Style draw_style);
-//   RectWithTexture(const cv::Mat& data,
-//                   const glow::vec3& bottom_left,
-//                   const glow::vec2& size = {5.0f, 5.0f});
-//   RectWithTexture(const cv::Mat& data,
-//                   const glow::vec2& bottom_left = {-1.f, -1.f},
-//                   const glow::vec2& size = {2.0f, 2.0f});
-//   void FillBuffers() override;
+/// Draw a rectangle with a texture attached to it.
+class RectWithTexture : public Drawable {
+ public:
+  RectWithTexture(const ProgramPool& program_pool,
+                  const utils::Image& data,
+                  const Eigen::Vector3f& bottom_left,
+                  const Eigen::Vector2f& size,
+                  Style draw_style);
+  RectWithTexture(const ProgramPool& program_pool,
+                  const utils::Image& data,
+                  const Eigen::Vector3f& bottom_left,
+                  const Eigen::Vector2f& size = {5.0f, 5.0f});
+  RectWithTexture(const ProgramPool& program_pool,
+                  const utils::Image& data,
+                  const Eigen::Vector2f& bottom_left = {-1.f, -1.f},
+                  const Eigen::Vector2f& size = {2.0f, 2.0f});
+  void FillBuffers() override;
 
-//  private:
-//   cv::Mat data_;
-//   glow::vec3 bottom_left_;
-//   glow::vec2 size_;
-// };
+ private:
+  utils::Image data_;
+  Eigen::Vector3f bottom_left_{};
+  Eigen::Vector2f size_{};
+  int sampler_index_{};
+};
 
 // /// Draw text.
 // class Text : public Drawable {
 //  public:
-//   Text(const std::string& text,
+//   Text(const ProgramPool& program_pool,
+//        const std::string& text,
 //        const std::string& font_name,
-//        const glow::vec3& pos,
+//        const Eigen::Vector3f& pos,
 //        float scale,
 //        Style draw_style);
-//   Text(const std::string& text,
+//   Text(const ProgramPool& program_pool,
+//        const std::string& text,
 //        const std::string& font_name,
-//        const glow::vec3& pos,
+//        const Eigen::Vector3f& pos,
 //        float scale = 4.0f);
-//   Text(const std::string& text,
+//   Text(const ProgramPool& program_pool,
+//        const std::string& text,
 //        const std::string& font_name,
-//        const glow::vec2& pos,
+//        const Eigen::Vector2f& pos,
 //        float scale = 0.5f);
 //   void FillBuffers() override;
 
 //  private:
 //   std::string text_;
 //   std::string font_name_;
-//   glow::vec3 pos_;
+//   Eigen::Vector3f pos_;
 //   float scale_;
 // };
 
