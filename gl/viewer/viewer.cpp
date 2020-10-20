@@ -22,23 +22,26 @@ void SceneViewer::Initialize(const glfw::WindowSize& window_size,
                 std::placeholders::_3));
   viewer_.user_input_handler().RegisterKeyboardCallback(
       std::bind(&SceneViewer::OnKeyboardEvent, this, std::placeholders::_1));
-  program_pool_.AddProgramFromShaders(
+  const auto points_program = program_pool_.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_POINTS,
       {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
-  program_pool_.AddProgramFromShaders(
+  const auto coord_program = program_pool_.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_COORDINATE_SYSTEM,
       {"gl/scene/shaders/coordinate_system.vert",
        "gl/scene/shaders/coordinate_system.geom",
        "gl/scene/shaders/simple.frag"});
-  program_pool_.AddProgramFromShaders(
+  const auto rect_program = program_pool_.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_TEXTURED_RECT,
       {"gl/scene/shaders/texture.vert",
        "gl/scene/shaders/texture.geom",
        "gl/scene/shaders/texture.frag"});
-  program_pool_.AddProgramFromShaders(
+  const auto text_program = program_pool_.AddProgramFromShaders(
       ProgramPool::ProgramType::DRAW_TEXT,
       {"gl/scene/shaders/text.vert", "gl/scene/shaders/texture.frag"});
-  program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
+  LOG(INFO) << "Created points_program: " << points_program->id();
+  LOG(INFO) << "Created coord_program: " << coord_program->id();
+  LOG(INFO) << "Created rect_program: " << rect_program->id();
+  LOG(INFO) << "Created text_program: " << text_program->id();
   FontPool::Instance().LoadFont("gl/scene/fonts/ubuntu.fnt");
   opengl_initialized_ = true;
 
@@ -52,9 +55,10 @@ void SceneViewer::Paint() {
   glClearColor(0.1, 0.1, 0.1, 0.5);
   glEnable(GL_DEPTH_TEST);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
   graph_.Draw(world_key_);
-  graph_.Draw(viewport_key_);
   graph_.Draw(camera_key_);
+  graph_.Draw(viewport_key_);
   update_pending_ = false;
 }
 
@@ -95,7 +99,6 @@ void SceneViewer::OnMouseEvent(gl::core::MouseKey key,
     }
   }
   UpdateCameraNodePosition();
-  program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
 }
 
 void SceneViewer::OnKeyboardEvent(const std::set<gl::core::KeyboardKey>& keys) {
@@ -125,7 +128,6 @@ void SceneViewer::OnKeyboardEvent(const std::set<gl::core::KeyboardKey>& keys) {
     camera_.Translate({0.0f, increment, 0.0f});
   }
   UpdateCameraNodePosition();
-  program_pool_.SetUniformToAllPrograms("proj_view", camera_.TfViewportWorld());
 }
 
 void SceneViewer::UpdateCameraNodePosition() {

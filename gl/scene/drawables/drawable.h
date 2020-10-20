@@ -60,7 +60,8 @@ class Drawable {
     CHECK(program_);
     CHECK_GT(model_uniform_index_, 0UL);
     program_->Use();
-    program_->GetUniform(model_uniform_index_).UpdateValue(model);
+    program_->GetUniform(model_uniform_index_)
+        .UpdateValue(program_->id(), model);
   }
 
   /// Return if this is a 2D or a 3D drawable.

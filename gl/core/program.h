@@ -25,12 +25,13 @@ class Program : public OpenGlObject {
   }
 
   inline void Use() const { glUseProgram(id_); }
+  inline void StopUsing() const { glUseProgram(0u); }
 
   template <typename T, typename A>
   inline std::size_t SetUniform(const std::string& uniform_name,
                                 const std::vector<T, A>& data) {
     auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
-    uniforms_[uniform_index].UpdateValue(data);
+    uniforms_[uniform_index].UpdateValue(id_, data);
     return uniform_index;
   }
 
@@ -38,7 +39,7 @@ class Program : public OpenGlObject {
   inline std::size_t SetUniform(const std::string& uniform_name,
                                 Ts... numbers) {
     auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
-    uniforms_[uniform_index].UpdateValue(numbers...);
+    uniforms_[uniform_index].UpdateValue(id_, numbers...);
     return uniform_index;
   }
 

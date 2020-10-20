@@ -6,6 +6,8 @@ uniform vec2 rect_size;
 
 out vec2 tex_coord;
 
+out vec4 vertexColor;  // Linked to the variable in vertex shader.
+
 void rectangle(vec4 position) {
     gl_Position = position + vec4(rect_size.x, 0.0, 0.0, 0.0);
     tex_coord = vec2(1.0, 0.0);

@@ -3,6 +3,7 @@
 
 #include "gl/core/opengl_object.h"
 #include "gl/core/traits.h"
+#include "glog/logging.h"
 #include "utils/type_traits.h"
 
 #include <exception>
@@ -17,24 +18,29 @@ class Uniform : public OpenGlObject {
   Uniform(const std::string& name, std::uint32_t program_id)
       : OpenGlObject{0},
         name_{name},
-        location_{glGetUniformLocation(program_id, name_.c_str())} {}
+        location_{glGetUniformLocation(program_id, name_.c_str())},
+        program_id_{program_id} {}
 
   GLint location() const noexcept { return location_; }
 
   template <typename T, typename A>
-  void UpdateValue(const std::vector<T, A>& data) {
-    UpdateValue(data.data(), data.size());
+  void UpdateValue(std::uint32_t program_id, const std::vector<T, A>& data) {
+    UpdateValue(program_id, data.data(), data.size());
   }
 
   template <typename T>
-  void UpdateValue(const T* const data, std::size_t number_of_elements) {
+  void UpdateValue(std::uint32_t program_id,
+                   const T* const data,
+                   std::size_t number_of_elements) {
+    CHECK_EQ(program_id, program_id_);
     UpdateArrayLike<T>(static_cast<const void*>(data), number_of_elements);
   }
 
   template <typename T,
             typename = std::enable_if_t<traits::is_matrix_v<T> ||
                                         traits::is_vector_v<T>>>
-  void UpdateValue(const T& matrix_or_vector) {
+  void UpdateValue(std::uint32_t program_id, const T& matrix_or_vector) {
+    CHECK_EQ(program_id, program_id_);
     UpdateArrayLike<std::remove_reference_t<T>>(
         static_cast<const void*>(&matrix_or_vector), 1ul);
   }
@@ -45,7 +51,8 @@ class Uniform : public OpenGlObject {
                 ::traits::all_types_are_same_v<T, Ts...> &&
                 (::traits::all_types_integral_v<T, Ts...> ||
                  ::traits::all_types_floating_point_v<T, Ts...>)>>
-  void UpdateValue(T number, Ts... numbers) {
+  void UpdateValue(std::uint32_t program_id, T number, Ts... numbers) {
+    CHECK_EQ(program_id, program_id_);
     UpdateValueFromPack(location_, number, numbers...);
   }
 
@@ -106,6 +113,7 @@ class Uniform : public OpenGlObject {
 
   std::string name_;
   std::int32_t location_;
+  std::uint32_t program_id_;
 };
 
 }  // namespace gl

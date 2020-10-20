@@ -42,6 +42,7 @@ void Points::FillBuffers() {
   CHECK(program_) << "Cannot fill buffers without an active program.";
   CHECK_EQ(points_.size(), intensities_.size());
 
+  program_->Use();
   vao_ = std::make_unique<VertexArrayBuffer>();
   vao_->EnableVertexAttributePointer(
       0,
@@ -53,12 +54,12 @@ void Points::FillBuffers() {
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    intensities_));
-  program_->Use();
   color_uniform_index_ = program_->SetUniform("color", color_);
   model_uniform_index_ =
       program_->SetUniform("model", Eigen::Matrix4f::Identity());
   projection_view_uniform_index_ =
       program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
+  program_->StopUsing();
   ready_to_draw_ = true;
 }
 
@@ -76,8 +77,9 @@ CoordinateSystem::CoordinateSystem(const ProgramPool& program_pool)
 
 void CoordinateSystem::FillBuffers() {
   CHECK(program_) << "Cannot fill buffers without an active program.";
-  std::vector<Eigen::Vector4f> points{{0, 0, 0, 1}};
+  std::vector<Eigen::Vector3f> points{{0, 0, 0}};
 
+  program_->Use();
   vao_ = std::make_unique<VertexArrayBuffer>();
   vao_->EnableVertexAttributePointer(
       0,
@@ -88,6 +90,7 @@ void CoordinateSystem::FillBuffers() {
       program_->SetUniform("model", Eigen::Matrix4f::Identity());
   projection_view_uniform_index_ =
       program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
+  program_->StopUsing();
   ready_to_draw_ = true;
 }
 
@@ -102,7 +105,9 @@ RectWithTexture::RectWithTexture(const ProgramPool& program_pool,
                GL_POINTS},
       data_{data},
       bottom_left_{bottom_left},
-      size_{size} {}
+      size_{size} {
+  color_ = {1.0f, 1.0f, 1.0f};
+}
 
 RectWithTexture::RectWithTexture(const ProgramPool& program_pool,
                                  const utils::Image& data,
@@ -136,21 +141,26 @@ void RectWithTexture::FillBuffers() {
 
   const std::vector<Eigen::Vector3f> raw = {bottom_left_};
 
+  program_->Use();
   vao_ = std::make_unique<VertexArrayBuffer>();
   vao_->EnableVertexAttributePointer(
       0,
       std::make_shared<gl::Buffer>(
           gl::Buffer::Type::kArrayBuffer, gl::Buffer::Usage::kStaticDraw, raw));
-  program_->Use();
   color_uniform_index_ = program_->SetUniform("color", color_);
   model_uniform_index_ =
       program_->SetUniform("model", Eigen::Matrix4f::Identity());
   projection_view_uniform_index_ =
       program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
+  LOG(INFO) << "color_uniform_index_: " << color_uniform_index_;
+  LOG(INFO) << "model_uniform_index_: " << model_uniform_index_;
+  LOG(INFO) << "projection_view_uniform_index_: "
+            << projection_view_uniform_index_;
 
   sampler_index_ = 0;  // This should match the number of the texture we picked.
   program_->SetUniform("source", sampler_index_);
   program_->SetUniform("rect_size", size_);
+  program_->StopUsing();
   ready_to_draw_ = true;
 }
 

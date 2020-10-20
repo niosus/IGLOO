@@ -26,14 +26,21 @@ Drawable::Drawable(const ProgramPool& program_pool,
       color_{color} {}
 
 void Drawable::Draw() {
+  LOG(INFO) << "start draw";
   CHECK(vao_) << "Need a VAO to draw.";
   CHECK(program_) << "Need a Program to draw.";
-
+  LOG(INFO) << "using program: " << program_->id();
   program_->Use();
-  if (color_uniform_index_) {
-    program_->GetUniform(color_uniform_index_).UpdateValue(color_);
+  if (draw_style_ == Style::DRAW_2D) {
+    LOG(INFO) << "Updating uniform: "
+              << program_->GetUniform(projection_view_uniform_index_).name();
+    program_->GetUniform(projection_view_uniform_index_)
+        .UpdateValue(program_->id(), Eigen::Matrix4f::Identity());
   }
-
+  if (color_uniform_index_) {
+    program_->GetUniform(color_uniform_index_)
+        .UpdateValue(program_->id(), color_);
+  }
   if (texture_) { texture_->Bind(); }
 
   vao_->Draw(mode_);
@@ -43,6 +50,8 @@ void Drawable::Draw() {
   glLineWidth(point_size_);
 
   if (texture_) { texture_->UnBind(); }
+  program_->StopUsing();
+  LOG(INFO) << "end draw";
 }
 
 }  // namespace gl
