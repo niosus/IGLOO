@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" height="200" src=".github/icon/igloo.png">
+  <img width="200" height="200" align="right" src=".github/icon/igloo.png">
 </p>
 
 # IGLOO
