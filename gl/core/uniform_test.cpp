@@ -126,7 +126,6 @@ TEST_F(UniformTest, EverythingIsPossibleWithNonExistingUniform) {
 }
 
 TEST(UniformDeathTest, InitWithoutProgram) {
-  EXPECT_DEBUG_DEATH(
-      Uniform("some_name", 0),
-      "GL ERROR message: 'GL_INVALID_VALUE in glGetUniformLocation'");
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEBUG_DEATH(Uniform("some_name", 0), ".*GL_INVALID_VALUE.*");
 }

@@ -36,7 +36,7 @@ class Shader : public OpenGlObject {
       : OpenGlObject{glCreateShader(
             static_cast<std::underlying_type<Shader::Type>::type>(
                 gl_shader_type))},
-        shader_source_{std::move(shader_source)},
+        shader_source_{shader_source},
         type_{gl_shader_type} {}
 
   static Shader::Type DetectShaderType(const std::string& file_name);

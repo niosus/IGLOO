@@ -8,10 +8,15 @@
 #include <memory>
 #include <string>
 
+namespace {
+constexpr auto kExpectEveryStringNullTerminated = nullptr;
+const auto kDefaultErrorBufferSize{512};
+}  // namespace
+
 namespace gl {
 
 std::unique_ptr<Shader> Shader::CreateFromFile(const std::string& file_name) {
-  auto gl_shader_type = DetectShaderType(file_name);
+  const auto gl_shader_type = DetectShaderType(file_name);
   if (gl_shader_type == Shader::Type::kUndefined) { return nullptr; }
   const auto shader_source = utils::ReadFileContents(file_name);
   if (!shader_source) { return nullptr; }
@@ -41,6 +46,14 @@ bool Shader::CompileShader() {
   const char* data = shader_source_.data();
   glShaderSource(id_, 1, &data, nullptr);
   glCompileShader(id_);
+  std::int32_t success{};
+  glGetShaderiv(id_, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    char error_msg[kDefaultErrorBufferSize];
+    glGetShaderInfoLog(id_, kDefaultErrorBufferSize, nullptr, error_msg);
+    LOG(FATAL) << "Shader compilation failed: \n" << error_msg;
+    return false;
+  }
   return true;
 }
 
