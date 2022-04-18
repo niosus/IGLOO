@@ -20,7 +20,7 @@ class SceneViewer {
   SceneViewer(const std::string& window_name) : viewer_{window_name} {}
 
   void Initialize(const glfw::WindowSize& window_size = {800, 600},
-                  const glfw::GlVersion& gl_version = {3, 3});
+                  const glfw::GlVersion& gl_version = {4, 3});
 
   /// Remove the drawable with a given key from the graph upon the next Gl
   /// update. We must do it from the Gl thread, otherwise we have memory

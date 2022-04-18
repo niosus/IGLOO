@@ -15,6 +15,7 @@ namespace {
 void ErrorCallback(int error, const char* description) {
   LOG(FATAL) << "error[" << error << "]: " << description;
 }
+
 }  // namespace
 
 bool Viewer::Initialize(const WindowSize& window_size,
@@ -50,7 +51,7 @@ bool Viewer::Initialize(const WindowSize& window_size,
 
   window_size_ = window_size;
   initialized_ = true;
-  return true;
+  return initialized_;
 }
 
 }  // namespace glfw

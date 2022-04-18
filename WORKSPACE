@@ -2,28 +2,34 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
     name = "rules_python",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.0.2/rules_python-0.0.2.tar.gz",
-    strip_prefix = "rules_python-0.0.2",
-    sha256 = "b5668cde8bb6e3515057ef465a35ad712214962f0b3a314e551204266c7be90c",
+    sha256 = "9fcf91dbcc31fde6d1edb15f117246d912c33c36f44cf681976bd886538deba6",
+    strip_prefix = "rules_python-0.8.0",
+    url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.8.0.tar.gz",
 )
-load("@rules_python//python:repositories.bzl", "py_repositories")
-py_repositories()
 
-# Only needed if using the packaging rules.
-load("@rules_python//python:pip.bzl", "pip_repositories")
-pip_repositories()
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
 
-load("@rules_python//python:pip.bzl", "pip3_import")
+python_register_toolchains(
+    name = "python3_9",
+    # Available versions are listed in @rules_python//python:versions.bzl.
+    # We recommend using the same version your team is already standardized on.
+    python_version = "3.9",
+)
 
-pip3_import(
-   name = "requirements",
+load("@python3_9//:defs.bzl", "interpreter")
+
+load("@rules_python//python:pip.bzl", "pip_install")
+
+pip_install(
+   name = "pip_dependencies",
    requirements = "//:requirements.txt",
 )
 
-load("@requirements//:requirements.bzl", "pip_install")
-pip_install()
 
 http_archive(
     name = "glfw",

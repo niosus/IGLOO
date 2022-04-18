@@ -84,6 +84,7 @@ void CoordinateSystem::FillBuffers() {
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    points));
+  program_->Use();
   model_uniform_index_ =
       program_->SetUniform("model", Eigen::Matrix4f::Identity());
   projection_view_uniform_index_ =

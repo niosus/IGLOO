@@ -114,6 +114,13 @@ TEST_F(UniformTest, UpdateValueFromMatrix) {
   some_matrix_2_3 << 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f;
   uniform_mat_2x3.UpdateValue(some_matrix_2_3);
   uniform_mat_2x3.UpdateValue(eigen::vector<Mat2x3T>{some_matrix_2_3});
+  // 4x4
+  Uniform uniform_mat_4x4{"matrix_4x4", program_->id()};
+  Eigen::Matrix4f some_matrix_4x4;
+  some_matrix_4x4 << 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f,
+      10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f;
+  uniform_mat_4x4.UpdateValue(some_matrix_4x4);
+  uniform_mat_4x4.UpdateValue(eigen::vector<Eigen::Matrix4f>{some_matrix_4x4});
 }
 
 TEST_F(UniformTest, EverythingIsPossibleWithNonExistingUniform) {
@@ -126,7 +133,6 @@ TEST_F(UniformTest, EverythingIsPossibleWithNonExistingUniform) {
 }
 
 TEST(UniformDeathTest, InitWithoutProgram) {
-  EXPECT_DEBUG_DEATH(
-      Uniform("some_name", 0),
-      "GL ERROR message: 'GL_INVALID_VALUE in glGetUniformLocation'");
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEBUG_DEATH(Uniform("some_name", 0), ".*GL_INVALID_VALUE.*");
 }

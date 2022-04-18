@@ -1,4 +1,4 @@
-load("@requirements//:requirements.bzl", "requirement")
+load("@pip_dependencies//:requirements.bzl", "requirement")
 
 py_binary(
     name = "run_glad",

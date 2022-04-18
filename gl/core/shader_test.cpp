@@ -20,7 +20,7 @@ TEST(ShaderTest, InitWrongPath) {
 }
 
 TEST(ShaderDeathTest, InitWrongSource) {
-  EXPECT_DEBUG_DEATH(
-      Shader::CreateFromFile("gl/core/test_shaders/wrong_shader.vert"),
-      ".*error: syntax error.*");
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEATH(Shader::CreateFromFile("gl/core/test_shaders/wrong_shader.vert"),
+               ".*syntax error.*");
 }
