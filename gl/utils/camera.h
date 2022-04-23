@@ -43,7 +43,7 @@ class Camera {
       const Eigen::Vector3f& target,
       const Eigen::Vector3f& camera_position,
       const Eigen::Vector3f& world_up = Eigen::Vector3f::UnitZ()) {
-    tf__world__target_.translation() = target;
+    tf_world_from_target_.translation() = target;
     UpdateCameraAngles(target, camera_position);
     return LookAtImpl(target, camera_position, world_up);
   }
@@ -89,39 +89,41 @@ class Camera {
     return M;
   }
 
-  void SetTargetPosition(const Eigen::Vector3f& position) {
-    tf__world__target_.translation() = position;
+  void SetTargetPosition(const Eigen::Vector3f& position_in_world) {
+    tf_world_from_target_.translation() = position_in_world;
     UpdateWorldCameraPosition();
   }
 
-  void Translate(const Eigen::Vector3f& translation, float speed = 1.0f) {
+  void Translate(const Eigen::Vector3f& translation_in_world,
+                 float speed = 1.0f) {
     // Compute the transform from "rotated_target" to "target" frame.
-    Eigen::Isometry3f tf_target_rotated(Eigen::AngleAxisf(
+    Eigen::Isometry3f tf_target_from_rotated_target(Eigen::AngleAxisf(
         rotation_horizontal_.value(), Eigen::Vector3f::UnitZ()));
     Eigen::Vector3f translation_in_target =
-        tf_target_rotated * (translation * speed * radius_);
-    tf__world__target_.translation() += translation_in_target;
+        tf_target_from_rotated_target *
+        (translation_in_world * speed * radius_);
+    tf_world_from_target_.translation() += translation_in_target;
     UpdateWorldCameraPosition();
   }
 
   Eigen::Vector3f GetTargetPosition() const {
-    return tf__world__target_.translation();
+    return tf_world_from_target_.translation();
   }
 
-  const Eigen::Isometry3f tf__world__target() const {
-    return tf__world__target_;
+  const Eigen::Isometry3f tf_world_from_target() const {
+    return tf_world_from_target_;
   }
 
-  const Eigen::Isometry3f& tf__camera__world() const {
-    return tf__camera__world_;
+  const Eigen::Isometry3f& tf_camera_from_world() const {
+    return tf_camera_from_world_;
   }
-  const Eigen::Isometry3f& tf__world__camera() const {
-    return tf__world__camera_;
+  const Eigen::Isometry3f& tf_world_from_camera() const {
+    return tf_world_from_camera_;
   }
 
   Eigen::Matrix4f TfViewportWorld() const {
-    return tf__viewport__gl_camera *
-           (tf__gl_camera__camera_ * tf__camera__world()).matrix();
+    return tf_viewport_from_gl_camera *
+           (tf_gl_camera_from_camera * tf_camera_from_world()).matrix();
   }
 
   Eigen::Vector3f GetCameraPositionInTargetFrame() const {
@@ -143,12 +145,14 @@ class Camera {
       // Make sure cross product is always well-defined.
       z_direction(0) -= 0.00001;
     }
-    Eigen::Vector3f x_direction = z_direction.cross(world_up).normalized();
-    Eigen::Vector3f y_direction = z_direction.cross(x_direction).normalized();
-    tf__world__camera_.linear() << x_direction, y_direction, z_direction;
-    tf__world__camera_.translation() = camera_position;
-    tf__camera__world_ = tf__world__camera_.inverse();
-    return tf__camera__world_;
+    const Eigen::Vector3f x_direction =
+        z_direction.cross(world_up).normalized();
+    const Eigen::Vector3f y_direction =
+        z_direction.cross(x_direction).normalized();
+    tf_world_from_camera_.linear() << x_direction, y_direction, z_direction;
+    tf_world_from_camera_.translation() = camera_position;
+    tf_camera_from_world_ = tf_world_from_camera_.inverse();
+    return tf_camera_from_world_;
   }
 
   void UpdateCameraAngles(const Eigen::Vector3f& world_target,
@@ -165,21 +169,21 @@ class Camera {
 
   void UpdateWorldCameraPosition() {
     Eigen::Vector3f camera_world =
-        tf__world__target_ * GetCameraPositionInTargetFrame();
+        tf_world_from_target_ * GetCameraPositionInTargetFrame();
     // Lookat handles also rotation of the frame from z-up coordinate system to
     // the OpenGL (z-back) coordinate system. No need for explicit
     // transformation.
     LookAtImpl(GetTargetPosition(), camera_world);
   }
 
-  Eigen::Isometry3f tf__world__target_{Eigen::Isometry3f::Identity()};
-  Eigen::Isometry3f tf__world__camera_{Eigen::Isometry3f::Identity()};
-  Eigen::Isometry3f tf__camera__world_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf_world_from_target_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf_world_from_camera_{Eigen::Isometry3f::Identity()};
+  Eigen::Isometry3f tf_camera_from_world_{Eigen::Isometry3f::Identity()};
 
   /// Rotation around x axis by M_PI brings our normal computer vision camera
   // (z - forward from the user, x - right, y - down) to the opengl coordinate
   /// system (z - backwards, towards the user, x - right, y - up).
-  Eigen::Isometry3f tf__gl_camera__camera_{
+  Eigen::Isometry3f tf_gl_camera_from_camera{
       Eigen::AngleAxisf{M_PI, Eigen::Vector3f::UnitX()}};
 
   Eigen::Vector3f camera_pos_in_target_frame_{Eigen::Vector3f::Zero()};
@@ -188,7 +192,7 @@ class Camera {
   units::angle::radian_t rotation_horizontal_{};
   units::angle::radian_t rotation_vertical_{};
 
-  Eigen::Matrix4f tf__viewport__gl_camera =
+  Eigen::Matrix4f tf_viewport_from_gl_camera =
       Camera::Perspective(units::angle::degree_t{45}, 800, 600);
 };
 

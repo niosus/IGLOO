@@ -29,7 +29,7 @@ class Program : public OpenGlObject {
   template <typename T, typename A>
   inline std::size_t SetUniform(const std::string& uniform_name,
                                 const std::vector<T, A>& data) {
-    auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
+    const auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
     uniforms_[uniform_index].UpdateValue(data);
     return uniform_index;
   }
@@ -37,7 +37,7 @@ class Program : public OpenGlObject {
   template <typename... Ts>
   inline std::size_t SetUniform(const std::string& uniform_name,
                                 Ts... numbers) {
-    auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
+    const auto uniform_index{GetUniformIndexOrEmplace(uniform_name)};
     uniforms_[uniform_index].UpdateValue(numbers...);
     return uniform_index;
   }

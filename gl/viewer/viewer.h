@@ -30,11 +30,12 @@ class SceneViewer {
   }
 
   /// Attach a new drawable to a node in the scene graph.
-  inline gl::SceneGraph::Key Attach(gl::SceneGraph::Key parent_key,
-                                    gl::Drawable::SharedPtr drawable,
-                                    const Eigen::Isometry3f& tx_parent_child =
-                                        Eigen::Isometry3f::Identity()) {
-    auto new_key = graph_.Attach(parent_key, drawable, tx_parent_child);
+  inline gl::SceneGraph::Key Attach(
+      gl::SceneGraph::Key parent_key,
+      gl::Drawable::SharedPtr drawable,
+      const Eigen::Isometry3f& tf_parent_from_local =
+          Eigen::Isometry3f::Identity()) {
+    auto new_key = graph_.Attach(parent_key, drawable, tf_parent_from_local);
     return new_key;
   }
 

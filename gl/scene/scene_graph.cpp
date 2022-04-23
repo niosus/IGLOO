@@ -39,16 +39,17 @@ SceneGraph::Key SceneGraph::RegisterBranchKey(Key key) {
   return key;
 }
 
-SceneGraph::Key SceneGraph::Attach(Key parent_key,
-                                   Drawable::SharedPtr drawable,
-                                   const Eigen::Isometry3f& tf__parent__local,
-                                   Key new_key) {
+SceneGraph::Key SceneGraph::Attach(
+    Key parent_key,
+    Drawable::SharedPtr drawable,
+    const Eigen::Isometry3f& tf_parent_from_local,
+    Key new_key) {
   std::lock_guard<decltype(graph_mutex)> guard(graph_mutex);
   CHECK_GT(storage_.count(parent_key), 0u) << "New node must have a parent";
   storage_.emplace(
       new_key,
       std::make_unique<Node>(
-          new_key, parent_key, drawable, tf__parent__local, &storage_));
+          new_key, parent_key, drawable, tf_parent_from_local, &storage_));
   storage_.at(parent_key)->AddChildKey(new_key);
   return new_key;
 }
@@ -68,42 +69,45 @@ void SceneGraph::Draw(Key key) {
 SceneGraph::Node::Node(SceneGraph::Key node_key,
                        SceneGraph::Key parent_key,
                        Drawable::SharedPtr drawable,
-                       const Eigen::Isometry3f& tf__parent__local,
+                       const Eigen::Isometry3f& tf_parent_from_local,
                        SceneGraph::Storage<UniquePtr>* storage)
     : key_{node_key},
       parent_key_{parent_key},
-      tf__parent__local_{tf__parent__local},
+      tf_parent_from_local_{tf_parent_from_local},
       drawable_{drawable},
       storage_{storage} {
   CHECK_NOTNULL(storage_);
 }
 
-void SceneGraph::Node::Draw(const Eigen::Isometry3f& tx_accumulated) const {
+void SceneGraph::Node::Draw(
+    const Eigen::Isometry3f& tf_world_from_parent) const {
   CHECK_NOTNULL(storage_);
-  Eigen::Isometry3f tx_world_local = tx_accumulated * tf__parent__local_;
+  Eigen::Isometry3f tf_world_from_local =
+      tf_world_from_parent * tf_parent_from_local_;
   if (drawable_) {
     if (!drawable_->ready_to_draw()) { drawable_->FillBuffers(); }
-    drawable_->SetModel(tx_world_local.matrix());
+    drawable_->SetModel(tf_world_from_local.matrix());
     drawable_->Draw();
   }
   for (const auto& child_key : children_keys_) {
     DCHECK_GT(storage_->count(child_key), 0u);
     const auto& child = storage_->at(child_key);
-    child->Draw(tx_world_local);
+    child->Draw(tf_world_from_local);
   }
 }
 
-Eigen::Isometry3f SceneGraph::Node::ComputeTxAccumulated() const {
+Eigen::Isometry3f SceneGraph::Node::ComputeTfWorldFromLocal() const {
   CHECK_NOTNULL(storage_);
-  Eigen::Isometry3f tx_accumulated = tf__parent__local_;
+  Eigen::Isometry3f tf_current_parent_from_local = tf_parent_from_local_;
   Key parent_key = parent_key_;
   while (parent_key != kRootKey) {
     DCHECK_GT(storage_->count(parent_key), static_cast<size_t>(0));
     auto& parent_node = storage_->at(parent_key);
-    tx_accumulated = parent_node->tf__parent__local() * tx_accumulated;
+    tf_current_parent_from_local =
+        parent_node->tf_parent_from_local() * tf_current_parent_from_local;
     parent_key = parent_node->parent_key();
   }
-  return tx_accumulated;
+  return tf_current_parent_from_local;
 }
 
 SceneGraph::NodeEraser::NodeEraser(
