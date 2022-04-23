@@ -56,8 +56,18 @@ class SceneViewer {
   void Spin();
 
   const ProgramPool& program_pool() const noexcept { return program_pool_; }
+  ProgramPool& program_pool() noexcept { return program_pool_; }
 
  protected:
+  void Paint();
+
+  /// Update the current position of the camera node from the current position
+  /// of the camera to correctly draw all the nodes attached to it.
+  void UpdateCameraNodePosition();
+
+  /// Called from gui thread, this actually erases drawables from the graph.
+  void EraseScheduledKeys();
+
   /// The underlying viewer.
   glfw::Viewer viewer_;
 
@@ -70,16 +80,8 @@ class SceneViewer {
   /// initialized before using any functionality from it.
   bool opengl_initialized_;
 
+  /// Detect if shift is pressed.
   bool shift_pressed_{};
-
-  void Paint();
-
-  /// Update the current position of the camera node from the current position
-  /// of the camera to correctly draw all the nodes attached to it.
-  void UpdateCameraNodePosition();
-
-  /// Called from gui thread, this actually erases drawables from the graph.
-  void EraseScheduledKeys();
 
   /// An instance of the camera that we are using here.
   gl::Camera camera_;

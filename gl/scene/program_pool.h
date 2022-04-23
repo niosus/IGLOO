@@ -15,68 +15,78 @@
 namespace gl {
 
 /// Container for all available OpenGL programs.
+///
+/// In it intended that all work with programs will happen through this pool.
+/// This way the programs can always know which program is active right now.
 class ProgramPool {
  public:
-  enum class ProgramType {
-    DRAW_POINTS,
-    DRAW_COORDINATE_SYSTEM,
-    DRAW_TEXTURED_RECT,
-    DRAW_TEXT,
-    LAST_PROGRAM
-  };
-
-  using ProgramMap = std::map<ProgramType, std::shared_ptr<Program>>;
+  using ProgramIndex = std::size_t;
 
   ProgramPool() = default;
   ProgramPool(const ProgramPool&) = delete;
-  ProgramPool(ProgramPool&&) = delete;
   ProgramPool& operator=(const ProgramPool&) = delete;
-  ProgramPool& operator=(ProgramPool&&) = delete;
+  ProgramPool(ProgramPool&&) = default;
+  ProgramPool& operator=(ProgramPool&&) = default;
   ~ProgramPool() noexcept = default;
 
-  void Clear() { programs_.clear(); }
-
-  /// Iterate over all types of available programs.
-  std::vector<ProgramType> QueryAvailableProgramTypes() const noexcept;
-
   /// Add a program to the pool.
-  const std::shared_ptr<Program> AddProgram(ProgramType program_type,
-                                            std::shared_ptr<Program> program);
+  [[nodiscard]] ProgramIndex AddProgram(Program&& program);
 
   /// Convenience function to add a program to the pool from shader paths.
-  const std::shared_ptr<Program> AddProgramFromShaders(
-      ProgramType program_type, const std::vector<std::string>& shader_paths);
+  [[nodiscard]] std::optional<ProgramPool::ProgramIndex> AddProgramFromShaders(
+      const std::vector<std::shared_ptr<Shader>>& shader_paths);
 
   /// Remove a program associated to this program type from the pool.
-  bool RemoveProgram(ProgramType program_type);
+  ///
+  /// For now this will just set the appropriate index to empty optional,
+  /// deleting the program. If there is a drawable that uses the program, the
+  /// behavior is undefined.
+  void RemoveProgram(ProgramIndex program_index) noexcept;
 
-  /// Get a program.
-  const std::shared_ptr<Program> GetProgram(
-      ProgramType program_type) const noexcept;
+  /// Use the program.
+  void UseProgram(ProgramIndex program_index) noexcept;
 
-  template <typename T, typename A>
-  inline void SetUniformToAllPrograms(const std::string& uniform_name,
-                                      const std::vector<T, A>& data) {
-    for (auto& kv : programs_) {
-      auto& program_ptr = kv.second;
-      program_ptr->Use();
-      program_ptr->SetUniform(uniform_name, data);
-    }
+  template <typename... Ts>
+  [[nodiscard]] inline std::size_t SetUniformToActiveProgram(
+      const std::string& uniform_name, const Ts&... numbers) {
+    CHECK(active_program_index_.has_value())
+        << "There is no active program. Cannot set uniform.";
+    auto& program = programs_[active_program_index_.value()];
+    return program->SetUniform(uniform_name, numbers...);
+  }
+
+  /// Use this version when the uniform index is already known.
+  template <typename... Ts>
+  inline void UpdateUniformInActiveProgram(std::size_t uniform_index,
+                                           const Ts&... numbers) {
+    CHECK(active_program_index_.has_value())
+        << "There is no active program. Cannot set uniform.";
+    auto& program = programs_[active_program_index_.value()];
+    return program->GetUniform(uniform_index).UpdateValue(numbers...);
   }
 
   template <typename... Ts>
   inline void SetUniformToAllPrograms(const std::string& uniform_name,
-                                      Ts... numbers) {
-    for (auto& kv : programs_) {
-      auto& program_ptr = kv.second;
-      program_ptr->Use();
-      program_ptr->SetUniform(uniform_name, numbers...);
+                                      const Ts&... numbers) {
+    const auto prev_active_program_index = active_program_index_;
+    std::size_t program_index{};
+    for (auto& program : programs_) {
+      UseProgram(program_index++);
+      (void)program->SetUniform(uniform_name, numbers...);
+    }
+    if (prev_active_program_index) {
+      UseProgram(prev_active_program_index.value());
     }
   }
 
+  [[nodiscard]] inline std::optional<ProgramIndex> active_program_index()
+      const noexcept {
+    return active_program_index_;
+  }
+
  private:
-  ProgramMap programs_;
-  const std::shared_ptr<Program> CreateSharedProgram(ProgramType program_type);
+  std::vector<std::optional<Program>> programs_;
+  std::optional<ProgramIndex> active_program_index_;
 };
 
 }  // namespace gl

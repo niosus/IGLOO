@@ -1,7 +1,7 @@
 #include "gl/core/shader.h"
 #include "gtest/gtest.h"
 
-using namespace gl;
+using gl::Shader;
 
 TEST(ShaderTest, Init) {
   auto shader{Shader::CreateFromFile("gl/core/test_shaders/shader.vert")};
@@ -14,9 +14,9 @@ TEST(ShaderTest, Init) {
   EXPECT_TRUE(success);
 }
 
-TEST(ShaderTest, InitWrongPath) {
-  const auto shader{Shader::CreateFromFile("wrong/path.vert")};
-  ASSERT_EQ(shader, nullptr);
+TEST(ShaderDeathTest, InitWrongPath) {
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEATH(Shader::CreateFromFile("wrong/path.vert"), ".*does not exist.");
 }
 
 TEST(ShaderDeathTest, InitWrongSource) {

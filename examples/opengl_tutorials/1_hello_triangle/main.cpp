@@ -43,14 +43,12 @@ int main(int argc, char* argv[]) {
       "opengl_tutorials/1_hello_triangle/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
-  const auto program =
+  auto program =
       gl::Program::CreateFromShaders({vertex_shader, fragment_shader});
   if (!program) {
     std::cerr << "Failed to link program" << std::endl;
     return EXIT_FAILURE;
   }
-
-  auto* color_uniform = program->EmplaceUniform({"ourColor", program->id()});
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.AssignBuffer(
@@ -78,7 +76,7 @@ int main(int argc, char* argv[]) {
 
     program->Use();
     float green_value = (sin(viewer.GetTime() * 3.0f) / 2.0f) + 0.5f;
-    color_uniform->UpdateValue(0.0f, green_value, 0.0f);
+    (void)program->SetUniform("ourColor", 0.0f, green_value, 0.0f);
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();

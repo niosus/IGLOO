@@ -31,8 +31,8 @@ class Drawable {
 
   enum class Style { DRAW_2D, DRAW_3D };
 
-  explicit Drawable(const ProgramPool& program_pool,
-                    const ProgramPool::ProgramType& program_type,
+  explicit Drawable(ProgramPool* program_pool,
+                    ProgramPool::ProgramIndex program_index,
                     Style style,
                     GLenum mode = GL_NONE,
                     float point_size = FLAGS_drawable_point_size.Get(),
@@ -56,19 +56,23 @@ class Drawable {
   /// drawing this drawable.
   void Draw();
 
+  // TODO(igor): this somehow smells bad. Do I need this function? What do I
+  // need it for?
   inline void SetModel(const Eigen::Matrix4f& model) const {
-    CHECK(program_);
+    CHECK(program_index_);
     CHECK_GT(model_uniform_index_, 0UL);
-    program_->Use();
-    program_->GetUniform(model_uniform_index_).UpdateValue(model);
+    program_pool_->UseProgram(program_index_.value());
+    program_pool_->UpdateUniformInActiveProgram(model_uniform_index_, model);
   }
 
   /// Return if this is a 2D or a 3D drawable.
   inline Style draw_style() const { return draw_style_; }
 
  protected:
+  // A program pool to be used when filling buffers or drawing.
+  ProgramPool* program_pool_{nullptr};
   /// Every drawable shares ownership over the OpenGL program it uses.
-  std::shared_ptr<Program> program_{nullptr};
+  std::optional<ProgramPool::ProgramIndex> program_index_{};
 
   /// Model matrix that defines where this drawable is situated in the world.
   std::size_t model_uniform_index_{};

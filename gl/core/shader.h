@@ -6,6 +6,7 @@
 #include "gl/core/opengl_object.h"
 #include "glog/logging.h"
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -26,7 +27,12 @@ class Shader : public OpenGlObject {
   Shader(Shader&& other) = delete;
   Shader& operator=(Shader&& other) = delete;
 
-  static std::unique_ptr<Shader> CreateFromFile(const std::string& file_name);
+  static std::unique_ptr<Shader> CreateFromFile(
+      const std::filesystem::path& file_name);
+
+  static std::vector<std::shared_ptr<Shader>> CreateFromFiles(
+      const std::vector<std::filesystem::path>& file_names);
+
   inline Shader::Type type() const { return type_; }
 
   ~Shader() { glDeleteShader(id_); }

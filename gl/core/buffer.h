@@ -10,6 +10,7 @@
 
 namespace gl {
 
+// TODO(igor): probably replace the globject with traits.
 class Buffer : public OpenGlObject {
  public:
   enum class Type : GLenum {
@@ -23,9 +24,7 @@ class Buffer : public OpenGlObject {
   };
 
   Buffer(Buffer::Type type, Buffer::Usage usage)
-      : OpenGlObject{0},
-        type_{static_cast<GLenum>(type)},
-        usage_{static_cast<GLenum>(usage)} {
+      : type_{static_cast<GLenum>(type)}, usage_{static_cast<GLenum>(usage)} {
     glGenBuffers(1, &id_);
   }
 
@@ -64,7 +63,7 @@ class Buffer : public OpenGlObject {
   }
 
   ~Buffer() {
-    if (id_ < 1u) { return; }
+    if (!id_) { return; }
     // If the id is valid, then we have things to unbind.
     UnBind();
     glDeleteBuffers(1, &id_);

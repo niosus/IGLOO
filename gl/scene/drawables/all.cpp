@@ -11,26 +11,29 @@
 
 namespace gl {
 
-Points::Points(const ProgramPool& program_pool,
+Points::Points(ProgramPool* program_pool,
+               ProgramPool::ProgramIndex program_index,
                const eigen::vector<Eigen::Vector3f>& points,
                const Eigen::Vector3f& color,
                float point_size,
                GLenum gl_mode)
     : Points{program_pool,
+             program_index,
              points,
              std::vector<float>(points.size(), 1.0f),
              color,
              point_size,
              gl_mode} {}
 
-Points::Points(const ProgramPool& program_pool,
+Points::Points(ProgramPool* program_pool,
+               ProgramPool::ProgramIndex program_index,
                const eigen::vector<Eigen::Vector3f>& points,
                const std::vector<float>& intensities,
                const Eigen::Vector3f& color,
                float point_size,
                GLenum gl_mode)
     : Drawable{program_pool,
-               ProgramPool::ProgramType::DRAW_POINTS,
+               program_index,
                Style::DRAW_3D,
                gl_mode,
                point_size,
@@ -39,7 +42,8 @@ Points::Points(const ProgramPool& program_pool,
       intensities_{intensities} {}
 
 void Points::FillBuffers() {
-  CHECK(program_) << "Cannot fill buffers without an active program.";
+  CHECK(program_pool_) << "Cannot fill buffers without a program pool.";
+  CHECK(program_index_) << "Cannot fill buffers without an active program.";
   CHECK_EQ(points_.size(), intensities_.size());
 
   vao_ = std::make_unique<VertexArrayBuffer>();
@@ -53,29 +57,31 @@ void Points::FillBuffers() {
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    intensities_));
-  program_->Use();
-  color_uniform_index_ = program_->SetUniform("color", color_);
-  model_uniform_index_ =
-      program_->SetUniform("model", Eigen::Matrix4f::Identity());
-  projection_view_uniform_index_ =
-      program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
+  program_pool_->UseProgram(program_index_.value());
+  color_uniform_index_ =
+      program_pool_->SetUniformToActiveProgram("color", color_);
+  model_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "proj_view", Eigen::Matrix4f::Identity());
   ready_to_draw_ = true;
 }
 
-Lines::Lines(const ProgramPool& program_pool,
+Lines::Lines(ProgramPool* program_pool,
+             ProgramPool::ProgramIndex program_index,
              const eigen::vector<Eigen::Vector3f>& points,
              const Eigen::Vector3f& color,
              float line_width)
-    : Points{program_pool, points, color, line_width, GL_LINES} {}
+    : Points{program_pool, program_index, points, color, line_width, GL_LINES} {
+}
 
-CoordinateSystem::CoordinateSystem(const ProgramPool& program_pool)
-    : Drawable(program_pool,
-               ProgramPool::ProgramType::DRAW_COORDINATE_SYSTEM,
-               Style::DRAW_3D,
-               GL_POINTS) {}
+CoordinateSystem::CoordinateSystem(ProgramPool* program_pool,
+                                   ProgramPool::ProgramIndex program_index)
+    : Drawable(program_pool, program_index, Style::DRAW_3D, GL_POINTS) {}
 
 void CoordinateSystem::FillBuffers() {
-  CHECK(program_) << "Cannot fill buffers without an active program.";
+  CHECK(program_pool_) << "Cannot fill buffers without a program pool.";
+  CHECK(program_index_) << "Cannot fill buffers without an active program.";
   std::vector<Eigen::Vector4f> points{{0, 0, 0, 1}};
 
   vao_ = std::make_unique<VertexArrayBuffer>();
@@ -84,11 +90,11 @@ void CoordinateSystem::FillBuffers() {
       std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
                                    gl::Buffer::Usage::kStaticDraw,
                                    points));
-  program_->Use();
-  model_uniform_index_ =
-      program_->SetUniform("model", Eigen::Matrix4f::Identity());
-  projection_view_uniform_index_ =
-      program_->SetUniform("proj_view", Eigen::Matrix4f::Identity());
+  program_pool_->UseProgram(program_index_.value());
+  model_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "proj_view", Eigen::Matrix4f::Identity());
   ready_to_draw_ = true;
 }
 

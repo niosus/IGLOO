@@ -17,14 +17,14 @@ class UniformTest : public ::testing::Test {
         Shader::CreateFromFile("gl/core/test_shaders/shader.frag")};
     ASSERT_NE(fragment_shader, nullptr);
     program_ = Program::CreateFromShaders({vertex_shader, fragment_shader});
-    ASSERT_NE(program_, nullptr);
+    ASSERT_TRUE(program_.has_value());
     int success{};
     glGetProgramiv(program_->id(), GL_LINK_STATUS, &success);
     ASSERT_TRUE(success);
     program_->Use();
   }
 
-  std::shared_ptr<Program> program_{};
+  std::optional<Program> program_{};
 };
 
 TEST_F(UniformTest, Init) {

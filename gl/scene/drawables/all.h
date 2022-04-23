@@ -15,12 +15,14 @@ namespace gl {
 /// A class that is responsible for drawing points.
 class Points : public Drawable {
  public:
-  explicit Points(const ProgramPool& program_pool,
+  explicit Points(ProgramPool* program_pool,
+                  ProgramPool::ProgramIndex program_index,
                   const eigen::vector<Eigen::Vector3f>& points,
                   const Eigen::Vector3f& color = {1.0f, 1.0f, 1.0f},
                   float point_size = 3.0f,
                   GLenum gl_mode = GL_POINTS);
-  explicit Points(const ProgramPool& program_pool,
+  explicit Points(ProgramPool* program_pool,
+                  ProgramPool::ProgramIndex program_index,
                   const eigen::vector<Eigen::Vector3f>& points,
                   const std::vector<float>& intensities,
                   const Eigen::Vector3f& color = {1.0f, 1.0f, 1.0f},
@@ -37,7 +39,8 @@ class Points : public Drawable {
 class Lines : public Points {
  public:
   /// Draw lines between non-intersecting sequential pairs of points.
-  explicit Lines(const ProgramPool& program_pool,
+  explicit Lines(ProgramPool* program_pool,
+                 ProgramPool::ProgramIndex program_index,
                  const eigen::vector<Eigen::Vector3f>& points,
                  const Eigen::Vector3f& color = {1.0f, 1.0f, 1.0f},
                  float line_width = 2.0f);
@@ -46,7 +49,8 @@ class Lines : public Points {
 /// Draw a coordinate system.
 class CoordinateSystem : public Drawable {
  public:
-  CoordinateSystem(const ProgramPool& program_pool);
+  CoordinateSystem(ProgramPool* program_pool,
+                   ProgramPool::ProgramIndex program_index);
   void FillBuffers() override;
 };
 
