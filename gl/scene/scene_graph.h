@@ -43,7 +43,7 @@ class SceneGraph {
   /// child to parent.
   Key Attach(Key parent_key,
              Drawable::SharedPtr drawable,
-             const Eigen::Isometry3f& tf__parent__local =
+             const Eigen::Isometry3f& tf_parent_from_local =
                  Eigen::Isometry3f::Identity(),
              Key new_key = SceneGraph::GenerateNextKey());
 
@@ -76,7 +76,7 @@ class SceneGraph {
     Node(Key node_key,
          Key parent_key,
          Drawable::SharedPtr drawable,
-         const Eigen::Isometry3f& tf__parent__local_,
+         const Eigen::Isometry3f& tf_parent_from_local_,
          SceneGraph::Storage<UniquePtr>* storage);
 
     /// Add a child key to the node.
@@ -87,16 +87,16 @@ class SceneGraph {
     inline void ClearChildKeys() noexcept { children_keys_.clear(); }
 
     /// Draw this node at the correct position in the world.
-    void Draw(const Eigen::Isometry3f& tx_accumulated =
+    void Draw(const Eigen::Isometry3f& tf_world_from_parent =
                   Eigen::Isometry3f::Identity()) const;
-    Eigen::Isometry3f ComputeTxAccumulated() const;
+    Eigen::Isometry3f ComputeTfWorldFromLocal() const;
 
     Key key() const { return key_; }
     Key parent_key() const { return parent_key_; }
 
-    Eigen::Isometry3f& tf__parent__local() { return tf__parent__local_; }
-    const Eigen::Isometry3f& tf__parent__local() const {
-      return tf__parent__local_;
+    Eigen::Isometry3f& tf_parent_from_local() { return tf_parent_from_local_; }
+    const Eigen::Isometry3f& tf_parent_from_local() const {
+      return tf_parent_from_local_;
     }
 
     const std::set<Key>& children_keys() const { return children_keys_; }
@@ -112,7 +112,7 @@ class SceneGraph {
     std::set<Key> children_keys_{};
 
     /// Relative transformation from this coordinate frame to parent's one.
-    Eigen::Isometry3f tf__parent__local_{};
+    Eigen::Isometry3f tf_parent_from_local_{};
 
     /// Every node is storing a drawable.
     Drawable::SharedPtr drawable_{};

@@ -25,6 +25,7 @@
 		[
 			"*gcc*"
 		],
+		"ecc_verbose": true,
 		"ecc_lang_flags":
 		{
 			"C":
