@@ -13,13 +13,14 @@ ABSL_FLAG(float, drawable_point_size, 3.0f, "Default size of the points.");
 
 namespace gl {
 
-Drawable::Drawable(const ProgramPool& program_pool,
-                   const ProgramPool::ProgramType& program_type,
+Drawable::Drawable(ProgramPool* program_pool,
+                   ProgramPool::ProgramIndex program_index,
                    Style style,
                    GLenum mode,
                    float point_size,
                    const Eigen::Vector3f& color)
-    : program_{program_pool.GetProgram(program_type)},
+    : program_pool_{program_pool},
+      program_index_{program_index},
       draw_style_{style},
       mode_{mode},
       point_size_{point_size},
@@ -27,11 +28,12 @@ Drawable::Drawable(const ProgramPool& program_pool,
 
 void Drawable::Draw() {
   CHECK(vao_) << "Need a VAO to draw.";
-  CHECK(program_) << "Need a Program to draw.";
+  CHECK(program_pool_) << "Need a program pool to draw.";
+  CHECK(program_index_) << "Need a program index to draw.";
 
-  program_->Use();
+  program_pool_->UseProgram(program_index_.value());
   if (color_uniform_index_) {
-    program_->GetUniform(color_uniform_index_).UpdateValue(color_);
+    program_pool_->UpdateUniformInActiveProgram(color_uniform_index_, color_);
   }
 
   if (texture_) { texture_->Bind(); }

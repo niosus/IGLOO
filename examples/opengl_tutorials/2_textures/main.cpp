@@ -78,20 +78,20 @@ int main(int argc, char* argv[]) {
   CHECK(vertex_shader) << "Could not create vertex shader.";
   CHECK(fragment_shader) << "Could not create fragment shader.";
 
-  const auto program =
+  auto program =
       gl::Program::CreateFromShaders({vertex_shader, fragment_shader});
   CHECK(program) << "Failed to link program.";
 
   program->Use();
-  program->SetUniform("texture1", 0);
-  program->SetUniform("texture2", 1);
+  (void)program->SetUniform("texture1", 0);
+  (void)program->SetUniform("texture2", 1);
 
   float mixture = 0.0f;
-  program->SetUniform("mix_ratio", mixture);
+  (void)program->SetUniform("mix_ratio", mixture);
 
   Eigen::Affine3f transform{
       Eigen::AngleAxisf{mixture, Eigen::Vector3f::UnitZ()}};
-  program->SetUniform("transform", transform.matrix());
+  (void)program->SetUniform("transform", transform.matrix());
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.EnableVertexAttributePointer(
@@ -123,8 +123,8 @@ int main(int argc, char* argv[]) {
     }
     Eigen::Affine3f transform{
         Eigen::AngleAxisf{mixture, Eigen::Vector3f{0, 0, 1}}};
-    program->SetUniform("transform", transform.matrix());
-    program->SetUniform("mix_ratio", mixture);
+    (void)program->SetUniform("transform", transform.matrix());
+    (void)program->SetUniform("mix_ratio", mixture);
   };
 
   viewer.user_input_handler().RegisterKeyboardCallback(on_key_press);

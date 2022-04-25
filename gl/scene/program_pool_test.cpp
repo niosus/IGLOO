@@ -5,16 +5,21 @@
 #include "gl/scene/program_pool.h"
 #include "gtest/gtest.h"
 
-using namespace gl;
+using gl::ProgramPool;
+using gl::Shader;
 
 TEST(ProgramPoolTest, Simple) {
   ProgramPool pool{};
-  const auto& program{pool.AddProgramFromShaders(
-      ProgramPool::ProgramType::DRAW_POINTS,
-      {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"})};
-  ASSERT_NE(program.get(), nullptr);
-  const auto& same_program{
-      pool.GetProgram(ProgramPool::ProgramType::DRAW_POINTS)};
-  ASSERT_EQ(program.get(), same_program.get());
-  pool.Clear();
+  const auto points_program_index{
+      pool.AddProgramFromShaders(Shader::CreateFromFiles(
+          {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"}))};
+  ASSERT_TRUE(points_program_index.has_value());
+  ASSERT_EQ(points_program_index.value(), 0UL);
+  const auto another_points_program_index{
+      pool.AddProgramFromShaders(Shader::CreateFromFiles(
+          {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"}))};
+  ASSERT_TRUE(another_points_program_index.has_value());
+  ASSERT_EQ(another_points_program_index.value(), 1UL);
 }
+
+// TODO(igor): add more tests here

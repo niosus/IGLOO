@@ -85,24 +85,24 @@ int main(int argc, char* argv[]) {
       "examples/opengl_tutorials/3_camera/shaders/triangle.frag")};
   if (!vertex_shader || !fragment_shader) { exit(EXIT_FAILURE); }
 
-  const auto program =
+  auto program =
       gl::Program::CreateFromShaders({vertex_shader, fragment_shader});
   if (!program) {
     std::cerr << "Failed to link program" << std::endl;
     return EXIT_FAILURE;
   }
   program->Use();
-  program->SetUniform("texture1", 0);
-  program->SetUniform("texture2", 1);
+  (void)program->SetUniform("texture1", 0);
+  (void)program->SetUniform("texture2", 1);
 
   float mixture = 0.5f;
-  program->SetUniform("mix_ratio", mixture);
+  (void)program->SetUniform("mix_ratio", mixture);
 
   gl::Camera camera{};
 
   Eigen::Matrix4f perspective = camera.Perspective(
       45_deg, viewer.window_size().width, viewer.window_size().height);
-  program->SetUniform("projection", perspective);
+  (void)program->SetUniform("projection", perspective);
 
   gl::VertexArrayBuffer vertex_array_buffer{};
   vertex_array_buffer.EnableVertexAttributePointer(
@@ -166,11 +166,11 @@ int main(int argc, char* argv[]) {
     texture_1->Bind();
     texture_2->Bind();
 
-    program->SetUniform(
+    (void)program->SetUniform(
         "view",
         (tf_gl_camera_from_camera * camera.tf_camera_from_world()).matrix());
     Eigen::Affine3f model{Eigen::AngleAxisf{0.0f, Eigen::Vector3f::UnitX()}};
-    program->SetUniform("model", model.matrix());
+    (void)program->SetUniform("model", model.matrix());
 
     vertex_array_buffer.Draw(GL_TRIANGLES);
     viewer.Spin();

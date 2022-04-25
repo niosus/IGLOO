@@ -9,22 +9,22 @@
 using gl::Drawable;
 using gl::ProgramPool;
 using gl::SceneGraph;
+using gl::Shader;
 
 class SceneGraphTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    program_pool_.AddProgramFromShaders(
-        ProgramPool::ProgramType::DRAW_POINTS,
-        {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"});
-    default_drawable_ =
-        std::make_shared<Drawable>(program_pool_,
-                                   ProgramPool::ProgramType::DRAW_POINTS,
-                                   Drawable::Style::DRAW_3D);
+    const auto points_program_index =
+        program_pool_.AddProgramFromShaders(Shader::CreateFromFiles(
+            {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"}));
+    CHECK(points_program_index) << "Could not create program from shaders";
+    points_program_index_ = points_program_index.value();
+    default_drawable_ = std::make_shared<Drawable>(
+        &program_pool_, points_program_index_, Drawable::Style::DRAW_3D);
   }
 
-  void TearDown() override { program_pool_.Clear(); }
-
   ProgramPool program_pool_{};
+  ProgramPool::ProgramIndex points_program_index_{};
   std::shared_ptr<Drawable> default_drawable_{nullptr};
 };
 
@@ -42,9 +42,8 @@ TEST_F(SceneGraphTest, ForgetInit) {
   EXPECT_DEATH(
       graph.SceneGraph::Attach(
           world_key,
-          std::make_shared<Drawable>(program_pool_,
-                                     ProgramPool::ProgramType::DRAW_POINTS,
-                                     Drawable::Style::DRAW_3D)),
+          std::make_shared<Drawable>(
+              &program_pool_, points_program_index_, Drawable::Style::DRAW_3D)),
       "New node must have a parent");
 }
 
@@ -59,10 +58,8 @@ TEST_F(SceneGraphTest, StoringMoreDrawables) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1);  // This has a world drawable that points to base.
-  auto other_drawable =
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D);
+  auto other_drawable = std::make_shared<Drawable>(
+      &program_pool_, points_program_index_, Drawable::Style::DRAW_3D);
   auto key_1 = graph.Attach(world_key, default_drawable_);
   auto key_2 = graph.Attach(world_key, other_drawable);
   EXPECT_EQ(graph.size(), 3u);
@@ -73,10 +70,8 @@ TEST_F(SceneGraphTest, StoringMoreDrawables) {
 TEST_F(SceneGraphTest, Transform) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
-  auto other_drawable =
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D);
+  auto other_drawable = std::make_shared<Drawable>(
+      &program_pool_, points_program_index_, Drawable::Style::DRAW_3D);
   auto key_1 = graph.Attach(world_key, default_drawable_);
   Eigen::Isometry3f test_transform = Eigen::Isometry3f::Identity();
   test_transform.translation() = Eigen::Vector3f{1, 1, 1};
@@ -162,19 +157,16 @@ TEST_F(SceneGraphTest, ChainedErase) {
   EXPECT_EQ(graph.size(), 1);
   auto key_1 = graph.Attach(
       world_key,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   auto key_2 = graph.Attach(
       key_1,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   auto key_3 = graph.Attach(
       key_2,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
   EXPECT_TRUE(graph.HasNode(key_3));
@@ -189,24 +181,20 @@ TEST_F(SceneGraphTest, BroadErase) {
   EXPECT_EQ(graph.size(), 1u);
   auto key_1 = graph.Attach(
       world_key,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   auto key_2 = graph.Attach(
       key_1,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   auto key_3 = graph.Attach(
       key_1,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   auto key_4 = graph.Attach(
       key_2,
-      std::make_shared<Drawable>(program_pool_,
-                                 ProgramPool::ProgramType::DRAW_POINTS,
-                                 Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(
+          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
   EXPECT_TRUE(graph.HasNode(key_3));

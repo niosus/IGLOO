@@ -20,11 +20,11 @@ Uniform* Program::EmplaceUniform(Uniform&& uniform) {
   return &uniforms_.emplace_back(std::forward<Uniform>(uniform));
 }
 
-std::unique_ptr<Program> Program::CreateFromShaders(
+std::optional<Program> Program::CreateFromShaders(
     const std::vector<std::shared_ptr<Shader>>& shaders) {
-  auto program{std::make_unique<Program>()};
-  program->AttachShaders(shaders);
-  if (!program->Link()) { return nullptr; }
+  Program program;
+  program.AttachShaders(shaders);
+  if (!program.Link()) { return {}; }
   return program;
 }
 
