@@ -56,6 +56,9 @@ class Drawable {
   /// drawing this drawable.
   void Draw();
 
+  /// Change the color of this drawable if it supports color.
+  void ChangeColor(const Eigen::Vector3f& color) noexcept;
+
   // TODO(igor): this somehow smells bad. Do I need this function? What do I
   // need it for?
   inline void SetModel(const Eigen::Matrix4f& model) const {
