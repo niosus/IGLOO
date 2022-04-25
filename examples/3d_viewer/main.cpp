@@ -47,18 +47,49 @@ int main(int argc, char* argv[]) {
 
   auto cloud_ptr =
       PointCloud::FromFile("examples/3d_viewer/utils/test_data/cloud.txt");
+  CHECK(cloud_ptr);
 
-  auto points_drawable =
+  const auto image_face = Image::CreateFrom(
+      "examples/3d_viewer/utils/test_data/textures/awesomeface.png", true);
+  CHECK(image_face);
+  const std::shared_ptr<gl::Texture> texture_face =
+      gl::Texture::Builder{gl::Texture::Type::kTexture2D,
+                           gl::Texture::Identifier::kTexture0}
+          .WithSaneDefaults()
+          .WithImage(*image_face)
+          .Build();
+
+  const auto points_drawable =
       std::make_shared<gl::Points>(&viewer.program_pool(),
                                    draw_points_program_index.value(),
                                    cloud_ptr->points(),
                                    cloud_ptr->intensities());
 
-  auto camera_center_drawable = std::make_shared<gl::CoordinateSystem>(
+  const auto camera_center_drawable = std::make_shared<gl::CoordinateSystem>(
       &viewer.program_pool(), draw_coordinate_system_program_index.value());
+
+  const auto texture_3d_drawable = std::make_shared<gl::RectWithTexture>(
+      &viewer.program_pool(),
+      draw_textured_rect_program_index.value(),
+      texture_face,
+      Eigen::Vector2f{1.0F, 1.0F});
 
   viewer.Attach(viewer.world_key(), points_drawable);
   viewer.Attach(viewer.camera_key(), camera_center_drawable);
+  viewer.Attach(
+      viewer.world_key(),
+      texture_3d_drawable,
+      Eigen::Translation3f{5.0F, 0.0F, 0.0F} *
+          Eigen::AngleAxisf(0.0F, Eigen::Vector3f::UnitX()) *
+          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitY()) *
+          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitZ()));
+  viewer.Attach(
+      viewer.world_key(),
+      texture_3d_drawable,
+      Eigen::Translation3f{-1.0F, -1.0F, 2.0F} *
+          Eigen::AngleAxisf(0.0F, Eigen::Vector3f::UnitX()) *
+          Eigen::AngleAxisf(0.0, Eigen::Vector3f::UnitY()) *
+          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitZ()));
 
   viewer.camera().LookAt({0.0f, 0.0f, 0.0f}, {-10.0f, 0.0f, 3.0f});
 

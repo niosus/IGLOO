@@ -9,6 +9,7 @@
 
 #include "gl/scene/drawables/drawable.h"
 #include "utils/eigen_utils.h"
+#include "utils/image.h"
 
 namespace gl {
 
@@ -54,26 +55,18 @@ class CoordinateSystem : public Drawable {
   void FillBuffers() override;
 };
 
-// /// Draw a rectangle with a texture attached to it.
-// class RectWithTexture : public Drawable {
-//  public:
-//   RectWithTexture(const cv::Mat& data,
-//                   const glow::vec3& bottom_left,
-//                   const glow::vec2& size,
-//                   Style draw_style);
-//   RectWithTexture(const cv::Mat& data,
-//                   const glow::vec3& bottom_left,
-//                   const glow::vec2& size = {5.0f, 5.0f});
-//   RectWithTexture(const cv::Mat& data,
-//                   const glow::vec2& bottom_left = {-1.f, -1.f},
-//                   const glow::vec2& size = {2.0f, 2.0f});
-//   void FillBuffers() override;
+/// Draw a rectangle with a texture attached to it.
+class RectWithTexture : public Drawable {
+ public:
+  RectWithTexture(ProgramPool* program_pool,
+                  ProgramPool::ProgramIndex program_index,
+                  std::shared_ptr<gl::Texture> texture,
+                  const Eigen::Vector2f& size = {5.0f, 5.0f});
+  void FillBuffers() override;
 
-//  private:
-//   cv::Mat data_;
-//   glow::vec3 bottom_left_;
-//   glow::vec2 size_;
-// };
+ private:
+  Eigen::Vector2f size_;
+};
 
 // /// Draw text.
 // class Text : public Drawable {

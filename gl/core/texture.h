@@ -34,7 +34,7 @@ class Texture : public OpenGlObject {
   };
 
   Texture(Type type, Identifier identifier)
-      : OpenGlObject{}, texture_type_{type}, texture_identifier_{identifier} {
+      : texture_type_{type}, texture_identifier_{identifier} {
     glGenTextures(1, &id_);
   }
 

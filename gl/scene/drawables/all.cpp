@@ -32,12 +32,7 @@ Points::Points(ProgramPool* program_pool,
                const Eigen::Vector3f& color,
                float point_size,
                GLenum gl_mode)
-    : Drawable{program_pool,
-               program_index,
-               Style::DRAW_3D,
-               gl_mode,
-               point_size,
-               color},
+    : Drawable{program_pool, program_index, gl_mode, point_size, color},
       points_{points},
       intensities_{intensities} {}
 
@@ -77,7 +72,7 @@ Lines::Lines(ProgramPool* program_pool,
 
 CoordinateSystem::CoordinateSystem(ProgramPool* program_pool,
                                    ProgramPool::ProgramIndex program_index)
-    : Drawable(program_pool, program_index, Style::DRAW_3D, GL_POINTS) {}
+    : Drawable(program_pool, program_index, GL_POINTS) {}
 
 void CoordinateSystem::FillBuffers() {
   CHECK(program_pool_) << "Cannot fill buffers without a program pool.";
@@ -98,84 +93,34 @@ void CoordinateSystem::FillBuffers() {
   ready_to_draw_ = true;
 }
 
-// RectWithTexture::RectWithTexture(const cv::Mat& data,
-//                                  const vec3& bottom_left,
-//                                  const vec2& size,
-//                                  Style draw_style)
-//     : Drawable{draw_style, GL_POINTS},
-//       data_{data},
-//       bottom_left_{bottom_left},
-//       size_{size} {}
+RectWithTexture::RectWithTexture(ProgramPool* program_pool,
+                                 ProgramPool::ProgramIndex program_index,
+                                 std::shared_ptr<gl::Texture> texture,
+                                 const Eigen::Vector2f& size)
+    : Drawable{program_pool, program_index, GL_POINTS}, size_{size} {
+  texture_ = texture;
+}
 
-// RectWithTexture::RectWithTexture(const cv::Mat& data,
-//                                  const vec3& bottom_left,
-//                                  const vec2& size)
-//     : RectWithTexture(data, bottom_left, size, Style::DRAW_3D) {}
+void RectWithTexture::FillBuffers() {
+  CHECK(program_pool_) << "Cannot fill buffers without a program pool.";
+  CHECK(program_index_) << "Cannot fill buffers without an active program.";
 
-// RectWithTexture::RectWithTexture(const cv::Mat& data,
-//                                  const vec2& bottom_left,
-//                                  const vec2& size)
-//     : RectWithTexture(
-//           data, {bottom_left.x, bottom_left.y, -1.0f}, size, Style::DRAW_2D)
-//           {
-//   CHECK_LE(bottom_left.x + size.x, 1.0) << "Drawing outside of viewport.";
-//   CHECK_LE(bottom_left.y + size.y, 1.0) << "Drawing outside of viewport.";
-//   CHECK_GE(bottom_left.x, -1.0) << "Drawing outside of viewport.";
-//   CHECK_GE(bottom_left.y, -1.0) << "Drawing outside of viewport.";
-// }
+  const std::vector<Eigen::Vector3f> raw = {{0.0F, 0.0F, 0.0F}};
+  vao_ = std::make_unique<VertexArrayBuffer>();
+  vao_->EnableVertexAttributePointer(
+      0,
+      std::make_shared<gl::Buffer>(
+          gl::Buffer::Type::kArrayBuffer, gl::Buffer::Usage::kStaticDraw, raw));
 
-// void RectWithTexture::FillBuffers() {
-//   program_ = ProgramPool::Get(ProgramPool::ProgramType::DRAW_TEXTURED_RECT);
-
-//   cv::Mat flipped;
-//   cv::flip(data_, flipped, 0);
-
-//   auto pixel_type = glow::PixelType::UNSIGNED_BYTE;
-
-//   auto cv_depth = flipped.depth();
-//   if (cv_depth == CV_8U) {
-//     pixel_type = glow::PixelType::UNSIGNED_BYTE;
-//   } else if (cv_depth == CV_32F) {
-//     pixel_type = glow::PixelType::FLOAT;
-//   } else {
-//     LOG(FATAL) << "Unexpected type of image.";
-//   }
-
-//   auto texture_format = glow::TextureFormat::RGB;
-//   auto pixel_format = glow::PixelFormat::BRG;
-//   int num_channels = flipped.channels();
-//   if (num_channels == 1) {
-//     texture_format = glow::TextureFormat::R;
-//     pixel_format = glow::PixelFormat::R;
-//   } else if (num_channels == 3) {
-//     texture_format = glow::TextureFormat::RGB;
-//     pixel_format = glow::PixelFormat::BRG;
-//   } else if (num_channels == 4) {
-//     texture_format = glow::TextureFormat::RGBA;
-//     pixel_format = glow::PixelFormat::BGRA;
-//   } else {
-//     LOG(FATAL) << "Unexpected number of channels.";
-//   }
-
-//   texture_ =
-//       make_unique<glow::GlTexture>(data_.cols, data_.rows, texture_format);
-//   texture_->assign(pixel_format, pixel_type, flipped.data);
-
-//   const std::vector<vec3> raw = {bottom_left_};
-//   num_points_ = raw.size();
-
-//   vao_ = make_unique<GlVertexArray>();
-//   vao_->bind();
-//   SetVertexAttribute(0, raw, vao_.get());
-//   vao_->release();
-
-//   sampler_index_ = 0;
-//   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<int>>("source", sampler_index_));
-//   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<vec2>>("rect_size", size_));
-//   ready_to_draw_ = true;
-// }
+  program_pool_->UseProgram(program_index_.value());
+  (void)program_pool_->SetUniformToActiveProgram("source", 0);
+  (void)program_pool_->SetUniformToActiveProgram("rect_size", size_);
+  model_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "proj_view", Eigen::Matrix4f::Identity());
+  ready_to_draw_ = true;
+}
 
 // Text::Text(const std::string& text,
 //            const std::string& font_name,

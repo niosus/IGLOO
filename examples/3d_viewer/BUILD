@@ -44,6 +44,5 @@ cc_binary(
 
 filegroup(
     name = "test_data",
-    srcs = glob(["utils/test_data/*"]),
+    srcs = glob(["utils/test_data/**/*"]),
 )
-

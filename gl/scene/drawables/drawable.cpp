@@ -15,13 +15,11 @@ namespace gl {
 
 Drawable::Drawable(ProgramPool* program_pool,
                    ProgramPool::ProgramIndex program_index,
-                   Style style,
                    GLenum mode,
                    float point_size,
                    const Eigen::Vector3f& color)
     : program_pool_{program_pool},
       program_index_{program_index},
-      draw_style_{style},
       mode_{mode},
       point_size_{point_size},
       color_{color} {}
@@ -32,7 +30,6 @@ void Drawable::Draw() {
   CHECK(program_index_) << "Need a program index to draw.";
 
   program_pool_->UseProgram(program_index_.value());
-
   if (texture_) { texture_->Bind(); }
 
   vao_->Draw(mode_);

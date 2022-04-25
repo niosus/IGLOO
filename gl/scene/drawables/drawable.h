@@ -33,7 +33,6 @@ class Drawable {
 
   explicit Drawable(ProgramPool* program_pool,
                     ProgramPool::ProgramIndex program_index,
-                    Style style,
                     GLenum mode = GL_NONE,
                     float point_size = FLAGS_drawable_point_size.Get(),
                     const Eigen::Vector3f& color = Eigen::Vector3f::Ones());
@@ -68,9 +67,6 @@ class Drawable {
     program_pool_->UpdateUniformInActiveProgram(model_uniform_index_, model);
   }
 
-  /// Return if this is a 2D or a 3D drawable.
-  inline Style draw_style() const { return draw_style_; }
-
  protected:
   // A program pool to be used when filling buffers or drawing.
   ProgramPool* program_pool_{nullptr};
@@ -84,14 +80,11 @@ class Drawable {
   /// A uniform to set color to the points.
   std::size_t color_uniform_index_{};
 
-  /// Which is the draw style of this drawable.
-  Style draw_style_{};
-
   /// This maps to the OpenGL modes, e.g. GL_TRIANGLES.
   GLenum mode_{GL_NONE};
 
-  /// A drawable owns a texture that it draws.
-  std::unique_ptr<Texture> texture_{nullptr};
+  /// A drawable can share a texture that it draws.
+  std::shared_ptr<Texture> texture_{nullptr};
   /// A drawable owns a vertex array object.
   std::unique_ptr<VertexArrayBuffer> vao_{nullptr};
 

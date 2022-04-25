@@ -6,15 +6,17 @@
 #include "utils/file_utils.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
 
 namespace utils {
 
 class Image {
  public:
-  static absl::optional<Image> CreateFrom(const std::string& path,
-                                          bool flip_vertically = false) {
+  static std::optional<Image> CreateFrom(const std::filesystem::path& path,
+                                         bool flip_vertically = false) {
     if (!utils::FileExists(path)) { return {}; }
     Image image{};
     image.LoadFromPath(path, flip_vertically);
@@ -29,7 +31,7 @@ class Image {
  private:
   using ImagePtr = std::shared_ptr<std::uint8_t[]>;
 
-  void LoadFromPath(const std::string& path, bool flip_vertically) {
+  void LoadFromPath(const std::filesystem::path& path, bool flip_vertically) {
     stbi_set_flip_vertically_on_load(flip_vertically);
     data_ = ImagePtr{
         stbi_load(path.c_str(), &width_, &height_, &number_of_channels_, 0),
