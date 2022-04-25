@@ -32,9 +32,6 @@ void Drawable::Draw() {
   CHECK(program_index_) << "Need a program index to draw.";
 
   program_pool_->UseProgram(program_index_.value());
-  if (color_uniform_index_) {
-    program_pool_->UpdateUniformInActiveProgram(color_uniform_index_, color_);
-  }
 
   if (texture_) { texture_->Bind(); }
 
@@ -45,6 +42,13 @@ void Drawable::Draw() {
   glLineWidth(point_size_);
 
   if (texture_) { texture_->UnBind(); }
+}
+
+void Drawable::ChangeColor(const Eigen::Vector3f& color) noexcept {
+  color_ = color;
+  if (color_uniform_index_) {
+    program_pool_->UpdateUniformInActiveProgram(color_uniform_index_, color_);
+  }
 }
 
 }  // namespace gl
