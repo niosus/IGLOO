@@ -1,6 +1,7 @@
 #include "absl/strings/str_format.h"
 #include "examples/3d_viewer/utils/point_cloud.h"
 #include "gl/scene/drawables/all.h"
+#include "gl/scene/font_pool.h"
 #include "gl/viewer/viewer.h"
 
 #include <Eigen/Geometry>
@@ -21,6 +22,8 @@ using utils::Image;
 int main(int argc, char* argv[]) {
   gl::SceneViewer viewer{"3D Scene Viewer"};
   viewer.Initialize();
+
+  gl::FontPool::Instance().LoadFont("gl/scene/fonts/ubuntu.fnt");
 
   auto& program_pool = viewer.program_pool();
 
@@ -86,8 +89,22 @@ int main(int argc, char* argv[]) {
       texture_face,
       Eigen::Vector2f{0.5F, 0.5F});
 
+  const auto text_3d_drawable =
+      std::make_shared<gl::Text>(&viewer.program_pool(),
+                                 draw_textured_rect_program_index.value(),
+                                 "Hello World",
+                                 "UbuntuNerdFont",
+                                 1.0f);
+
   viewer.Attach(viewer.world_key(), points_drawable);
   viewer.Attach(viewer.camera_key(), camera_center_drawable);
+  viewer.Attach(
+      viewer.world_key(),
+      text_3d_drawable,
+      Eigen::Translation3f{2.0F, 2.0F, 0.0F} *
+          Eigen::AngleAxisf(0.0F, Eigen::Vector3f::UnitX()) *
+          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitY()) *
+          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitZ()));
   viewer.Attach(
       viewer.world_key(),
       texture_3d_drawable,

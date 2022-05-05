@@ -81,30 +81,21 @@ class ScreenRectWithTexture : public Drawable {
   Eigen::Vector2f size_;
 };
 
-// /// Draw text.
-// class Text : public Drawable {
-//  public:
-//   Text(const std::string& text,
-//        const std::string& font_name,
-//        const glow::vec3& pos,
-//        float scale,
-//        Style draw_style);
-//   Text(const std::string& text,
-//        const std::string& font_name,
-//        const glow::vec3& pos,
-//        float scale = 4.0f);
-//   Text(const std::string& text,
-//        const std::string& font_name,
-//        const glow::vec2& pos,
-//        float scale = 0.5f);
-//   void FillBuffers() override;
+/// Draw text.
+class Text : public Drawable {
+ public:
+  Text(ProgramPool* program_pool,
+       ProgramPool::ProgramIndex program_index,
+       const std::string& text,
+       const std::string& font_name,
+       float scale);
+  void FillBuffers() override;
 
-//  private:
-//   std::string text_;
-//   std::string font_name_;
-//   glow::vec3 pos_;
-//   float scale_;
-// };
+ private:
+  std::string text_;
+  std::string font_name_;
+  float scale_;
+};
 
 }  // namespace gl
 
