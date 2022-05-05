@@ -3,7 +3,7 @@
 // Email: <name>.<family_name>@gmail.com.
 
 #include "gl/scene/drawables/all.h"
-
+#include "gl/scene/font_pool.h"
 #include "gl/scene/program_pool.h"
 
 #include <algorithm>
@@ -152,90 +152,85 @@ void ScreenRectWithTexture::FillBuffers() {
   ready_to_draw_ = true;
 }
 
-// Text::Text(const std::string& text,
-//            const std::string& font_name,
-//            const Eigen::Vector3f& pos,
-//            float scale,
-//            Style draw_style)
-//     : Drawable{draw_style, GL_TRIANGLES},
-//       text_{text},
-//       font_name_{font_name},
-//       pos_{pos},
-//       scale_{scale} {}
+Text::Text(ProgramPool* program_pool,
+           ProgramPool::ProgramIndex program_index,
+           const std::string& text,
+           const std::string& font_name,
+           float scale)
+    : Drawable{program_pool, program_index, GL_TRIANGLES},
+      text_{text},
+      font_name_{font_name},
+      scale_{scale} {}
 
-// Text::Text(const std::string& text,
-//            const std::string& font_name,
-//            const Eigen::Vector3f& pos,
-//            float scale)
-//     : Text(text, font_name, pos, scale, Style::DRAW_3D) {}
-// Text::Text(const std::string& text,
-//            const std::string& font_name,
-//            const glow::vec2& pos,
-//            float scale)
-//     : Text(text, font_name, {pos.x, pos.y, -1.0f}, scale, Style::DRAW_2D) {}
+void Text::FillBuffers() {
+  CHECK(program_pool_) << "Cannot fill buffers without a program pool.";
+  CHECK(program_index_) << "Cannot fill buffers without an active program.";
 
-// void Text::FillBuffers() {
-//   CHECK(FontPool::Instance().HasFont(font_name_));
-//   auto font = FontPool::Instance().Get(font_name_);
-//   const cv::Mat& texture = font->texture();
+  CHECK(FontPool::Instance().HasFont(font_name_));
+  auto font = FontPool::Instance().Get(font_name_);
 
-//   program_ = ProgramPool::Get(ProgramPool::ProgramType::DRAW_TEXT);
+  std::vector<Eigen::Vector2f> rect_coords;
+  rect_coords.reserve(text_.size());
+  std::vector<Eigen::Vector2f> texture_coords;
+  texture_coords.reserve(text_.size());
+  float x_start = 0.0f;
+  float y_start = 0.0f;
+  float char_height = 0.0f;
+  for (char c : text_) {
+    if (c == '\n') {
+      x_start = 0.0f;
+      y_start += scale_ * char_height;
+      continue;
+    }
+    if (c == '\t') { c = ' '; }
+    const auto& texture_pos = font->GetCharCoords(c);
+    const float x = texture_pos.x;
+    const float y = texture_pos.y;
+    const float w = texture_pos.width;
+    const float h = texture_pos.height;
 
-//   texture_ = make_unique<glow::GlTexture>(
-//       texture.cols, texture.rows, glow::TextureFormat::RGBA);
-//   texture_->assign(PixelFormat::BGRA, PixelType::UNSIGNED_BYTE,
-//   texture.data);
+    rect_coords.emplace_back(x_start, y_start);
+    rect_coords.emplace_back(x_start, y_start + scale_ * h);
+    rect_coords.emplace_back(x_start + scale_ * w, y_start + scale_ * h);
+    rect_coords.emplace_back(x_start, y_start);
+    rect_coords.emplace_back(x_start + scale_ * w, y_start + scale_ * h);
+    rect_coords.emplace_back(x_start + scale_ * w, y_start);
+    texture_coords.emplace_back(x, y);
+    texture_coords.emplace_back(x, y + h);
+    texture_coords.emplace_back(x + w, y + h);
+    texture_coords.emplace_back(x, y);
+    texture_coords.emplace_back(x + w, y + h);
+    texture_coords.emplace_back(x + w, y);
+    x_start += scale_ * w;
+    if (h < char_height) { char_height = h; }
+  }
 
-//   std::vector<vec2> rect_coords;
-//   rect_coords.reserve(text_.size());
-//   std::vector<vec2> texture_coords;
-//   texture_coords.reserve(text_.size());
-//   float x_start = 0.0f;
-//   float y_start = 0.0f;
-//   float char_height = 0.0f;
-//   for (char c : text_) {
-//     if (c == '\n') {
-//       x_start = 0.0f;
-//       y_start += scale_ * char_height;
-//       continue;
-//     }
-//     if (c == '\t') { c = ' '; }
-//     const auto& texture_pos = font->GetCharCoords(c);
-//     const float x = texture_pos.x;
-//     const float y = texture_pos.y;
-//     const float w = texture_pos.width;
-//     const float h = texture_pos.height;
+  vao_ = std::make_unique<VertexArrayBuffer>();
+  vao_->EnableVertexAttributePointer(
+      0,
+      std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
+                                   gl::Buffer::Usage::kStaticDraw,
+                                   rect_coords));
+  vao_->EnableVertexAttributePointer(
+      1,
+      std::make_shared<gl::Buffer>(gl::Buffer::Type::kArrayBuffer,
+                                   gl::Buffer::Usage::kStaticDraw,
+                                   texture_coords));
 
-//     rect_coords.emplace_back(x_start, y_start);
-//     rect_coords.emplace_back(x_start, y_start + scale_ * h);
-//     rect_coords.emplace_back(x_start + scale_ * w, y_start + scale_ * h);
-//     rect_coords.emplace_back(x_start, y_start);
-//     rect_coords.emplace_back(x_start + scale_ * w, y_start + scale_ * h);
-//     rect_coords.emplace_back(x_start + scale_ * w, y_start);
-//     texture_coords.emplace_back(x, y);
-//     texture_coords.emplace_back(x, y + h);
-//     texture_coords.emplace_back(x + w, y + h);
-//     texture_coords.emplace_back(x, y);
-//     texture_coords.emplace_back(x + w, y + h);
-//     texture_coords.emplace_back(x + w, y);
-//     x_start += scale_ * w;
-//     if (h < char_height) { char_height = h; }
-//   }
+  texture_ = gl::Texture::Builder{gl::Texture::Type::kTexture2D,
+                                  gl::Texture::Identifier::kTexture1}
+                 .WithSaneDefaults()
+                 .WithImage(font->texture())
+                 .Build();
 
-//   num_points_ = rect_coords.size();
+  program_pool_->UseProgram(program_index_.value());
+  (void)program_pool_->SetUniformToActiveProgram("source", 1);
+  model_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "proj_view", Eigen::Matrix4f::Identity());
 
-//   vao_ = make_unique<GlVertexArray>();
-//   vao_->bind();
-//   SetVertexAttribute(0, rect_coords, vao_.get());
-//   SetVertexAttribute(1, texture_coords, vao_.get());
-//   vao_->release();
-
-//   sampler_index_ = 1;
-//   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<int>>("source", sampler_index_));
-//   uniforms_to_override_.emplace_back(
-//       make_unique<GlUniform<vec3>>("anchor", pos_));
-//   ready_to_draw_ = true;
-// }
+  ready_to_draw_ = true;
+}
 
 }  // namespace gl
