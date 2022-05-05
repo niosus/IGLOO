@@ -19,8 +19,8 @@ class SceneGraphTest : public ::testing::Test {
             {"gl/scene/shaders/points.vert", "gl/scene/shaders/simple.frag"}));
     CHECK(points_program_index) << "Could not create program from shaders";
     points_program_index_ = points_program_index.value();
-    default_drawable_ = std::make_shared<Drawable>(
-        &program_pool_, points_program_index_, Drawable::Style::DRAW_3D);
+    default_drawable_ =
+        std::make_shared<Drawable>(&program_pool_, points_program_index_);
   }
 
   ProgramPool program_pool_{};
@@ -42,8 +42,7 @@ TEST_F(SceneGraphTest, ForgetInit) {
   EXPECT_DEATH(
       graph.SceneGraph::Attach(
           world_key,
-          std::make_shared<Drawable>(
-              &program_pool_, points_program_index_, Drawable::Style::DRAW_3D)),
+          std::make_shared<Drawable>(&program_pool_, points_program_index_)),
       "New node must have a parent");
 }
 
@@ -58,8 +57,8 @@ TEST_F(SceneGraphTest, StoringMoreDrawables) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
   EXPECT_EQ(graph.size(), 1);  // This has a world drawable that points to base.
-  auto other_drawable = std::make_shared<Drawable>(
-      &program_pool_, points_program_index_, Drawable::Style::DRAW_3D);
+  auto other_drawable =
+      std::make_shared<Drawable>(&program_pool_, points_program_index_);
   auto key_1 = graph.Attach(world_key, default_drawable_);
   auto key_2 = graph.Attach(world_key, other_drawable);
   EXPECT_EQ(graph.size(), 3u);
@@ -70,8 +69,8 @@ TEST_F(SceneGraphTest, StoringMoreDrawables) {
 TEST_F(SceneGraphTest, Transform) {
   SceneGraph graph;
   graph.RegisterBranchKey(world_key);
-  auto other_drawable = std::make_shared<Drawable>(
-      &program_pool_, points_program_index_, Drawable::Style::DRAW_3D);
+  auto other_drawable =
+      std::make_shared<Drawable>(&program_pool_, points_program_index_);
   auto key_1 = graph.Attach(world_key, default_drawable_);
   Eigen::Isometry3f test_transform = Eigen::Isometry3f::Identity();
   test_transform.translation() = Eigen::Vector3f{1, 1, 1};
@@ -157,16 +156,11 @@ TEST_F(SceneGraphTest, ChainedErase) {
   EXPECT_EQ(graph.size(), 1);
   auto key_1 = graph.Attach(
       world_key,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(&program_pool_, points_program_index_));
   auto key_2 = graph.Attach(
-      key_1,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      key_1, std::make_shared<Drawable>(&program_pool_, points_program_index_));
   auto key_3 = graph.Attach(
-      key_2,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      key_2, std::make_shared<Drawable>(&program_pool_, points_program_index_));
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
   EXPECT_TRUE(graph.HasNode(key_3));
@@ -181,20 +175,13 @@ TEST_F(SceneGraphTest, BroadErase) {
   EXPECT_EQ(graph.size(), 1u);
   auto key_1 = graph.Attach(
       world_key,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      std::make_shared<Drawable>(&program_pool_, points_program_index_));
   auto key_2 = graph.Attach(
-      key_1,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      key_1, std::make_shared<Drawable>(&program_pool_, points_program_index_));
   auto key_3 = graph.Attach(
-      key_1,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      key_1, std::make_shared<Drawable>(&program_pool_, points_program_index_));
   auto key_4 = graph.Attach(
-      key_2,
-      std::make_shared<Drawable>(
-          &program_pool_, points_program_index_, Drawable::Style::DRAW_3D));
+      key_2, std::make_shared<Drawable>(&program_pool_, points_program_index_));
   EXPECT_TRUE(graph.HasNode(key_1));
   EXPECT_TRUE(graph.HasNode(key_2));
   EXPECT_TRUE(graph.HasNode(key_3));
