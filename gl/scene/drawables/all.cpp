@@ -122,6 +122,36 @@ void RectWithTexture::FillBuffers() {
   ready_to_draw_ = true;
 }
 
+ScreenRectWithTexture::ScreenRectWithTexture(
+    ProgramPool* program_pool,
+    ProgramPool::ProgramIndex program_index,
+    std::shared_ptr<gl::Texture> texture,
+    const Eigen::Vector2f& size)
+    : Drawable{program_pool, program_index, GL_POINTS}, size_{size} {
+  texture_ = texture;
+}
+
+void ScreenRectWithTexture::FillBuffers() {
+  CHECK(program_pool_) << "Cannot fill buffers without a program pool.";
+  CHECK(program_index_) << "Cannot fill buffers without an active program.";
+
+  const std::vector<Eigen::Vector3f> raw = {{0.0F, 0.0F, 0.0F}};
+  vao_ = std::make_unique<VertexArrayBuffer>();
+  vao_->EnableVertexAttributePointer(
+      0,
+      std::make_shared<gl::Buffer>(
+          gl::Buffer::Type::kArrayBuffer, gl::Buffer::Usage::kStaticDraw, raw));
+
+  program_pool_->UseProgram(program_index_.value());
+  (void)program_pool_->SetUniformToActiveProgram("source", 0);
+  (void)program_pool_->SetUniformToActiveProgram("rect_size", size_);
+  model_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "model", Eigen::Matrix4f::Identity());
+  projection_view_uniform_index_ = program_pool_->SetUniformToActiveProgram(
+      "proj_view", Eigen::Matrix4f::Identity());
+  ready_to_draw_ = true;
+}
+
 // Text::Text(const std::string& text,
 //            const std::string& font_name,
 //            const Eigen::Vector3f& pos,

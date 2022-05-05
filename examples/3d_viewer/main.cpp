@@ -40,6 +40,12 @@ int main(int argc, char* argv[]) {
                                    "gl/scene/shaders/texture.geom",
                                    "gl/scene/shaders/texture.frag"}));
   CHECK(draw_textured_rect_program_index.has_value());
+  const auto draw_textured_rect_on_screen_program_index =
+      program_pool.AddProgramFromShaders(
+          Shader::CreateFromFiles({"gl/scene/shaders/texture.vert",
+                                   "gl/scene/shaders/texture_on_screen.geom",
+                                   "gl/scene/shaders/texture.frag"}));
+  CHECK(draw_textured_rect_on_screen_program_index.has_value());
   const auto draw_text_program_index =
       program_pool.AddProgramFromShaders(Shader::CreateFromFiles(
           {"gl/scene/shaders/text.vert", "gl/scene/shaders/texture.frag"}));
@@ -74,6 +80,12 @@ int main(int argc, char* argv[]) {
       texture_face,
       Eigen::Vector2f{1.0F, 1.0F});
 
+  const auto texture_2d_drawable = std::make_shared<gl::RectWithTexture>(
+      &viewer.program_pool(),
+      draw_textured_rect_on_screen_program_index.value(),
+      texture_face,
+      Eigen::Vector2f{0.5F, 0.5F});
+
   viewer.Attach(viewer.world_key(), points_drawable);
   viewer.Attach(viewer.camera_key(), camera_center_drawable);
   viewer.Attach(
@@ -90,6 +102,7 @@ int main(int argc, char* argv[]) {
           Eigen::AngleAxisf(0.0F, Eigen::Vector3f::UnitX()) *
           Eigen::AngleAxisf(0.0, Eigen::Vector3f::UnitY()) *
           Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitZ()));
+  viewer.AttachToScreen(texture_2d_drawable, {0.5f, 0.5f});
 
   viewer.camera().LookAt({0.0f, 0.0f, 0.0f}, {-10.0f, 0.0f, 3.0f});
 

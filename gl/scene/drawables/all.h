@@ -68,6 +68,19 @@ class RectWithTexture : public Drawable {
   Eigen::Vector2f size_;
 };
 
+/// Draw a rectangle with a texture attached to it.
+class ScreenRectWithTexture : public Drawable {
+ public:
+  ScreenRectWithTexture(ProgramPool* program_pool,
+                        ProgramPool::ProgramIndex program_index,
+                        std::shared_ptr<gl::Texture> texture,
+                        const Eigen::Vector2f& size = {1.0f, 1.0f});
+  void FillBuffers() override;
+
+ private:
+  Eigen::Vector2f size_;
+};
+
 // /// Draw text.
 // class Text : public Drawable {
 //  public:

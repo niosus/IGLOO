@@ -35,8 +35,18 @@ class SceneViewer {
       gl::Drawable::SharedPtr drawable,
       const Eigen::Isometry3f& tf_parent_from_local =
           Eigen::Isometry3f::Identity()) {
-    auto new_key = graph_.Attach(parent_key, drawable, tf_parent_from_local);
-    return new_key;
+    return graph_.Attach(parent_key, drawable, tf_parent_from_local);
+  }
+
+  /// Attach a new drawable to a parent within the screen space with a relative
+  /// transformation from child to parent.
+  inline gl::SceneGraph::Key AttachToScreen(
+      gl::Drawable::SharedPtr drawable,
+      const Eigen::Vector2f& tf_parent_from_local = Eigen::Vector2f::Zero()) {
+    Eigen::Isometry3f position_isometry{Eigen::Isometry3f::Identity()};
+    position_isometry.translation().x() = tf_parent_from_local.x();
+    position_isometry.translation().y() = tf_parent_from_local.y();
+    return Attach(viewport_key(), drawable, position_isometry);
   }
 
   gl::Camera& camera() { return camera_; }
