@@ -1,8 +1,10 @@
 #ifndef OPENGL_TUTORIALS_GL_UI_GLFW_MOUSE_EVENT_HANDLER_H_
 #define OPENGL_TUTORIALS_GL_UI_GLFW_MOUSE_EVENT_HANDLER_H_
 
-#include "GLFW/glfw3.h"
 #include "gl/ui/core/user_input_handler.h"
+
+#include "glad/gl.h"
+#include "GLFW/glfw3.h"
 #include "glog/logging.h"
 
 #include <array>

@@ -1,0 +1,4 @@
+InlayHints:
+  Enabled: No
+  ParameterNames: Yes
+  DeducedTypes: No

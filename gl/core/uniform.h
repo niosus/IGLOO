@@ -1,6 +1,7 @@
 #ifndef OPENGL_TUTORIALS_CORE_GL_UNIFORM_H_
 #define OPENGL_TUTORIALS_CORE_GL_UNIFORM_H_
 
+#include "gl/core/init.h"
 #include "gl/core/opengl_object.h"
 #include "gl/core/traits.h"
 #include "utils/type_traits.h"
@@ -17,7 +18,9 @@ class Uniform : public OpenGlObject {
   Uniform(const std::string& name, std::uint32_t program_id)
       : OpenGlObject{0},
         name_{name},
-        location_{glGetUniformLocation(program_id, name_.c_str())} {}
+        location_{glGetUniformLocation(program_id, name_.c_str())} {
+    CheckGlError();
+  }
 
   GLint location() const noexcept { return location_; }
 

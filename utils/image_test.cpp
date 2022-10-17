@@ -1,3 +1,4 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include "utils/image.h"
 #include "gtest/gtest.h"
 

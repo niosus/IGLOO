@@ -1,0 +1,21 @@
+[submodule "submodules/glfw"]
+	path = submodules/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "submodules/eigen"]
+	path = submodules/eigen
+	url = https://github.com/libigl/eigen.git
+[submodule "submodules/abseil"]
+	path = submodules/abseil
+	url = https://github.com/abseil/abseil-cpp.git
+[submodule "submodules/stb"]
+	path = submodules/stb
+	url = https://github.com/nothings/stb.git
+[submodule "submodules/googletest"]
+	path = submodules/googletest
+	url = https://github.com/google/googletest.git
+[submodule "submodules/glog"]
+	path = submodules/glog
+	url = https://github.com/google/glog.git
+[submodule "submodules/glad"]
+	path = submodules/glad
+	url = https://github.com/Dav1dde/glad.git

@@ -33,6 +33,8 @@ bazel test --test_output=errors --test_env=DISPLAY=:0 //...  # test
 
 ### Prerequisites
 
+TODO: requires jinja2 to be installed
+
 The build is not fully hermetic and relies on some libraries present on your
 system. On Ubuntu 20.04 you would need to install some libraries. You can
 find the list in the [build job script](.github/workflows/main.yml).
