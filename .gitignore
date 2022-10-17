@@ -1,4 +1,7 @@
+.cache/
+.vscode/
 build/
+build_*/
 bazel-*
 /compile_commands.json
 /opengl_tutorial.sublime-workspace

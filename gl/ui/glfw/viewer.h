@@ -1,9 +1,9 @@
 #ifndef OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 #define OPENGL_TUTORIALS_UI_GLFW_VIEWER_H_
 
-#include "gl/core/opengl_object.h"
 #include "gl/ui/glfw/glfw_user_input_handler.h"
 
+#include "glad/gl.h"
 #include "GLFW/glfw3.h"
 
 #include <functional>

@@ -1,4 +1,5 @@
 #version 330 core
+
 uniform float dummy_value_dim_1;
 uniform vec2 dummy_value_dim_2;
 uniform vec3 dummy_value_dim_3;

@@ -3,12 +3,14 @@
 #include "gl/scene/drawables/all.h"
 #include "gl/viewer/viewer.h"
 
+#include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <ostream>
 #include <vector>
+#include <cmath>
 
 namespace {
 
@@ -93,15 +95,15 @@ int main(int argc, char* argv[]) {
       texture_3d_drawable,
       Eigen::Translation3f{5.0F, 0.0F, 0.0F} *
           Eigen::AngleAxisf(0.0F, Eigen::Vector3f::UnitX()) *
-          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitY()) *
-          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitZ()));
+          Eigen::AngleAxisf(-0.5F * M_PI, Eigen::Vector3f::UnitY()) *
+          Eigen::AngleAxisf(-0.5F * M_PI, Eigen::Vector3f::UnitZ()));
   viewer.Attach(
       viewer.world_key(),
       texture_3d_drawable,
       Eigen::Translation3f{-1.0F, -1.0F, 2.0F} *
           Eigen::AngleAxisf(0.0F, Eigen::Vector3f::UnitX()) *
           Eigen::AngleAxisf(0.0, Eigen::Vector3f::UnitY()) *
-          Eigen::AngleAxisf(-0.5F * M_PIf32, Eigen::Vector3f::UnitZ()));
+          Eigen::AngleAxisf(-0.5F * M_PI, Eigen::Vector3f::UnitZ()));
   viewer.AttachToScreen(texture_2d_drawable, {0.5f, 0.5f});
 
   viewer.camera().LookAt({0.0f, 0.0f, 0.0f}, {-10.0f, 0.0f, 3.0f});

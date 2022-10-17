@@ -6,6 +6,7 @@
 #define OPENGL_TUTORIALS_GL_UI_CORE_UX_INPUT_INTERFACE_H_
 
 #include <functional>
+#include <vector>
 #include <set>
 
 namespace gl {

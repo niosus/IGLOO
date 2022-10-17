@@ -30,48 +30,71 @@ class UniformTest : public ::testing::Test {
 TEST_F(UniformTest, Init) {
   Uniform uniform{"dummy_value_dim_1", program_->id()};
   EXPECT_EQ("dummy_value_dim_1", uniform.name());
-  EXPECT_EQ(uniform.location(), 0);
+  EXPECT_EQ(uniform.location(),
+            glGetUniformLocation(program_->id(), "dummy_value_dim_1"));
 }
 
 TEST_F(UniformTest, UpdateValueFromPack) {
   Uniform uniform_1{"dummy_value_dim_1", program_->id()};
-  EXPECT_EQ(uniform_1.location(), 0);
   uniform_1.UpdateValue(1.0f);
+  float value[4] = {42.0f, 42.0f, 42.0f, 42.0f};
+  glGetUniformfv(program_->id(), uniform_1.location(), value);
+  EXPECT_FLOAT_EQ(value[0], 1.0f);
+  EXPECT_FLOAT_EQ(value[1], 42.0f);
   Uniform uniform_2{"dummy_value_dim_2", program_->id()};
-  EXPECT_EQ(uniform_2.location(), 1);
-  uniform_2.UpdateValue(1.0f, 2.0f);
+  uniform_2.UpdateValue(1.1f, 2.2f);
+  glGetUniformfv(program_->id(), uniform_2.location(), value);
+  EXPECT_FLOAT_EQ(value[0], 1.1f);
+  EXPECT_FLOAT_EQ(value[1], 2.2f);
+  EXPECT_FLOAT_EQ(value[2], 42.0f);
   Uniform uniform_3{"dummy_value_dim_3", program_->id()};
-  EXPECT_EQ(uniform_3.location(), 2);
-  uniform_3.UpdateValue(1.0f, 2.0f, 3.0f);
+  uniform_3.UpdateValue(1.11f, 2.22f, 3.33f);
+  glGetUniformfv(program_->id(), uniform_3.location(), value);
+  EXPECT_FLOAT_EQ(value[0], 1.11f);
+  EXPECT_FLOAT_EQ(value[1], 2.22f);
+  EXPECT_FLOAT_EQ(value[2], 3.33f);
+  EXPECT_FLOAT_EQ(value[3], 42.0f);
   Uniform uniform_4{"dummy_value_dim_4", program_->id()};
-  EXPECT_EQ(uniform_4.location(), 3);
   uniform_4.UpdateValue(1.0f, 2.0f, 3.0f, 4.0f);
+  glGetUniformfv(program_->id(), uniform_4.location(), value);
+  EXPECT_FLOAT_EQ(value[0], 1.0f);
+  EXPECT_FLOAT_EQ(value[1], 2.0f);
+  EXPECT_FLOAT_EQ(value[2], 3.0f);
+  EXPECT_FLOAT_EQ(value[3], 4.0f);
 }
 
 TEST_F(UniformTest, UpdateValueFromEigenMat) {
   Uniform uniform_2{"dummy_value_dim_2", program_->id()};
-  EXPECT_EQ(uniform_2.location(), 1);
   uniform_2.UpdateValue(Eigen::Vector2f{1.0f, 2.0f});
+  float values_2[2] = {42.0f, 42.0f};
+  glGetUniformfv(program_->id(), uniform_2.location(), values_2);
+  EXPECT_FLOAT_EQ(values_2[0], 1.0f);
+  EXPECT_FLOAT_EQ(values_2[1], 2.0f);
   Uniform uniform_3{"dummy_value_dim_3", program_->id()};
-  EXPECT_EQ(uniform_3.location(), 2);
   uniform_3.UpdateValue(Eigen::Vector3f{1.0f, 2.0f, 3.0f});
+  float values_3[3] = {42.0f, 42.0f, 42.0f};
+  glGetUniformfv(program_->id(), uniform_3.location(), values_3);
+  EXPECT_FLOAT_EQ(values_3[0], 1.0f);
+  EXPECT_FLOAT_EQ(values_3[1], 2.0f);
+  EXPECT_FLOAT_EQ(values_3[2], 3.0f);
   Uniform uniform_4{"dummy_value_dim_4", program_->id()};
-  EXPECT_EQ(uniform_4.location(), 3);
   uniform_4.UpdateValue(Eigen::Vector4f{1.0f, 2.0f, 3.0f, 4.0f});
+  float values_4[4] = {42.0f, 42.0f, 42.0f, 42.0f};
+  glGetUniformfv(program_->id(), uniform_4.location(), values_4);
+  EXPECT_FLOAT_EQ(values_4[0], 1.0f);
+  EXPECT_FLOAT_EQ(values_4[1], 2.0f);
+  EXPECT_FLOAT_EQ(values_4[2], 3.0f);
+  EXPECT_FLOAT_EQ(values_4[3], 4.0f);
 }
 
 TEST_F(UniformTest, UpdateValueFromPackOfIntegers) {
   Uniform uniform_1{"i_dummy_value_dim_1", program_->id()};
-  EXPECT_EQ(uniform_1.location(), 4);
   uniform_1.UpdateValue(1);
   Uniform uniform_2{"i_dummy_value_dim_2", program_->id()};
-  EXPECT_EQ(uniform_2.location(), 5);
   uniform_2.UpdateValue(1, 2);
   Uniform uniform_3{"i_dummy_value_dim_3", program_->id()};
-  EXPECT_EQ(uniform_3.location(), 6);
   uniform_3.UpdateValue(1, 2, 3);
   Uniform uniform_4{"i_dummy_value_dim_4", program_->id()};
-  EXPECT_EQ(uniform_4.location(), 7);
   uniform_4.UpdateValue(1, 2, 3, 4);
 }
 
@@ -134,5 +157,5 @@ TEST_F(UniformTest, EverythingIsPossibleWithNonExistingUniform) {
 
 TEST(UniformDeathTest, InitWithoutProgram) {
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-  EXPECT_DEBUG_DEATH(Uniform("some_name", 0), ".*GL_INVALID_VALUE.*");
+  EXPECT_DEBUG_DEATH(Uniform("some_name", 666), ".*GL_INVALID_VALUE.*");
 }

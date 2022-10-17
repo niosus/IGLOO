@@ -36,8 +36,7 @@ bool Viewer::Initialize(const WindowSize& window_size,
                              nullptr);
   if (!window_) { return false; }
   glfwMakeContextCurrent(window_);
-
-  InitializeGlContext(glfwGetProcAddress);
+  gladLoadGL(glfwGetProcAddress);
 
   glfwSetFramebufferSizeCallback(window_, Viewer::OnResize);
   Resize(window_size);
